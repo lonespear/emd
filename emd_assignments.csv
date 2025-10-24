@@ -1,0 +1,447 @@
+soldier_id,soldier_base,soldier_rank,soldier_rank_num,soldier_mos,soldier_skill,soldier_clearance,soldier_airborne,soldier_language,soldier_available,billet_id,billet_base,billet_priority,billet_mos_req,billet_min_rank,billet_max_rank,billet_skill_req,billet_clear_req,billet_airborne_req,billet_language_req,billet_start,pair_cost,uic,duty_position,para_line,capability_name,team_position,capability_instance
+6,JBLM,E-7,7,12B,5,Secret,1,Spanish,2025-11-05,570,Guam,3,12B,E-7,E-7,1,Secret,0,None,2025-11-22,3900.0,WFF01A,Platoon Sergeant (PLT 3),03AB,Sapper Team,member_1,1
+471,JBLM,E-7,7,11B,5,Secret,0,None,2025-10-29,373,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,3900.0,WFF02C,Platoon Sergeant (PLT 3),03AB,Infantry Company,member_14,2
+470,JBLM,E-7,7,11B,5,Secret,0,None,2025-11-18,372,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,3900.0,WFF02C,Platoon Sergeant (PLT 1),01AB,Infantry Company,member_13,2
+8,JBLM,E-7,7,12B,5,Secret,0,French,2025-12-25,571,Guam,3,12B,E-7,E-7,1,Secret,0,None,2025-11-22,5500.0,WFF01A,Platoon Sergeant (PLT 2),02AB,Sapper Team,member_2,1
+467,JBLM,E-8,8,11B,5,Secret,0,Spanish,2025-12-08,374,Guam,3,11B,E-8,E-8,1,Secret,0,None,2025-11-22,5500.0,WFF02C,First Sergeant,00AC,Infantry Company,leader,3
+469,JBLM,E-7,7,11B,4,Secret,0,None,2025-11-29,371,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,5500.0,WFF02C,Platoon Sergeant (PLT 2),02AB,Infantry Company,member_12,2
+210,JBLM,E-7,7,35M,5,TS,1,None,2025-10-31,193,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,9900.0,WFF01D,HUMINT Section Lead,02AA,Infantry Company,member_2,2
+211,JBLM,E-7,7,35N,4,TS,0,None,2025-10-26,194,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,9900.0,WFF01D,SIGINT Section Lead,03AA,Infantry Company,member_3,2
+286,JBLM,E-7,7,12B,5,Secret,1,None,2025-11-07,229,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,9900.0,WFF02A,Platoon Sergeant (PLT 1),01AB,Infantry Company,member_5,2
+381,JBLM,E-7,7,12B,5,Secret,0,None,2025-11-29,304,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,11500.0,WFF02B,Platoon Sergeant (PLT 3),03AB,Infantry Company,member_5,1
+289,JBLM,E-7,7,12B,4,Secret,1,None,2025-12-20,232,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,11500.0,WFF02A,Platoon Sergeant (PLT 3),03AB,Infantry Company,member_8,2
+281,JBLM,E-8,8,12B,4,Secret,0,None,2025-12-20,239,Guam,3,11B,E-8,E-8,1,Secret,0,None,2025-11-22,11500.0,WFF02A,First Sergeant,00AC,Infantry Company,leader,3
+95,JBLM,E-7,7,35M,5,TS,0,French,2025-12-20,458,Guam,3,35F,E-7,E-7,1,Secret,0,None,2025-11-22,11500.0,WFF01B,HUMINT Section Lead,02AA,MI Team,member_9,2
+169,JBLM,E-7,7,13D,5,Secret,0,None,2026-01-10,160,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,11500.0,WFF01C,FDC Chief,01AA,Infantry Company,member_5,1
+542,JBLM,E-7,7,13D,5,Secret,1,Spanish,2025-11-30,468,Guam,3,35F,E-7,E-7,1,Secret,0,None,2025-11-22,11500.0,WFF02D,FDC Chief,01AA,MI Team,member_4,3
+541,JBLM,E-8,8,13B,4,Secret,0,None,2026-01-19,479,Guam,3,68W,E-8,E-8,1,Secret,0,None,2025-11-22,11500.0,WFF02D,First Sergeant,00AC,Medical Team,leader,1
+483,JBLM,E-5,5,11B,2,Secret,0,None,2025-10-26,383,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,13300.0,WFF02C,Team Leader 1 (PLT2/SQD3),02FB,Infantry Company,member_9,3
+503,JBLM,E-6,6,11B,4,Secret,0,Spanish,2025-11-09,109,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,13300.0,WFF02C,Squad Leader (PLT2/SQD1),02DA,Infantry Company,member_8,1
+502,JBLM,E-5,5,11B,2,Secret,1,Spanish,2025-11-04,108,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,13300.0,WFF02C,Team Leader 1 (PLT1/SQD1),01DB,Infantry Company,member_7,1
+478,JBLM,E-5,5,11B,3,Secret,0,None,2025-11-05,380,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,13300.0,WFF02C,Team Leader 1 (PLT2/SQD1),02DB,Infantry Company,member_6,3
+501,JBLM,E-5,5,11B,3,Secret,1,None,2025-10-26,107,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,13300.0,WFF02C,Team Leader 2 (PLT1/SQD3),01FE,Infantry Company,member_6,1
+485,JBLM,E-5,5,11B,2,Secret,1,Arabic,2025-11-21,385,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,13300.0,WFF02C,Team Leader 2 (PLT2/SQD3),02FE,Infantry Company,member_11,3
+487,JBLM,E-5,5,11B,3,Secret,0,None,2025-11-01,386,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,13300.0,WFF02C,Team Leader 1 (PLT1/SQD3),01FB,Infantry Company,member_12,3
+504,JBLM,E-4,4,11B,2,Secret,1,None,2025-11-03,110,Guam,3,11B,E-8,E-8,1,Secret,0,None,2025-11-22,13900.0,WFF02C,Automatic Rifleman (PLT2/SQD2),02EF,Infantry Company,leader,2
+534,JBLM,E-3,3,11B,1,Secret,1,None,2025-11-09,129,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,13900.0,WFF02C,Rifleman (PLT1/SQD3),01FG,Infantry Company,member_1,1
+516,JBLM,E-4,4,11B,2,Secret,0,French,2025-10-27,117,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,13900.0,WFF02C,Automatic Rifleman (PLT1/SQD2),01EF,Infantry Company,member_7,2
+521,JBLM,E-3,3,11B,1,Secret,0,None,2025-10-27,121,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,13900.0,WFF02C,Grenadier (PLT3/SQD3),03FD,Infantry Company,member_2,3
+522,JBLM,E-3,3,11B,1,Secret,0,None,2025-11-04,122,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,13900.0,WFF02C,Rifleman (PLT1/SQD2),01EC,Infantry Company,member_3,3
+527,JBLM,E-3,3,11B,1,Secret,0,None,2025-11-12,124,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,13900.0,WFF02C,Grenadier (PLT1/SQD3),01FD,Infantry Company,member_5,3
+38,JBLM,E-3,3,12B,1,Secret,0,None,2025-11-16,596,Guam,3,12B,E-7,E-7,1,Secret,0,None,2025-11-22,13900.0,WFF01A,Engineer 51,99ZB,Sapper Team,member_12,2
+40,JBLM,E-3,3,12B,1,Secret,0,None,2025-11-08,598,Guam,3,12B,E-7,E-7,1,Secret,0,None,2025-11-22,13900.0,WFF01A,Engineer 40,99OB,Sapper Team,member_14,2
+32,JBLM,E-5,5,12B,2,Secret,1,None,2025-11-07,592,Guam,3,12B,E-7,E-7,1,Secret,0,None,2025-11-22,13900.0,WFF01A,Engineer 97,99TD,Sapper Team,member_8,2
+494,JBLM,E-5,5,11B,3,Secret,1,Spanish,2025-11-14,103,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,13900.0,WFF02C,Team Leader 1 (PLT3/SQD2),03EB,Infantry Company,member_2,1
+115,JBLM,E-4,4,35F,1,TS,1,None,2025-10-30,397,Guam,3,35F,E-7,E-7,1,Secret,0,None,2025-11-22,13900.0,WFF01B,Analyst/Collector 62,99KC,MI Team,member_8,1
+105,JBLM,E-3,3,35F,1,TS,0,None,2025-11-04,392,Guam,3,35F,E-7,E-7,1,Secret,0,None,2025-11-22,13900.0,WFF01B,Analyst/Collector 50,99YB,MI Team,member_3,1
+138,JBLM,E-3,3,35F,1,TS,0,None,2025-11-12,401,Guam,3,35F,E-7,E-7,1,Secret,0,None,2025-11-22,13900.0,WFF01B,Analyst/Collector 16,99QA,MI Team,member_12,1
+104,JBLM,E-4,4,35F,2,TS,1,None,2025-11-04,391,Guam,3,35F,E-7,E-7,1,Secret,0,None,2025-11-22,13900.0,WFF01B,Analyst/Collector 41,99PB,MI Team,member_2,1
+505,JBLM,E-4,4,11B,2,Secret,1,None,2025-11-18,111,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,13900.0,WFF02C,Automatic Rifleman (PLT3/SQD2),03EF,Infantry Company,member_1,2
+509,JBLM,E-4,4,11B,2,Secret,1,French,2025-11-08,113,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,13900.0,WFF02C,Automatic Rifleman (PLT1/SQD3),01FF,Infantry Company,member_3,2
+506,JBLM,E-4,4,11B,1,Secret,1,None,2025-10-24,112,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,13900.0,WFF02C,Automatic Rifleman (PLT3/SQD1),03DF,Infantry Company,member_2,2
+143,JBLM,E-4,4,35F,2,TS,1,None,2025-11-07,402,Guam,3,35F,E-7,E-7,1,Secret,0,None,2025-11-22,13900.0,WFF01B,Analyst/Collector 21,99VA,MI Team,member_13,1
+512,JBLM,E-4,4,11B,1,Secret,0,None,2025-10-23,116,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,13900.0,WFF02C,Company RTO,00AD,Infantry Company,member_6,2
+482,JBLM,E-5,5,11B,3,Secret,1,Spanish,2025-11-03,382,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,13900.0,WFF02C,Team Leader 2 (PLT2/SQD2),02EE,Infantry Company,member_8,3
+511,JBLM,E-4,4,11B,1,Secret,0,None,2025-10-26,115,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,13900.0,WFF02C,Automatic Rifleman (PLT2/SQD3),02FF,Infantry Company,member_5,2
+277,JBLM,E-3,3,35F,1,TS,0,None,2025-10-27,432,Guam,3,35F,E-7,E-7,1,Secret,0,None,2025-11-22,13900.0,WFF01D,Analyst/Collector 42,99QB,MI Team,member_13,3
+20,JBLM,E-6,6,12B,3,Secret,0,None,2025-11-07,580,Guam,3,12B,E-7,E-7,1,Secret,0,None,2025-11-22,13900.0,WFF01A,Squad Leader (PLT3/SQD1),03CA,Sapper Team,member_11,1
+22,JBLM,E-3,3,12B,1,Secret,1,Arabic,2025-11-09,582,Guam,3,12B,E-7,E-7,1,Secret,0,None,2025-11-22,13900.0,WFF01A,Engineer 58,99GC,Sapper Team,member_13,1
+14,JBLM,E-6,6,12B,4,Secret,0,None,2025-11-11,576,Guam,3,12B,E-7,E-7,1,Secret,0,None,2025-11-22,13900.0,WFF01A,Squad Leader (PLT1/SQD2),01DA,Sapper Team,member_7,1
+214,JBLM,E-3,3,35F,1,TS,0,French,2025-11-12,410,Guam,3,35F,E-7,E-7,1,Secret,0,None,2025-11-22,13900.0,WFF01D,Analyst/Collector 72,99UC,MI Team,member_6,2
+220,JBLM,E-3,3,35F,1,TS,1,None,2025-10-26,413,Guam,3,35F,E-7,E-7,1,Secret,0,None,2025-11-22,13900.0,WFF01D,Analyst/Collector 49,99XB,MI Team,member_9,2
+259,JBLM,E-5,5,35F,2,TS,0,Spanish,2025-11-01,426,Guam,3,35F,E-7,E-7,1,Secret,0,None,2025-11-22,13900.0,WFF01D,Analyst/Collector 45,99TB,MI Team,member_7,3
+222,JBLM,E-4,4,35F,2,TS,0,None,2025-11-08,415,Guam,3,35F,E-7,E-7,1,Secret,0,None,2025-11-22,13900.0,WFF01D,Analyst/Collector 33,99HB,MI Team,member_11,2
+260,JBLM,E-3,3,35F,1,TS,0,Spanish,2025-11-10,427,Guam,3,35F,E-7,E-7,1,Secret,0,None,2025-11-22,13900.0,WFF01D,Analyst/Collector 36,99KB,MI Team,member_8,3
+247,JBLM,E-5,5,35F,2,TS,0,None,2025-10-27,423,Guam,3,35F,E-7,E-7,1,Secret,0,None,2025-11-22,13900.0,WFF01D,Analyst/Collector 23,99XA,MI Team,member_4,3
+499,JBLM,E-5,5,11B,2,Secret,0,None,2025-11-09,106,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,13900.0,WFF02C,Team Leader 2 (PLT3/SQD2),03EE,Infantry Company,member_5,1
+497,JBLM,E-5,5,11B,3,Secret,0,None,2025-10-26,105,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,13900.0,WFF02C,Team Leader 1 (PLT3/SQD1),03DB,Infantry Company,member_4,1
+53,JBLM,E-4,4,12B,2,Secret,1,None,2025-11-03,608,Guam,3,12B,E-7,E-7,1,Secret,0,None,2025-11-22,13900.0,WFF01A,Engineer 63,99LC,Sapper Team,member_9,3
+48,JBLM,E-4,4,12B,1,Secret,0,None,2025-11-17,605,Guam,3,12B,E-7,E-7,1,Secret,0,None,2025-11-22,13900.0,WFF01A,Engineer 83,99FD,Sapper Team,member_6,3
+60,JBLM,E-5,5,12B,2,Secret,0,Spanish,2025-11-22,612,Guam,3,12B,E-7,E-7,1,Secret,0,None,2025-11-22,13900.0,WFF01A,Engineer 85,99HD,Sapper Team,member_13,3
+518,JBLM,E-3,3,11B,1,Secret,0,French,2025-10-24,119,Guam,3,11B,E-8,E-8,1,Secret,0,None,2025-11-22,13900.0,WFF02C,Rifleman (PLT1/SQD3),01FC,Infantry Company,leader,3
+533,JBLM,E-3,3,11B,1,Secret,1,Spanish,2025-11-06,128,Guam,3,11B,E-8,E-8,1,Secret,0,None,2025-11-22,13900.0,WFF02C,Rifleman (PLT3/SQD3),03FC,Infantry Company,leader,1
+39,JBLM,E-3,3,12B,1,Secret,0,None,2025-11-16,597,Guam,3,12B,E-7,E-7,1,Secret,0,None,2025-11-22,13900.0,WFF01A,Combat Engineer,02DD,Sapper Team,member_13,2
+50,JBLM,E-5,5,12B,2,Secret,0,None,2025-11-08,606,Guam,3,12B,E-7,E-7,1,Secret,0,None,2025-11-22,13900.0,WFF01A,Engineer 69,99RC,Sapper Team,member_7,3
+41,JBLM,E-3,3,12B,1,Secret,0,French,2025-11-04,599,Guam,3,12B,E-8,E-8,1,Secret,0,None,2025-11-22,13900.0,WFF01A,Engineer 96,99SD,Sapper Team,leader,3
+244,JBLM,E-5,5,35F,2,TS,0,French,2025-11-13,421,Guam,3,35F,E-7,E-7,1,Secret,0,None,2025-11-22,13900.0,WFF01D,Analyst/Collector 64,99MC,MI Team,member_2,3
+15,JBLM,E-5,5,12B,3,Secret,0,None,2025-11-22,577,Guam,3,12B,E-7,E-7,1,Secret,0,None,2025-11-22,13900.0,WFF01A,Combat Engineer,01DB,Sapper Team,member_8,1
+253,JBLM,E-6,6,35F,4,TS,0,None,2025-11-17,425,Guam,3,35F,E-7,E-7,1,Secret,0,None,2025-11-22,13900.0,WFF01D,Senior Analyst,01AB,MI Team,member_6,3
+493,JBLM,E-6,6,11B,4,Secret,1,None,2026-01-03,102,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,14900.0,WFF02C,Squad Leader (PLT2/SQD3),02FA,Infantry Company,member_1,1
+481,JBLM,E-5,5,11B,2,Secret,0,Spanish,2025-11-28,381,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,14900.0,WFF02C,Team Leader 2 (PLT1/SQD1),01DE,Infantry Company,member_7,3
+476,JBLM,E-6,6,11B,3,Secret,0,None,2025-11-28,378,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,14900.0,WFF02C,Squad Leader (PLT1/SQD3),01FA,Infantry Company,member_4,3
+477,JBLM,E-5,5,11B,3,Secret,1,None,2025-12-29,379,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,14900.0,WFF02C,Team Leader 2 (PLT2/SQD1),02DE,Infantry Company,member_5,3
+496,JBLM,E-6,6,11B,4,Secret,0,None,2026-01-05,104,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,14900.0,WFF02C,Squad Leader (PLT1/SQD1),01DA,Infantry Company,member_3,1
+490,JBLM,E-5,5,11B,3,Secret,0,Arabic,2026-01-14,388,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,15100.0,WFF02C,Team Leader 2 (PLT1/SQD2),01EE,Infantry Company,member_14,3
+491,JBLM,E-6,6,11B,3,Secret,1,French,2025-12-01,101,Guam,3,11B,E-8,E-8,1,Secret,0,None,2025-11-22,15100.0,WFF02C,Squad Leader (PLT1/SQD2),01EA,Infantry Company,leader,1
+484,JBLM,E-5,5,11B,2,Secret,1,None,2025-11-27,384,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,15500.0,WFF02C,Team Leader 1 (PLT2/SQD2),02EB,Infantry Company,member_10,3
+161,JBLM,E-3,3,35F,1,TS,0,None,2025-12-06,408,Guam,3,35F,E-7,E-7,1,Secret,0,None,2025-11-22,15500.0,WFF01B,Analyst/Collector 71,99TC,MI Team,member_4,2
+154,JBLM,E-3,3,35F,1,TS,1,Spanish,2026-01-13,406,Guam,3,35F,E-7,E-7,1,Secret,0,None,2025-11-22,15500.0,WFF01B,Analyst/Collector 78,99AD,MI Team,member_2,2
+155,JBLM,E-5,5,35F,2,TS,0,Spanish,2025-11-29,407,Guam,3,35F,E-7,E-7,1,Secret,0,None,2025-11-22,15500.0,WFF01B,Analyst/Collector 72,99UC,MI Team,member_3,2
+151,JBLM,E-3,3,35F,1,TS,1,Arabic,2025-12-15,405,Guam,3,35F,E-7,E-7,1,Secret,0,None,2025-11-22,15500.0,WFF01B,Analyst/Collector 43,99RB,MI Team,member_1,2
+131,JBLM,E-4,4,35F,2,TS,0,None,2025-11-25,400,Guam,3,35F,E-7,E-7,1,Secret,0,None,2025-11-22,15500.0,WFF01B,Analyst/Collector 57,99FC,MI Team,member_11,1
+144,JBLM,E-3,3,35F,1,TS,1,None,2025-12-25,403,Guam,3,35F,E-7,E-7,1,Secret,0,None,2025-11-22,15500.0,WFF01B,Analyst/Collector 18,99SA,MI Team,member_14,1
+162,JBLM,E-4,4,35F,1,TS,0,None,2025-11-26,409,Guam,3,35F,E-7,E-7,1,Secret,0,None,2025-11-22,15500.0,WFF01B,Analyst/Collector 55,99DC,MI Team,member_5,2
+519,JBLM,E-3,3,11B,1,Secret,0,Arabic,2025-12-23,120,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,15500.0,WFF02C,Grenadier (PLT2/SQD3),02FD,Infantry Company,member_1,3
+517,JBLM,E-4,4,11B,2,Secret,0,Arabic,2026-01-17,118,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,15500.0,WFF02C,Platoon RTO (PLT 1),01AC,Infantry Company,member_8,2
+539,JBLM,E-3,3,11B,1,Secret,0,None,2025-12-28,133,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,15500.0,WFF02C,Rifleman (PLT2/SQD2),02EG,Infantry Company,member_5,1
+525,JBLM,E-3,3,11B,1,Secret,0,None,2025-12-30,123,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,15500.0,WFF02C,Rifleman (PLT1/SQD2),01EG,Infantry Company,member_4,3
+44,JBLM,E-3,3,12B,1,Secret,1,None,2025-12-17,602,Guam,3,12B,E-7,E-7,1,Secret,0,None,2025-11-22,15500.0,WFF01A,Engineer 41,99PB,Sapper Team,member_3,3
+42,JBLM,E-3,3,12B,1,Secret,0,None,2025-12-14,600,Guam,3,12B,E-7,E-7,1,Secret,0,None,2025-11-22,15500.0,WFF01A,Engineer 94,99QD,Sapper Team,member_1,3
+57,JBLM,E-5,5,12B,2,Secret,0,None,2025-12-05,610,Guam,3,12B,E-7,E-7,1,Secret,0,None,2025-11-22,15500.0,WFF01A,Engineer 78,99AD,Sapper Team,member_11,3
+58,JBLM,E-3,3,12B,1,Secret,1,None,2026-01-19,611,Guam,3,12B,E-7,E-7,1,Secret,0,None,2025-11-22,15500.0,WFF01A,Engineer 50,99YB,Sapper Team,member_12,3
+54,JBLM,E-3,3,12B,1,Secret,1,Spanish,2026-01-15,609,Guam,3,12B,E-7,E-7,1,Secret,0,None,2025-11-22,15500.0,WFF01A,Engineer 49,99XB,Sapper Team,member_10,3
+52,JBLM,E-3,3,12B,1,Secret,0,None,2025-12-05,607,Guam,3,12B,E-7,E-7,1,Secret,0,None,2025-11-22,15500.0,WFF01A,Engineer 84,99GD,Sapper Team,member_8,3
+61,JBLM,E-5,5,12B,3,Secret,1,None,2025-11-26,613,Guam,3,12B,E-7,E-7,1,Secret,0,None,2025-11-22,15500.0,WFF01A,Engineer 70,99SC,Sapper Team,member_14,3
+537,JBLM,E-3,3,11B,1,Secret,0,None,2025-12-15,131,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,15500.0,WFF02C,Grenadier (PLT3/SQD2),03ED,Infantry Company,member_3,1
+103,JBLM,E-3,3,35F,1,TS,1,None,2025-12-02,390,Guam,3,35F,E-7,E-7,1,Secret,0,None,2025-11-22,15500.0,WFF01B,Analyst/Collector 60,99IC,MI Team,member_1,1
+535,JBLM,E-3,3,11B,1,Secret,0,Spanish,2025-12-11,130,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,15500.0,WFF02C,Grenadier (PLT2/SQD1),02DD,Infantry Company,member_2,1
+215,JBLM,E-3,3,35F,1,TS,0,Spanish,2025-12-12,411,Guam,3,35F,E-7,E-7,1,Secret,0,None,2025-11-22,15500.0,WFF01D,Analyst/Collector 76,99YC,MI Team,member_7,2
+266,JBLM,E-3,3,35F,1,TS,0,None,2025-12-03,430,Guam,3,35F,E-7,E-7,1,Secret,0,None,2025-11-22,15500.0,WFF01D,Analyst/Collector 66,99OC,MI Team,member_11,3
+262,JBLM,E-3,3,35F,1,TS,1,None,2025-12-28,429,Guam,3,35F,E-7,E-7,1,Secret,0,None,2025-11-22,15500.0,WFF01D,Analyst/Collector 79,99BD,MI Team,member_10,3
+261,JBLM,E-3,3,35F,1,TS,0,None,2025-12-15,428,Guam,3,35F,E-7,E-7,1,Secret,0,None,2025-11-22,15500.0,WFF01D,Analyst/Collector 50,99YB,MI Team,member_9,3
+246,JBLM,E-4,4,35F,2,TS,1,None,2025-11-30,422,Guam,3,35F,E-7,E-7,1,Secret,0,None,2025-11-22,15500.0,WFF01D,Analyst/Collector 71,99TC,MI Team,member_3,3
+229,JBLM,E-4,4,35F,2,TS,1,Spanish,2026-01-10,418,Guam,3,35F,E-7,E-7,1,Secret,0,None,2025-11-22,15500.0,WFF01D,Analyst/Collector 60,99IC,MI Team,member_14,2
+235,JBLM,E-4,4,35F,2,TS,0,Arabic,2026-01-03,419,Guam,3,35F,E-8,E-8,1,Secret,0,None,2025-11-22,15500.0,WFF01D,Analyst/Collector 24,99YA,MI Team,leader,3
+226,JBLM,E-4,4,35F,1,TS,1,None,2025-12-20,417,Guam,3,35F,E-7,E-7,1,Secret,0,None,2025-11-22,15500.0,WFF01D,Analyst/Collector 40,99OB,MI Team,member_13,2
+116,JBLM,E-4,4,35F,1,TS,0,None,2025-12-23,398,Guam,3,35F,E-7,E-7,1,Secret,0,None,2025-11-22,15500.0,WFF01B,Analyst/Collector 23,99XA,MI Team,member_9,1
+114,JBLM,E-4,4,35F,2,TS,1,None,2025-12-20,396,Guam,3,35F,E-7,E-7,1,Secret,0,None,2025-11-22,15500.0,WFF01B,Analyst/Collector 40,99OB,MI Team,member_7,1
+112,JBLM,E-3,3,35F,1,TS,0,Spanish,2025-12-26,395,Guam,3,35F,E-7,E-7,1,Secret,0,None,2025-11-22,15500.0,WFF01B,Analyst/Collector 30,99EB,MI Team,member_6,1
+110,JBLM,E-6,6,35F,3,TS,0,None,2025-12-11,394,Guam,3,35F,E-7,E-7,1,Secret,0,None,2025-11-22,15500.0,WFF01B,Senior Analyst,01AB,MI Team,member_5,1
+126,JBLM,E-4,4,35F,2,TS,1,None,2025-12-01,399,Guam,3,35F,E-7,E-7,1,Secret,0,None,2025-11-22,15500.0,WFF01B,All-Source Analyst,01AD,MI Team,member_10,1
+101,JBLM,E-5,5,35F,3,TS,1,None,2025-11-25,389,Guam,3,35F,E-8,E-8,1,Secret,0,None,2025-11-22,15500.0,WFF01B,Analyst/Collector 73,99VC,MI Team,leader,1
+109,JBLM,E-4,4,35F,1,TS,1,None,2026-01-01,393,Guam,3,35F,E-7,E-7,1,Secret,0,None,2025-11-22,15500.0,WFF01B,Analyst/Collector 69,99RC,MI Team,member_4,1
+510,JBLM,E-4,4,11B,2,Secret,0,None,2025-12-17,114,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,15500.0,WFF02C,Platoon RTO (PLT 2),02AC,Infantry Company,member_4,2
+148,JBLM,E-4,4,35F,1,TS,0,None,2025-12-14,404,Guam,3,35F,E-8,E-8,1,Secret,0,None,2025-11-22,15500.0,WFF01B,Analyst/Collector 34,99IB,MI Team,leader,2
+530,JBLM,E-3,3,11B,1,Secret,0,None,2025-12-26,125,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,15500.0,WFF02C,Rifleman (PLT1/SQD1),01DG,Infantry Company,member_6,3
+538,JBLM,E-3,3,11B,1,Secret,0,French,2026-01-07,132,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,15500.0,WFF02C,Grenadier (PLT2/SQD2),02ED,Infantry Company,member_4,1
+531,JBLM,E-3,3,11B,1,Secret,0,None,2026-01-03,126,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,15500.0,WFF02C,Rifleman (PLT3/SQD1),03DC,Infantry Company,member_7,3
+532,JBLM,E-3,3,11B,1,Secret,0,None,2025-11-25,127,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,15500.0,WFF02C,Rifleman (PLT3/SQD2),03EG,Infantry Company,member_8,3
+43,JBLM,E-3,3,12B,1,Secret,0,None,2025-12-18,601,Guam,3,12B,E-7,E-7,1,Secret,0,None,2025-11-22,15500.0,WFF01A,Combat Engineer,01DE,Sapper Team,member_2,3
+11,JBLM,E-6,6,12B,4,Secret,0,None,2025-12-10,573,Guam,3,12B,E-7,E-7,1,Secret,0,None,2025-11-22,15500.0,WFF01A,Squad Leader (PLT2/SQD1),02CA,Sapper Team,member_4,1
+13,JBLM,E-5,5,12B,2,Secret,1,None,2025-12-07,575,Guam,3,12B,E-7,E-7,1,Secret,0,None,2025-11-22,15500.0,WFF01A,Combat Engineer,02CB,Sapper Team,member_6,1
+45,JBLM,E-5,5,12B,2,Secret,0,None,2025-12-19,603,Guam,3,12B,E-7,E-7,1,Secret,0,None,2025-11-22,15500.0,WFF01A,Engineer 90,99MD,Sapper Team,member_4,3
+47,JBLM,E-3,3,12B,1,Secret,0,French,2025-12-21,604,Guam,3,12B,E-7,E-7,1,Secret,0,None,2025-11-22,15500.0,WFF01A,Combat Engineer,01CD,Sapper Team,member_5,3
+37,JBLM,E-3,3,12B,1,Secret,0,Spanish,2025-11-27,595,Guam,3,12B,E-7,E-7,1,Secret,0,None,2025-11-22,15500.0,WFF01A,Engineer 74,99WC,Sapper Team,member_11,2
+12,JBLM,E-5,5,12B,2,Secret,0,French,2026-01-13,574,Guam,3,12B,E-7,E-7,1,Secret,0,None,2025-11-22,15500.0,WFF01A,Combat Engineer,03CB,Sapper Team,member_5,1
+36,JBLM,E-3,3,12B,1,Secret,0,Spanish,2026-01-16,594,Guam,3,12B,E-7,E-7,1,Secret,0,None,2025-11-22,15500.0,WFF01A,Combat Engineer,03DD,Sapper Team,member_10,2
+35,JBLM,E-4,4,12B,2,Secret,0,None,2026-01-17,593,Guam,3,12B,E-7,E-7,1,Secret,0,None,2025-11-22,15500.0,WFF01A,Engineer 89,99LD,Sapper Team,member_9,2
+10,JBLM,E-6,6,12B,4,Secret,0,None,2025-12-05,572,Guam,3,12B,E-7,E-7,1,Secret,0,None,2025-11-22,15500.0,WFF01A,Squad Leader (PLT3/SQD2),03DA,Sapper Team,member_3,1
+9,JBLM,E-5,5,12B,3,Secret,0,None,2025-11-25,569,Guam,3,12B,E-8,E-8,1,Secret,0,None,2025-11-22,15500.0,WFF01A,Combat Engineer,01CB,Sapper Team,leader,1
+24,JBLM,E-3,3,12B,1,Secret,0,None,2025-12-12,584,Guam,3,12B,E-8,E-8,1,Secret,0,None,2025-11-22,15500.0,WFF01A,Combat Engineer,02CD,Sapper Team,leader,2
+31,JBLM,E-3,3,12B,1,Secret,1,None,2025-12-10,591,Guam,3,12B,E-7,E-7,1,Secret,0,None,2025-11-22,15500.0,WFF01A,Engineer 45,99TB,Sapper Team,member_7,2
+275,JBLM,E-5,5,35F,2,TS,0,None,2026-01-02,431,Guam,3,35F,E-7,E-7,1,Secret,0,None,2025-11-22,15500.0,WFF01D,Analyst/Collector 27,99BB,MI Team,member_12,3
+19,JBLM,E-6,6,12B,4,Secret,1,None,2025-12-13,579,Guam,3,12B,E-7,E-7,1,Secret,0,None,2025-11-22,15500.0,WFF01A,Squad Leader (PLT2/SQD2),02DA,Sapper Team,member_10,1
+18,JBLM,E-5,5,12B,2,Secret,0,None,2025-11-25,578,Guam,3,12B,E-7,E-7,1,Secret,0,None,2025-11-22,15500.0,WFF01A,Combat Engineer,03DB,Sapper Team,member_9,1
+23,JBLM,E-3,3,12B,1,Secret,0,None,2025-12-13,583,Guam,3,12B,E-7,E-7,1,Secret,0,None,2025-11-22,15500.0,WFF01A,Engineer 71,99TC,Sapper Team,member_14,1
+21,JBLM,E-4,4,12B,1,Secret,1,None,2025-12-08,581,Guam,3,12B,E-7,E-7,1,Secret,0,None,2025-11-22,15500.0,WFF01A,Engineer 44,99SB,Sapper Team,member_12,1
+250,JBLM,E-5,5,35F,3,TS,0,Spanish,2025-11-25,424,Guam,3,35F,E-7,E-7,1,Secret,0,None,2025-11-22,15500.0,WFF01D,Analyst/Collector 58,99GC,MI Team,member_5,3
+217,JBLM,E-4,4,35F,1,TS,0,French,2025-12-31,412,Guam,3,35F,E-7,E-7,1,Secret,0,None,2025-11-22,15500.0,WFF01D,All-Source Analyst,01AD,MI Team,member_8,2
+225,JBLM,E-3,3,35F,1,TS,0,Spanish,2026-01-14,416,Guam,3,35F,E-7,E-7,1,Secret,0,None,2025-11-22,15500.0,WFF01D,Analyst/Collector 19,99TA,MI Team,member_12,2
+30,JBLM,E-3,3,12B,1,Secret,1,None,2025-12-18,590,Guam,3,12B,E-7,E-7,1,Secret,0,None,2025-11-22,15500.0,WFF01A,Engineer 75,99XC,Sapper Team,member_6,2
+29,JBLM,E-3,3,12B,1,Secret,0,None,2026-01-19,589,Guam,3,12B,E-7,E-7,1,Secret,0,None,2025-11-22,15500.0,WFF01A,Combat Engineer,03DE,Sapper Team,member_5,2
+28,JBLM,E-3,3,12B,1,Secret,1,None,2026-01-18,588,Guam,3,12B,E-7,E-7,1,Secret,0,None,2025-11-22,15500.0,WFF01A,Engineer 56,99EC,Sapper Team,member_4,2
+27,JBLM,E-4,4,12B,1,Secret,0,None,2025-12-12,587,Guam,3,12B,E-7,E-7,1,Secret,0,None,2025-11-22,15500.0,WFF01A,Engineer 65,99NC,Sapper Team,member_3,2
+26,JBLM,E-4,4,12B,1,Secret,0,Spanish,2025-12-21,586,Guam,3,12B,E-7,E-7,1,Secret,0,None,2025-11-22,15500.0,WFF01A,Combat Engineer,03DC,Sapper Team,member_2,2
+25,JBLM,E-4,4,12B,1,Secret,0,None,2025-12-26,585,Guam,3,12B,E-7,E-7,1,Secret,0,None,2025-11-22,15500.0,WFF01A,Engineer 73,99VC,Sapper Team,member_1,2
+488,JBLM,E-5,5,11B,2,Secret,0,None,2026-01-20,387,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,15500.0,WFF02C,Team Leader 2 (PLT3/SQD1),03DE,Infantry Company,member_13,3
+221,JBLM,E-4,4,35F,1,TS,0,French,2026-01-01,414,Guam,3,35F,E-7,E-7,1,Secret,0,None,2025-11-22,15500.0,WFF01D,Analyst/Collector 74,99WC,MI Team,member_10,2
+238,JBLM,E-4,4,35F,1,TS,0,None,2026-01-20,420,Guam,3,35F,E-7,E-7,1,Secret,0,None,2025-11-22,15500.0,WFF01D,Analyst/Collector 34,99IB,MI Team,member_1,3
+80,JBLM,E-4,4,12B,2,Secret,1,Arabic,2025-11-17,448,Guam,3,35F,E-7,E-7,1,Secret,0,None,2025-11-22,19900.0,WFF01A,Combat Engineer,01CC,MI Team,member_14,1
+84,JBLM,E-4,4,12B,1,Secret,1,None,2025-11-01,452,Guam,3,35F,E-7,E-7,1,Secret,0,None,2025-11-22,19900.0,WFF01A,Engineer 60,99IC,MI Team,member_3,2
+83,JBLM,E-5,5,12B,3,Secret,0,None,2025-11-12,451,Guam,3,35F,E-7,E-7,1,Secret,0,None,2025-11-22,19900.0,WFF01A,Engineer 42,99QB,MI Team,member_2,2
+547,JBLM,E-6,6,13B,4,Secret,0,None,2025-11-12,472,Guam,3,35F,E-7,E-7,1,Secret,0,None,2025-11-22,19900.0,WFF02D,Section Chief (Gun 2),03AA,MI Team,member_8,3
+546,JBLM,E-5,5,13B,2,Secret,0,None,2025-11-05,471,Guam,3,35F,E-7,E-7,1,Secret,0,None,2025-11-22,19900.0,WFF02D,Gunner (Gun 4),05AB,MI Team,member_7,3
+67,JBLM,E-3,3,12B,1,Secret,1,French,2025-11-22,438,Guam,3,35F,E-7,E-7,1,Secret,0,None,2025-11-22,19900.0,WFF01A,Combat Engineer,03CE,MI Team,member_4,1
+68,JBLM,E-3,3,12B,1,Secret,1,None,2025-11-05,439,Guam,3,35F,E-7,E-7,1,Secret,0,None,2025-11-22,19900.0,WFF01A,Combat Engineer,02CE,MI Team,member_5,1
+69,JBLM,E-5,5,12B,2,Secret,0,None,2025-11-21,440,Guam,3,35F,E-7,E-7,1,Secret,0,None,2025-11-22,19900.0,WFF01A,Engineer 87,99JD,MI Team,member_6,1
+74,JBLM,E-4,4,12B,2,Secret,0,None,2025-11-01,443,Guam,3,35F,E-7,E-7,1,Secret,0,None,2025-11-22,19900.0,WFF01A,Engineer 80,99CD,MI Team,member_9,1
+75,JBLM,E-3,3,12B,1,Secret,0,None,2025-11-11,444,Guam,3,35F,E-7,E-7,1,Secret,0,None,2025-11-22,19900.0,WFF01A,Combat Engineer,01CE,MI Team,member_10,1
+554,JBLM,E-5,5,13B,3,Secret,1,Spanish,2025-11-20,478,Guam,3,35F,E-7,E-7,1,Secret,0,None,2025-11-22,19900.0,WFF02D,Gunner (Gun 2),03AB,MI Team,member_14,3
+86,JBLM,E-3,3,12B,1,Secret,1,Spanish,2025-11-08,454,Guam,3,35F,E-7,E-7,1,Secret,0,None,2025-11-22,19900.0,WFF01A,Engineer 57,99FC,MI Team,member_5,2
+85,JBLM,E-3,3,12B,1,Secret,1,None,2025-11-05,453,Guam,3,35F,E-7,E-7,1,Secret,0,None,2025-11-22,19900.0,WFF01A,Engineer 64,99MC,MI Team,member_4,2
+475,JBLM,O-1,1,11A,1,Secret,0,Spanish,2025-11-13,377,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,19900.0,WFF02C,Platoon Leader (PLT 2),02AA,Infantry Company,member_3,3
+163,JBLM,E-3,3,35M,1,TS,1,None,2025-11-16,156,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,19900.0,WFF01B,Analyst/Collector 29,99DB,Infantry Company,member_1,1
+178,JBLM,E-5,5,13B,3,Secret,0,None,2025-11-18,166,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,19900.0,WFF01C,Gunner (Gun 5),06AB,Infantry Company,member_2,2
+473,JBLM,O-2,2,11A,1,Secret,0,None,2025-11-01,376,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,19900.0,WFF02C,Executive Officer,00AB,Infantry Company,member_2,3
+170,JBLM,O-2,2,13A,1,Secret,0,None,2025-11-15,161,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,19900.0,WFF01C,Executive Officer,00AB,Infantry Company,member_6,1
+149,JBLM,E-5,5,35N,2,TS,0,Arabic,2025-11-13,151,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,19900.0,WFF01B,Analyst/Collector 68,99QC,Infantry Company,member_5,3
+150,JBLM,E-5,5,35M,2,TS,0,Spanish,2025-11-07,152,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,19900.0,WFF01B,Analyst/Collector 25,99ZA,Infantry Company,member_6,3
+158,JBLM,E-4,4,35M,1,TS,0,Spanish,2025-11-05,154,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,19900.0,WFF01B,Analyst/Collector 66,99OC,Infantry Company,member_8,3
+122,JBLM,E-4,4,35M,2,TS,0,Spanish,2025-11-11,136,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,19900.0,WFF01B,Analyst/Collector 44,99SB,Infantry Company,member_8,1
+113,JBLM,E-5,5,35M,2,TS,0,None,2025-10-31,464,Guam,3,35F,E-8,E-8,1,Secret,0,None,2025-11-22,19900.0,WFF01B,Analyst/Collector 77,99ZC,MI Team,leader,3
+100,JBLM,E-4,4,35M,1,TS,0,Spanish,2025-11-14,461,Guam,3,35F,E-7,E-7,1,Secret,0,None,2025-11-22,19900.0,WFF01B,Analyst/Collector 63,99LC,MI Team,member_12,2
+99,JBLM,E-4,4,25U,2,Secret,1,None,2025-11-12,460,Guam,3,35F,E-7,E-7,1,Secret,0,None,2025-11-22,19900.0,WFF01B,Company RTO,00AD,MI Team,member_11,2
+123,JBLM,E-4,4,35M,1,TS,0,None,2025-11-13,137,Guam,3,11B,E-8,E-8,1,Secret,0,None,2025-11-22,19900.0,WFF01B,Analyst/Collector 27,99BB,Infantry Company,leader,2
+140,JBLM,E-4,4,35M,2,TS,0,None,2025-11-20,145,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,19900.0,WFF01B,Analyst/Collector 64,99MC,Infantry Company,member_8,2
+141,JBLM,E-3,3,35M,1,TS,0,None,2025-11-18,147,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,19900.0,WFF01B,Analyst/Collector 45,99TB,Infantry Company,member_1,3
+576,JBLM,E-3,3,13B,1,Secret,0,None,2025-11-19,498,Guam,3,68W,E-7,E-7,1,Secret,0,None,2025-11-22,19900.0,WFF02D,Ammo Bearer (Gun 5),06AE,Medical Team,member_4,2
+63,JBLM,E-4,4,12B,1,Secret,0,None,2025-10-29,146,Guam,3,11B,E-8,E-8,1,Secret,0,None,2025-11-22,19900.0,WFF01A,Combat Engineer,03CC,Infantry Company,leader,3
+575,JBLM,E-4,4,13B,1,Secret,1,Arabic,2025-10-30,497,Guam,3,68W,E-7,E-7,1,Secret,0,None,2025-11-22,19900.0,WFF02D,Assistant Gunner (Gun 4),05AC,Medical Team,member_3,2
+81,JBLM,E-4,4,12B,1,Secret,0,None,2025-11-15,449,Guam,3,35F,E-8,E-8,1,Secret,0,None,2025-11-22,19900.0,WFF01A,Engineer 55,99DC,MI Team,leader,2
+446,JBLM,E-3,3,12B,1,Secret,0,None,2025-11-05,354,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,19900.0,WFF02B,Engineer 56,99EC,Infantry Company,member_10,1
+448,JBLM,E-4,4,12B,1,Secret,1,None,2025-11-02,355,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,19900.0,WFF02B,Engineer 87,99JD,Infantry Company,member_11,1
+431,JBLM,E-4,4,12B,2,Secret,0,None,2025-11-21,343,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,19900.0,WFF02B,Engineer 55,99DC,Infantry Company,member_14,3
+428,JBLM,E-3,3,12B,1,Secret,0,None,2025-11-13,341,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,19900.0,WFF02B,Engineer 73,99VC,Infantry Company,member_12,3
+219,JBLM,E-4,4,35M,2,TS,0,None,2025-11-01,197,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,19900.0,WFF01D,Analyst/Collector 38,99MB,Infantry Company,member_6,2
+218,JBLM,E-5,5,35M,3,TS,0,French,2025-11-21,196,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,19900.0,WFF01D,HUMINT Collector,02AC,Infantry Company,member_5,2
+452,JBLM,E-3,3,12B,1,Secret,0,None,2025-11-09,358,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,19900.0,WFF02B,Combat Engineer,01CE,Infantry Company,member_14,1
+441,JBLM,E-4,4,12B,2,Secret,0,Arabic,2025-11-08,349,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,19900.0,WFF02B,Engineer 63,99LC,Infantry Company,member_5,1
+434,JBLM,E-4,4,12B,1,Secret,0,None,2025-10-26,345,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,19900.0,WFF02B,Engineer 58,99GC,Infantry Company,member_1,1
+429,JBLM,E-4,4,12B,2,Secret,1,None,2025-11-14,342,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,19900.0,WFF02B,Engineer 44,99SB,Infantry Company,member_13,3
+456,JBLM,E-3,3,12B,1,Secret,1,None,2025-10-26,362,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,19900.0,WFF02B,Combat Engineer,01CD,Infantry Company,member_3,2
+468,JBLM,O-3,3,11A,1,Secret,0,None,2025-10-28,370,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,19900.0,WFF02C,Company Commander,00AA,Infantry Company,member_11,2
+453,JBLM,E-3,3,12B,1,Secret,0,None,2025-10-23,359,Guam,3,11B,E-8,E-8,1,Secret,0,None,2025-11-22,19900.0,WFF02B,Engineer 96,99SD,Infantry Company,leader,2
+405,JBLM,E-3,3,12B,1,Secret,0,None,2025-10-31,323,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,19900.0,WFF02B,Engineer 66,99OC,Infantry Company,member_9,2
+402,JBLM,E-3,3,12B,1,Secret,0,None,2025-10-27,320,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,19900.0,WFF02B,Engineer 78,99AD,Infantry Company,member_6,2
+400,JBLM,E-4,4,12B,1,Secret,0,Arabic,2025-11-18,318,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,19900.0,WFF02B,Engineer 57,99FC,Infantry Company,member_4,2
+397,JBLM,E-4,4,12B,2,Secret,0,None,2025-11-19,316,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,19900.0,WFF02B,Combat Engineer,01DC,Infantry Company,member_2,2
+391,JBLM,E-5,5,12B,2,Secret,1,None,2025-11-15,311,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,19900.0,WFF02B,Combat Engineer,01DB,Infantry Company,member_12,1
+392,JBLM,E-5,5,12B,2,Secret,0,None,2025-11-03,312,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,19900.0,WFF02B,Combat Engineer,01CB,Infantry Company,member_13,1
+388,JBLM,E-6,6,12B,4,Secret,0,None,2025-11-11,310,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,19900.0,WFF02B,Squad Leader (PLT2/SQD2),02DA,Infantry Company,member_11,1
+249,JBLM,E-4,4,35N,2,TS,0,Spanish,2025-11-05,209,Guam,3,11B,E-8,E-8,1,Secret,0,None,2025-11-22,19900.0,WFF01D,Analyst/Collector 77,99ZC,Infantry Company,leader,1
+251,JBLM,E-5,5,35M,2,TS,0,Spanish,2025-10-31,210,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,19900.0,WFF01D,Analyst/Collector 44,99SB,Infantry Company,member_1,1
+230,JBLM,E-3,3,35M,1,TS,1,None,2025-11-17,201,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,19900.0,WFF01D,Analyst/Collector 43,99RB,Infantry Company,member_1,3
+411,JBLM,E-4,4,12B,2,Secret,1,None,2025-10-23,328,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,19900.0,WFF02B,Engineer 47,99VB,Infantry Company,member_14,2
+414,JBLM,E-3,3,12B,1,Secret,1,None,2025-11-20,331,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,19900.0,WFF02B,Combat Engineer,01DD,Infantry Company,member_2,3
+421,JBLM,E-4,4,12B,2,Secret,0,Arabic,2025-11-16,336,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,19900.0,WFF02B,Engineer 84,99GD,Infantry Company,member_7,3
+418,JBLM,E-3,3,12B,1,Secret,1,None,2025-10-28,334,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,19900.0,WFF02B,Engineer 72,99UC,Infantry Company,member_5,3
+424,JBLM,E-4,4,12B,1,Secret,1,None,2025-11-14,339,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,19900.0,WFF02B,Combat Engineer,02CC,Infantry Company,member_10,3
+423,JBLM,E-3,3,12B,1,Secret,0,None,2025-11-04,338,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,19900.0,WFF02B,Combat Engineer,01DE,Infantry Company,member_9,3
+228,JBLM,E-4,4,35M,1,TS,0,Spanish,2025-10-24,200,Guam,3,11B,E-8,E-8,1,Secret,0,None,2025-11-22,19900.0,WFF01D,Analyst/Collector 47,99VB,Infantry Company,leader,3
+240,JBLM,E-4,4,25U,2,Secret,0,None,2025-11-21,206,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,19900.0,WFF01D,Analyst/Collector 53,99BC,Infantry Company,member_6,3
+461,JBLM,E-3,3,12B,1,Secret,0,Arabic,2025-10-25,366,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,19900.0,WFF02B,Engineer 50,99YB,Infantry Company,member_7,2
+466,JBLM,E-3,3,12B,1,Secret,0,Arabic,2025-11-12,369,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,19900.0,WFF02B,Engineer 42,99QB,Infantry Company,member_10,2
+190,JBLM,E-4,4,13B,1,Secret,0,None,2025-10-31,176,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,19900.0,WFF01C,Recorder,01AD,Infantry Company,member_3,3
+199,JBLM,E-4,4,13B,1,Secret,1,None,2025-11-09,184,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,19900.0,WFF01C,Assistant Gunner (Gun 3),04AC,Infantry Company,member_2,1
+276,JBLM,E-4,4,35N,1,TS,1,None,2025-11-01,223,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,19900.0,WFF01D,Analyst/Collector 16,99QA,Infantry Company,member_14,1
+274,JBLM,E-5,5,35M,3,TS,1,None,2025-11-03,222,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,19900.0,WFF01D,Analyst/Collector 26,99AB,Infantry Company,member_13,1
+369,JBLM,E-3,3,12B,1,Secret,1,None,2025-11-08,297,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,19900.0,WFF02A,Combat Engineer,03DD,Infantry Company,member_13,3
+365,JBLM,E-3,3,12B,1,Secret,0,None,2025-11-21,293,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,19900.0,WFF02A,Engineer 57,99FC,Infantry Company,member_9,3
+372,JBLM,E-4,4,12B,2,Secret,0,None,2025-11-14,299,Guam,3,11B,E-8,E-8,1,Secret,0,None,2025-11-22,19900.0,WFF02A,Engineer 89,99LD,Infantry Company,leader,1
+373,JBLM,E-5,5,12B,3,Secret,0,None,2025-10-29,300,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,19900.0,WFF02A,Engineer 70,99SC,Infantry Company,member_1,1
+380,JBLM,O-1,1,12A,1,Secret,0,None,2025-11-11,303,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,19900.0,WFF02B,Platoon Leader (PLT 2),02AA,Infantry Company,member_4,1
+376,JBLM,O-2,2,12A,1,Secret,0,None,2025-10-25,302,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,19900.0,WFF02B,Executive Officer,00AB,Infantry Company,member_3,1
+385,JBLM,E-5,5,12B,3,Secret,0,None,2025-10-31,307,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,19900.0,WFF02B,Combat Engineer,03CB,Infantry Company,member_8,1
+269,JBLM,E-4,4,35M,2,TS,1,None,2025-11-09,218,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,19900.0,WFF01D,Analyst/Collector 48,99WB,Infantry Company,member_9,1
+313,JBLM,E-3,3,12B,1,Secret,1,None,2025-10-31,252,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,19900.0,WFF02A,Engineer 82,99ED,Infantry Company,member_13,3
+311,JBLM,E-3,3,12B,1,Secret,0,None,2025-11-16,250,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,19900.0,WFF02A,Engineer 60,99IC,Infantry Company,member_11,3
+309,JBLM,E-4,4,12B,2,Secret,1,None,2025-10-29,249,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,19900.0,WFF02A,Engineer 59,99HC,Infantry Company,member_10,3
+307,JBLM,E-3,3,12B,1,Secret,0,None,2025-11-02,247,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,19900.0,WFF02A,Engineer 53,99BC,Infantry Company,member_8,3
+304,JBLM,E-4,4,12B,1,Secret,0,None,2025-10-29,245,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,19900.0,WFF02A,Engineer 80,99CD,Infantry Company,member_6,3
+361,JBLM,E-4,4,12B,1,Secret,1,None,2025-11-19,289,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,19900.0,WFF02A,Engineer 74,99WC,Infantry Company,member_5,3
+358,JBLM,E-3,3,12B,1,Secret,0,Spanish,2025-11-01,287,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,19900.0,WFF02A,Combat Engineer,01CE,Infantry Company,member_3,3
+357,JBLM,E-3,3,12B,1,Secret,1,None,2025-10-25,286,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,19900.0,WFF02A,Combat Engineer,02CE,Infantry Company,member_2,3
+352,JBLM,E-4,4,12B,1,Secret,1,Spanish,2025-11-13,283,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,19900.0,WFF02A,Engineer 54,99CC,Infantry Company,member_14,2
+349,JBLM,E-3,3,12B,1,Secret,0,None,2025-11-05,282,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,19900.0,WFF02A,Engineer 91,99ND,Infantry Company,member_13,2
+348,JBLM,E-3,3,12B,1,Secret,0,None,2025-11-09,281,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,19900.0,WFF02A,Engineer 75,99XC,Infantry Company,member_12,2
+341,JBLM,E-4,4,12B,1,Secret,0,None,2025-11-03,277,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,19900.0,WFF02A,Engineer 73,99VC,Infantry Company,member_8,2
+297,JBLM,E-6,6,12B,3,Secret,0,French,2025-11-15,238,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,19900.0,WFF02A,Squad Leader (PLT2/SQD1),02CA,Infantry Company,member_14,2
+293,JBLM,E-6,6,12B,4,Secret,0,None,2025-10-31,236,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,19900.0,WFF02A,Squad Leader (PLT3/SQD1),03CA,Infantry Company,member_12,2
+288,JBLM,O-2,2,12A,1,Secret,0,French,2025-11-15,231,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,19900.0,WFF02A,Executive Officer,00AB,Infantry Company,member_7,2
+287,JBLM,O-1,1,12A,1,Secret,1,None,2025-11-11,230,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,19900.0,WFF02A,Platoon Leader (PLT 2),02AA,Infantry Company,member_6,2
+324,JBLM,E-5,5,12B,2,Secret,0,Arabic,2025-10-23,263,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,19900.0,WFF02A,Engineer 44,99SB,Infantry Company,member_9,1
+316,JBLM,E-4,4,12B,1,Secret,0,Spanish,2025-11-03,255,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,19900.0,WFF02A,Engineer 77,99ZC,Infantry Company,member_1,1
+322,JBLM,E-3,3,12B,1,Secret,0,None,2025-11-10,261,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,19900.0,WFF02A,Engineer 62,99KC,Infantry Company,member_7,1
+317,JBLM,E-3,3,12B,1,Secret,0,None,2025-11-01,256,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,19900.0,WFF02A,Combat Engineer,03CD,Infantry Company,member_2,1
+332,JBLM,E-3,3,12B,1,Secret,0,None,2025-10-24,270,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,19900.0,WFF02A,Engineer 39,99NB,Infantry Company,member_1,2
+327,JBLM,E-5,5,12B,3,Secret,0,French,2025-11-06,266,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,19900.0,WFF02A,Engineer 94,99QD,Infantry Company,member_12,1
+337,JBLM,E-3,3,12B,1,Secret,0,None,2025-11-14,274,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,19900.0,WFF02A,Combat Engineer,03CE,Infantry Company,member_5,2
+557,JBLM,E-4,4,13B,2,Secret,1,Arabic,2025-11-08,482,Guam,3,68W,E-7,E-7,1,Secret,0,None,2025-11-22,19900.0,WFF02D,Driver (Gun 5),06AF,Medical Team,member_3,1
+559,JBLM,E-4,4,13B,1,Secret,0,None,2025-11-04,483,Guam,3,68W,E-7,E-7,1,Secret,0,None,2025-11-22,19900.0,WFF02D,Driver (Gun 1),02AF,Medical Team,member_4,1
+563,JBLM,E-4,4,13B,1,Secret,1,None,2025-11-09,487,Guam,3,68W,E-7,E-7,1,Secret,0,None,2025-11-22,19900.0,WFF02D,Assistant Gunner (Gun 5),06AC,Medical Team,member_8,1
+573,JBLM,E-4,4,13B,2,Secret,0,None,2025-11-14,495,Guam,3,68W,E-7,E-7,1,Secret,0,None,2025-11-22,19900.0,WFF02D,Assistant Gunner (Gun 3),04AC,Medical Team,member_1,2
+574,JBLM,E-3,3,13B,1,Secret,0,None,2025-12-02,496,Guam,3,68W,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF02D,Ammo Bearer (Gun 6),07AE,Medical Team,member_2,2
+572,JBLM,E-5,5,13D,3,Secret,1,French,2025-12-17,494,Guam,3,68W,E-8,E-8,1,Secret,0,None,2025-11-22,21500.0,WFF02D,Computer Operator,01AB,Medical Team,leader,2
+571,JBLM,E-3,3,13B,1,Secret,0,None,2025-12-13,493,Guam,3,68W,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF02D,Ammo Bearer (Gun 5),06AD,Medical Team,member_14,1
+569,JBLM,E-4,4,13B,2,Secret,0,None,2025-12-29,492,Guam,3,68W,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF02D,Assistant Gunner (Gun 1),02AC,Medical Team,member_13,1
+567,JBLM,E-3,3,13B,1,Secret,1,None,2026-01-08,491,Guam,3,68W,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF02D,Ammo Bearer (Gun 2),03AD,Medical Team,member_12,1
+566,JBLM,E-3,3,13B,1,Secret,1,Spanish,2025-11-26,490,Guam,3,68W,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF02D,Ammo Bearer (Gun 1),02AD,Medical Team,member_11,1
+565,JBLM,E-4,4,13B,2,Secret,0,Spanish,2025-12-30,489,Guam,3,68W,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF02D,Assistant Gunner (Gun 2),03AC,Medical Team,member_10,1
+564,JBLM,E-3,3,13B,1,Secret,0,Arabic,2026-01-06,488,Guam,3,68W,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF02D,Ammo Bearer (Gun 1),02AE,Medical Team,member_9,1
+562,JBLM,E-4,4,13B,1,Secret,0,None,2026-01-10,486,Guam,3,68W,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF02D,Driver (Gun 3),04AF,Medical Team,member_7,1
+561,JBLM,E-4,4,13B,1,Secret,0,None,2025-11-26,485,Guam,3,68W,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF02D,Driver (Gun 4),05AF,Medical Team,member_6,1
+560,JBLM,E-4,4,13B,1,Secret,0,None,2025-11-29,484,Guam,3,68W,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF02D,Driver (Gun 2),03AF,Medical Team,member_5,1
+556,JBLM,E-4,4,13B,1,Secret,0,None,2025-11-25,481,Guam,3,68W,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF02D,Driver (Gun 6),07AF,Medical Team,member_2,1
+340,JBLM,E-3,3,12B,1,Secret,0,None,2026-01-02,276,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF02A,Engineer 83,99FD,Infantry Company,member_7,2
+339,JBLM,E-4,4,12B,1,Secret,0,None,2025-12-16,275,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF02A,Engineer 95,99RD,Infantry Company,member_6,2
+336,JBLM,E-4,4,12B,1,Secret,0,None,2026-01-20,273,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF02A,Engineer 58,99GC,Infantry Company,member_4,2
+335,JBLM,E-3,3,12B,1,Secret,0,None,2026-01-09,272,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF02A,Engineer 69,99RC,Infantry Company,member_3,2
+333,JBLM,E-3,3,12B,1,Secret,0,None,2025-12-22,271,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF02A,Combat Engineer,03DE,Infantry Company,member_2,2
+331,JBLM,E-5,5,12B,3,Secret,0,Spanish,2025-12-22,269,Guam,3,11B,E-8,E-8,1,Secret,0,None,2025-11-22,21500.0,WFF02A,Engineer 81,99DD,Infantry Company,leader,2
+329,JBLM,E-4,4,12B,1,Secret,0,None,2025-12-17,268,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF02A,Engineer 47,99VB,Infantry Company,member_14,1
+328,JBLM,E-3,3,12B,1,Secret,0,None,2026-01-01,267,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF02A,Combat Engineer,02DD,Infantry Company,member_13,1
+326,JBLM,E-4,4,12B,1,Secret,0,None,2025-12-13,265,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF02A,Engineer 48,99WB,Infantry Company,member_11,1
+325,JBLM,E-3,3,12B,1,Secret,0,None,2025-11-28,264,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF02A,Engineer 87,99JD,Infantry Company,member_10,1
+323,JBLM,E-3,3,12B,1,Secret,0,None,2026-01-19,262,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF02A,Engineer 46,99UB,Infantry Company,member_8,1
+321,JBLM,E-4,4,12B,2,Secret,1,None,2026-01-17,260,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF02A,Engineer 67,99PC,Infantry Company,member_6,1
+320,JBLM,E-4,4,12B,1,Secret,0,None,2025-12-27,259,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF02A,Engineer 71,99TC,Infantry Company,member_5,1
+319,JBLM,E-4,4,12B,2,Secret,0,None,2025-12-01,258,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF02A,Engineer 92,99OD,Infantry Company,member_4,1
+318,JBLM,E-3,3,12B,1,Secret,0,None,2026-01-20,257,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF02A,Engineer 76,99YC,Infantry Company,member_3,1
+315,JBLM,E-3,3,12B,1,Secret,0,None,2025-12-06,254,Guam,3,11B,E-8,E-8,1,Secret,0,None,2025-11-22,21500.0,WFF02A,Engineer 98,99UD,Infantry Company,leader,1
+314,JBLM,E-4,4,12B,2,Secret,0,None,2025-12-14,253,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF02A,Combat Engineer,02CC,Infantry Company,member_14,3
+312,JBLM,E-4,4,12B,2,Secret,0,None,2025-11-28,251,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF02A,Engineer 49,99XB,Infantry Company,member_12,3
+308,JBLM,E-5,5,12B,3,Secret,0,None,2025-12-13,248,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF02A,Engineer 64,99MC,Infantry Company,member_9,3
+306,JBLM,E-4,4,12B,1,Secret,0,None,2025-12-19,246,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF02A,Engineer 88,99KD,Infantry Company,member_7,3
+364,JBLM,E-4,4,12B,2,Secret,0,None,2025-11-26,292,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF02A,Combat Engineer,01CC,Infantry Company,member_8,3
+363,JBLM,E-4,4,12B,2,Secret,0,Arabic,2025-11-27,291,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF02A,Combat Engineer,01DC,Infantry Company,member_7,3
+362,JBLM,E-4,4,12B,2,Secret,0,French,2026-01-02,290,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF02A,Engineer 56,99EC,Infantry Company,member_6,3
+359,JBLM,E-3,3,12B,1,Secret,0,None,2025-11-29,288,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF02A,Engineer 45,99TB,Infantry Company,member_4,3
+356,JBLM,E-4,4,12B,1,Secret,0,None,2025-12-14,285,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF02A,Engineer 42,99QB,Infantry Company,member_1,3
+354,JBLM,E-3,3,12B,1,Secret,0,None,2025-12-23,284,Guam,3,11B,E-8,E-8,1,Secret,0,None,2025-11-22,21500.0,WFF02A,Combat Engineer,02DE,Infantry Company,leader,3
+347,JBLM,E-3,3,12B,1,Secret,0,None,2025-12-25,280,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF02A,Combat Engineer,01DE,Infantry Company,member_11,2
+346,JBLM,E-4,4,12B,2,Secret,0,None,2026-01-02,279,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF02A,Engineer 85,99HD,Infantry Company,member_10,2
+342,JBLM,E-4,4,12B,2,Secret,0,None,2026-01-11,278,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF02A,Combat Engineer,03DC,Infantry Company,member_9,2
+303,JBLM,E-5,5,12B,2,Secret,0,None,2026-01-10,244,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF02A,Engineer 61,99JC,Infantry Company,member_5,3
+302,JBLM,E-3,3,12B,1,Secret,0,None,2026-01-05,243,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF02A,Engineer 97,99TD,Infantry Company,member_4,3
+300,JBLM,E-6,6,12B,3,Secret,1,None,2025-12-26,242,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF02A,Squad Leader (PLT1/SQD1),01CA,Infantry Company,member_3,3
+299,JBLM,E-5,5,12B,3,Secret,1,Arabic,2025-11-27,241,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF02A,Combat Engineer,03DB,Infantry Company,member_2,3
+298,JBLM,E-5,5,12B,2,Secret,0,None,2025-11-30,240,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF02A,Combat Engineer,01CB,Infantry Company,member_1,3
+294,JBLM,E-5,5,12B,3,Secret,0,Spanish,2026-01-14,237,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF02A,Combat Engineer,01DB,Infantry Company,member_13,2
+292,JBLM,E-6,6,12B,3,Secret,1,Spanish,2025-12-29,235,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF02A,Squad Leader (PLT2/SQD2),02DA,Infantry Company,member_11,2
+291,JBLM,E-5,5,12B,3,Secret,1,None,2025-12-05,234,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF02A,Combat Engineer,03CB,Infantry Company,member_10,2
+290,JBLM,E-5,5,12B,2,Secret,0,None,2025-12-24,233,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF02A,Combat Engineer,02DB,Infantry Company,member_9,2
+284,JBLM,O-1,1,12A,1,Secret,0,None,2026-01-07,228,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF02A,Platoon Leader (PLT 1),01AA,Infantry Company,member_4,2
+386,JBLM,E-6,6,12B,4,Secret,0,Spanish,2025-12-21,308,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF02B,Squad Leader (PLT1/SQD2),01DA,Infantry Company,member_9,1
+384,JBLM,E-5,5,12B,3,Secret,0,Spanish,2026-01-16,306,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF02B,Combat Engineer,03DB,Infantry Company,member_7,1
+383,JBLM,E-6,6,12B,3,Secret,1,Arabic,2025-11-24,305,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF02B,Squad Leader (PLT1/SQD1),01CA,Infantry Company,member_6,1
+375,JBLM,O-3,3,12A,1,Secret,1,Arabic,2025-11-29,301,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF02B,Company Commander,00AA,Infantry Company,member_2,1
+371,JBLM,E-3,3,12B,1,Secret,0,Spanish,2025-12-11,298,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF02A,Engineer 90,99MD,Infantry Company,member_14,3
+368,JBLM,E-3,3,12B,1,Secret,1,None,2026-01-06,296,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF02A,Engineer 40,99OB,Infantry Company,member_12,3
+367,JBLM,E-4,4,12B,2,Secret,0,None,2025-12-06,295,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF02A,Engineer 68,99QC,Infantry Company,member_11,3
+366,JBLM,E-3,3,12B,1,Secret,0,Spanish,2025-12-19,294,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF02A,Combat Engineer,01CD,Infantry Company,member_10,3
+283,JBLM,O-1,1,12A,1,Secret,1,None,2025-12-08,227,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF02A,Platoon Leader (PLT 3),03AA,Infantry Company,member_3,2
+282,JBLM,O-3,3,12A,1,Secret,0,Spanish,2025-12-19,226,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF02A,Company Commander,00AA,Infantry Company,member_2,2
+279,JBLM,E-4,4,35N,2,TS,1,None,2025-11-25,225,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF01D,Analyst/Collector 78,99AD,Infantry Company,member_1,2
+278,JBLM,E-3,3,35M,1,TS,1,None,2025-12-26,224,Guam,3,11B,E-8,E-8,1,Secret,0,None,2025-11-22,21500.0,WFF01D,Analyst/Collector 59,99HC,Infantry Company,leader,2
+272,JBLM,E-5,5,35M,2,TS,0,None,2026-01-08,221,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF01D,Analyst/Collector 73,99VC,Infantry Company,member_12,1
+271,JBLM,E-3,3,35N,1,TS,1,None,2025-12-27,220,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF01D,Analyst/Collector 70,99SC,Infantry Company,member_11,1
+270,JBLM,E-3,3,35M,1,TS,1,None,2025-12-18,219,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF01D,Analyst/Collector 35,99JB,Infantry Company,member_10,1
+267,JBLM,E-4,4,35M,2,TS,0,None,2025-12-19,217,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF01D,Analyst/Collector 20,99UA,Infantry Company,member_8,1
+265,JBLM,E-4,4,25U,1,Secret,0,None,2025-12-03,216,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF01D,Analyst/Collector 56,99EC,Infantry Company,member_7,1
+406,JBLM,E-4,4,12B,2,Secret,0,None,2025-11-28,324,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF02B,Engineer 65,99NC,Infantry Company,member_10,2
+404,JBLM,E-3,3,12B,1,Secret,0,Spanish,2025-11-30,322,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF02B,Engineer 49,99XB,Infantry Company,member_8,2
+403,JBLM,E-4,4,12B,2,Secret,0,None,2025-12-24,321,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF02B,Engineer 75,99XC,Infantry Company,member_7,2
+401,JBLM,E-3,3,12B,1,Secret,0,None,2025-12-13,319,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF02B,Engineer 71,99TC,Infantry Company,member_5,2
+398,JBLM,E-5,5,12B,3,Secret,0,None,2025-12-06,317,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF02B,Engineer 97,99TD,Infantry Company,member_3,2
+396,JBLM,E-4,4,12B,2,Secret,1,Spanish,2026-01-04,315,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF02B,Engineer 51,99ZB,Infantry Company,member_1,2
+395,JBLM,E-3,3,12B,1,Secret,1,None,2025-12-01,314,Guam,3,11B,E-8,E-8,1,Secret,0,None,2025-11-22,21500.0,WFF02B,Engineer 95,99RD,Infantry Company,leader,2
+394,JBLM,E-6,6,12B,4,Secret,1,None,2026-01-17,313,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF02B,Squad Leader (PLT3/SQD2),03DA,Infantry Company,member_14,1
+387,JBLM,E-6,6,12B,4,Secret,1,None,2026-01-01,309,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF02B,Squad Leader (PLT2/SQD1),02CA,Infantry Company,member_10,1
+263,JBLM,E-3,3,35M,1,TS,0,None,2025-12-19,215,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF01D,Analyst/Collector 28,99CB,Infantry Company,member_6,1
+257,JBLM,E-4,4,35N,1,TS,1,Spanish,2026-01-02,214,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF01D,Analyst/Collector 30,99EB,Infantry Company,member_5,1
+255,JBLM,E-5,5,35N,2,TS,0,None,2025-12-04,213,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF01D,SIGINT Analyst,03AB,Infantry Company,member_4,1
+254,JBLM,E-4,4,35P,1,TS,1,Spanish,2025-12-14,212,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF01D,Signals Collector,03AD,Infantry Company,member_3,1
+252,JBLM,E-4,4,35N,2,TS,1,None,2025-12-24,211,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF01D,Analyst/Collector 32,99GB,Infantry Company,member_2,1
+245,JBLM,E-3,3,35M,1,TS,0,None,2025-12-28,208,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF01D,Analyst/Collector 25,99ZA,Infantry Company,member_8,3
+425,JBLM,E-4,4,12B,2,Secret,0,None,2025-12-21,340,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF02B,Engineer 69,99RC,Infantry Company,member_11,3
+422,JBLM,E-4,4,12B,2,Secret,0,None,2025-12-25,337,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF02B,Engineer 82,99ED,Infantry Company,member_8,3
+419,JBLM,E-3,3,12B,1,Secret,0,None,2025-12-13,335,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF02B,Engineer 90,99MD,Infantry Company,member_6,3
+417,JBLM,E-5,5,12B,3,Secret,0,None,2026-01-16,333,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF02B,Engineer 79,99BD,Infantry Company,member_4,3
+415,JBLM,E-5,5,12B,3,Secret,0,None,2025-12-17,332,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF02B,Engineer 67,99PC,Infantry Company,member_3,3
+413,JBLM,E-3,3,12B,1,Secret,0,None,2025-12-04,330,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF02B,Combat Engineer,02DD,Infantry Company,member_1,3
+412,JBLM,E-5,5,12B,3,Secret,0,None,2025-12-11,329,Guam,3,11B,E-8,E-8,1,Secret,0,None,2025-11-22,21500.0,WFF02B,Engineer 77,99ZC,Infantry Company,leader,3
+410,JBLM,E-4,4,12B,1,Secret,0,None,2025-12-18,327,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF02B,Engineer 61,99JC,Infantry Company,member_13,2
+409,JBLM,E-4,4,12B,2,Secret,0,None,2025-11-25,326,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF02B,Engineer 45,99TB,Infantry Company,member_12,2
+408,JBLM,E-4,4,12B,2,Secret,0,None,2025-11-24,325,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF02B,Engineer 62,99KC,Infantry Company,member_11,2
+243,JBLM,E-3,3,35M,1,TS,0,None,2025-12-12,207,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF01D,Analyst/Collector 39,99NB,Infantry Company,member_7,3
+239,JBLM,E-3,3,35M,1,TS,1,French,2025-11-25,205,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF01D,Analyst/Collector 41,99PB,Infantry Company,member_5,3
+236,JBLM,E-4,4,35M,1,TS,0,None,2025-12-04,204,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF01D,Analyst/Collector 46,99UB,Infantry Company,member_4,3
+233,JBLM,E-3,3,35M,1,TS,1,None,2025-12-30,203,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF01D,Analyst/Collector 61,99JC,Infantry Company,member_3,3
+231,JBLM,E-4,4,35M,1,TS,1,Spanish,2025-12-03,202,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF01D,Analyst/Collector 37,99LB,Infantry Company,member_2,3
+227,JBLM,E-6,6,35M,4,TS,1,Arabic,2025-12-25,199,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF01D,HUMINT Collector,02AB,Infantry Company,member_8,2
+224,JBLM,E-5,5,35N,2,TS,1,None,2026-01-01,198,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF01D,Analyst/Collector 31,99FB,Infantry Company,member_7,2
+450,JBLM,E-3,3,12B,1,Secret,0,None,2025-11-25,356,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF02B,Engineer 98,99UD,Infantry Company,member_12,1
+445,JBLM,E-3,3,12B,1,Secret,0,None,2026-01-03,353,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF02B,Engineer 76,99YC,Infantry Company,member_9,1
+444,JBLM,E-3,3,12B,1,Secret,0,Spanish,2025-12-20,352,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF02B,Engineer 54,99CC,Infantry Company,member_8,1
+443,JBLM,E-3,3,12B,1,Secret,0,None,2026-01-12,351,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF02B,Engineer 86,99ID,Infantry Company,member_7,1
+442,JBLM,E-4,4,12B,2,Secret,0,None,2025-12-04,350,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF02B,Engineer 89,99LD,Infantry Company,member_6,1
+438,JBLM,E-3,3,12B,1,Secret,0,Spanish,2025-12-24,348,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF02B,Combat Engineer,03CE,Infantry Company,member_4,1
+437,JBLM,E-3,3,12B,1,Secret,0,None,2026-01-14,347,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF02B,Combat Engineer,03DD,Infantry Company,member_3,1
+436,JBLM,E-3,3,12B,1,Secret,0,Spanish,2026-01-08,346,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF02B,Engineer 83,99FD,Infantry Company,member_2,1
+432,JBLM,E-3,3,12B,1,Secret,0,Spanish,2026-01-16,344,Guam,3,11B,E-8,E-8,1,Secret,0,None,2025-11-22,21500.0,WFF02B,Engineer 59,99HC,Infantry Company,leader,1
+216,JBLM,E-5,5,35N,2,TS,1,None,2025-12-18,195,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF01D,Analyst/Collector 52,99AC,Infantry Company,member_4,2
+209,JBLM,O-2,2,35A,1,TS,0,None,2025-11-23,192,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF01D,Executive Officer,00AB,Infantry Company,member_1,2
+207,JBLM,O-3,3,35A,1,TS,1,French,2025-12-19,191,Guam,3,11B,E-8,E-8,1,Secret,0,None,2025-11-22,21500.0,WFF01D,Company Commander,00AA,Infantry Company,leader,2
+206,JBLM,E-3,3,13B,1,Secret,0,None,2025-12-01,190,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF01C,Ammo Bearer (Gun 1),02AD,Infantry Company,member_8,1
+205,JBLM,E-4,4,13B,2,Secret,0,None,2026-01-01,189,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF01C,Assistant Gunner (Gun 6),07AC,Infantry Company,member_7,1
+204,JBLM,E-4,4,13B,2,Secret,0,None,2025-12-22,188,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF01C,Assistant Gunner (Gun 2),03AC,Infantry Company,member_6,1
+463,JBLM,E-4,4,12B,2,Secret,0,Spanish,2025-11-24,368,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF02B,Combat Engineer,02DC,Infantry Company,member_9,2
+462,JBLM,E-3,3,12B,1,Secret,0,None,2025-12-31,367,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF02B,Engineer 85,99HD,Infantry Company,member_8,2
+460,JBLM,E-3,3,12B,1,Secret,0,Arabic,2025-12-19,365,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF02B,Combat Engineer,02CD,Infantry Company,member_6,2
+459,JBLM,E-4,4,12B,1,Secret,0,None,2025-12-11,364,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF02B,Engineer 41,99PB,Infantry Company,member_5,2
+458,JBLM,E-3,3,12B,1,Secret,1,None,2026-01-05,363,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF02B,Engineer 92,99OD,Infantry Company,member_4,2
+455,JBLM,E-5,5,12B,3,Secret,1,None,2025-12-13,361,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF02B,Engineer 68,99QC,Infantry Company,member_2,2
+454,JBLM,E-3,3,12B,1,Secret,1,Arabic,2026-01-06,360,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF02B,Engineer 64,99MC,Infantry Company,member_1,2
+451,JBLM,E-3,3,12B,1,Secret,0,None,2025-12-14,357,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF02B,Engineer 74,99WC,Infantry Company,member_13,1
+203,JBLM,E-3,3,13B,1,Secret,0,French,2026-01-09,187,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF01C,Ammo Bearer (Gun 4),05AD,Infantry Company,member_5,1
+202,JBLM,E-3,3,13B,1,Secret,1,None,2026-01-08,186,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF01C,Ammo Bearer (Gun 3),04AD,Infantry Company,member_4,1
+201,JBLM,E-3,3,13B,1,Secret,1,None,2025-11-26,185,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF01C,Ammo Bearer (Gun 5),06AD,Infantry Company,member_3,1
+198,JBLM,E-4,4,13B,2,Secret,0,None,2025-12-20,183,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF01C,Assistant Gunner (Gun 5),06AC,Infantry Company,member_1,1
+197,JBLM,E-3,3,13B,1,Secret,0,None,2026-01-15,182,Guam,3,11B,E-8,E-8,1,Secret,0,None,2025-11-22,21500.0,WFF01C,Ammo Bearer (Gun 3),04AE,Infantry Company,leader,1
+196,JBLM,E-3,3,13B,1,Secret,0,French,2026-01-09,181,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF01C,Ammo Bearer (Gun 6),07AE,Infantry Company,member_8,3
+195,JBLM,E-4,4,13D,1,Secret,0,Spanish,2025-12-22,180,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF01C,Computer Operator,01AC,Infantry Company,member_7,3
+194,JBLM,E-3,3,13B,1,Secret,1,None,2025-11-26,179,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF01C,Ammo Bearer (Gun 2),03AD,Infantry Company,member_6,3
+192,JBLM,E-5,5,13D,3,Secret,0,Spanish,2025-12-10,178,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF01C,Computer Operator,01AB,Infantry Company,member_5,3
+191,JBLM,E-3,3,13B,1,Secret,0,French,2025-12-16,177,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF01C,Ammo Bearer (Gun 4),05AE,Infantry Company,member_4,3
+189,JBLM,E-4,4,13B,1,Secret,1,None,2025-11-30,175,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF01C,Driver (Gun 5),06AF,Infantry Company,member_2,3
+188,JBLM,E-4,4,13B,2,Secret,0,None,2026-01-18,174,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF01C,Driver (Gun 6),07AF,Infantry Company,member_1,3
+187,JBLM,E-4,4,13B,2,Secret,0,None,2025-12-18,173,Guam,3,11B,E-8,E-8,1,Secret,0,None,2025-11-22,21500.0,WFF01C,Driver (Gun 3),04AF,Infantry Company,leader,3
+186,JBLM,E-4,4,13B,1,Secret,0,Arabic,2026-01-15,172,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF01C,Driver (Gun 2),03AF,Infantry Company,member_8,2
+472,JBLM,O-1,1,11A,1,Secret,0,None,2025-12-27,375,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF02C,Platoon Leader (PLT 3),03AA,Infantry Company,member_1,3
+185,JBLM,E-4,4,13B,1,Secret,0,French,2025-12-17,171,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF01C,Driver (Gun 4),05AF,Infantry Company,member_7,2
+182,JBLM,E-6,6,13B,3,Secret,0,None,2026-01-14,170,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF01C,Section Chief (Gun 6),07AA,Infantry Company,member_6,2
+181,JBLM,E-5,5,13B,2,Secret,0,None,2025-12-12,169,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF01C,Gunner (Gun 3),04AB,Infantry Company,member_5,2
+180,JBLM,E-5,5,13B,3,Secret,0,None,2025-12-15,168,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF01C,Gunner (Gun 2),03AB,Infantry Company,member_4,2
+179,JBLM,E-5,5,13B,2,Secret,0,Arabic,2025-12-19,167,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF01C,Gunner (Gun 6),07AB,Infantry Company,member_3,2
+177,JBLM,E-5,5,13B,2,Secret,0,None,2025-12-25,165,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF01C,Gunner (Gun 4),05AB,Infantry Company,member_1,2
+175,JBLM,E-6,6,13B,3,Secret,0,None,2025-12-03,164,Guam,3,11B,E-8,E-8,1,Secret,0,None,2025-11-22,21500.0,WFF01C,Section Chief (Gun 1),02AA,Infantry Company,leader,2
+174,JBLM,E-6,6,13B,3,Secret,0,Spanish,2025-12-13,163,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF01C,Section Chief (Gun 2),03AA,Infantry Company,member_8,1
+172,JBLM,E-6,6,13B,4,Secret,1,None,2026-01-17,162,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF01C,Section Chief (Gun 3),04AA,Infantry Company,member_7,1
+166,JBLM,E-4,4,25U,1,Secret,0,None,2025-12-24,159,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF01B,Analyst/Collector 52,99AC,Infantry Company,member_4,1
+165,JBLM,E-5,5,35N,3,TS,0,None,2025-11-27,158,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF01B,Analyst/Collector 36,99KB,Infantry Company,member_3,1
+164,JBLM,E-4,4,35N,2,TS,0,None,2025-12-20,157,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF01B,Analyst/Collector 53,99BC,Infantry Company,member_2,1
+160,JBLM,E-4,4,25U,2,Secret,1,Arabic,2025-12-06,155,Guam,3,11B,E-8,E-8,1,Secret,0,None,2025-11-22,21500.0,WFF01B,Analyst/Collector 26,99AB,Infantry Company,leader,1
+156,JBLM,E-6,6,35M,4,TS,1,Arabic,2025-12-14,153,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF01B,HUMINT Collector,02AB,Infantry Company,member_7,3
+147,JBLM,E-3,3,35N,1,TS,1,Spanish,2025-12-05,150,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF01B,Analyst/Collector 46,99UB,Infantry Company,member_4,3
+145,JBLM,E-5,5,35M,3,TS,0,None,2025-11-30,149,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF01B,Analyst/Collector 61,99JC,Infantry Company,member_3,3
+142,JBLM,E-3,3,25U,1,Secret,0,Spanish,2025-12-20,148,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF01B,Analyst/Collector 47,99VB,Infantry Company,member_2,3
+134,JBLM,E-3,3,35M,1,TS,1,None,2025-11-27,144,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF01B,Analyst/Collector 48,99WB,Infantry Company,member_7,2
+133,JBLM,E-4,4,35N,1,TS,1,Spanish,2025-12-17,143,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF01B,Analyst/Collector 20,99UA,Infantry Company,member_6,2
+132,JBLM,E-5,5,35M,3,TS,1,None,2025-12-25,142,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF01B,Analyst/Collector 59,99HC,Infantry Company,member_5,2
+130,JBLM,E-4,4,35M,2,TS,0,Spanish,2026-01-16,141,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF01B,Analyst/Collector 28,99CB,Infantry Company,member_4,2
+128,JBLM,E-5,5,35M,3,TS,0,None,2026-01-18,140,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF01B,Analyst/Collector 74,99WC,Infantry Company,member_3,2
+127,JBLM,E-5,5,35N,3,TS,1,Spanish,2025-12-21,139,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF01B,SIGINT Analyst,03AB,Infantry Company,member_2,2
+124,JBLM,E-4,4,35M,2,TS,0,None,2025-12-26,138,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF01B,HUMINT Collector,02AD,Infantry Company,member_1,2
+121,JBLM,E-3,3,35M,1,TS,0,None,2026-01-05,135,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF01B,Analyst/Collector 54,99CC,Infantry Company,member_7,1
+120,JBLM,E-3,3,35N,1,TS,0,Arabic,2025-12-25,134,Guam,3,11B,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF01B,Analyst/Collector 33,99HB,Infantry Company,member_6,1
+118,JBLM,E-3,3,35M,1,TS,0,Spanish,2025-12-26,466,Guam,3,35F,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF01B,Analyst/Collector 76,99YC,MI Team,member_2,3
+117,JBLM,E-3,3,35M,1,TS,0,None,2025-12-08,465,Guam,3,35F,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF01B,Analyst/Collector 70,99SC,MI Team,member_1,3
+102,JBLM,E-4,4,25U,1,Secret,0,None,2025-12-11,462,Guam,3,35F,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF01B,Analyst/Collector 38,99MB,MI Team,member_13,2
+536,JBLM,E-4,4,92Y,1,Secret,1,None,2025-12-13,463,Guam,3,35F,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF02C,Supply Specialist,00AG,MI Team,member_14,2
+98,JBLM,O-2,2,35A,1,TS,0,None,2025-12-14,459,Guam,3,35F,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF01B,Executive Officer,00AB,MI Team,member_10,2
+94,JBLM,O-3,3,35A,1,TS,1,None,2025-12-11,457,Guam,3,35F,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF01B,Company Commander,00AA,MI Team,member_8,2
+92,JBLM,E-3,3,12B,1,Secret,0,Arabic,2025-11-30,456,Guam,3,35F,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF01A,Combat Engineer,02DE,MI Team,member_7,2
+89,JBLM,E-5,5,12B,2,Secret,1,Arabic,2025-12-09,455,Guam,3,35F,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF01A,Engineer 68,99QC,MI Team,member_6,2
+82,JBLM,E-5,5,12B,3,Secret,0,None,2025-12-31,450,Guam,3,35F,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF01A,Engineer 47,99VB,MI Team,member_1,2
+79,JBLM,E-3,3,12B,1,Secret,0,French,2025-12-25,447,Guam,3,35F,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF01A,Engineer 81,99DD,MI Team,member_13,1
+77,JBLM,E-3,3,12B,1,Secret,1,None,2026-01-19,446,Guam,3,35F,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF01A,Engineer 67,99PC,MI Team,member_12,1
+76,JBLM,E-3,3,12B,1,Secret,0,None,2025-11-27,445,Guam,3,35F,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF01A,Combat Engineer,03CD,MI Team,member_11,1
+555,JBLM,E-6,6,13B,4,Secret,0,None,2025-12-26,480,Guam,3,68W,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF02D,Section Chief (Gun 1),02AA,Medical Team,member_1,1
+552,JBLM,E-5,5,13B,2,Secret,0,None,2025-12-13,477,Guam,3,35F,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF02D,Gunner (Gun 3),04AB,MI Team,member_13,3
+551,JBLM,E-5,5,13B,3,Secret,0,None,2025-12-03,476,Guam,3,35F,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF02D,Gunner (Gun 1),02AB,MI Team,member_12,3
+550,JBLM,E-6,6,13B,4,Secret,0,None,2026-01-20,475,Guam,3,35F,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF02D,Section Chief (Gun 6),07AA,MI Team,member_11,3
+549,JBLM,E-5,5,13B,3,Secret,0,None,2025-11-27,474,Guam,3,35F,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF02D,Gunner (Gun 5),06AB,MI Team,member_10,3
+548,JBLM,E-6,6,13B,4,Secret,1,None,2025-12-13,473,Guam,3,35F,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF02D,Section Chief (Gun 4),05AA,MI Team,member_9,3
+544,JBLM,E-6,6,13B,3,Secret,0,Spanish,2026-01-07,470,Guam,3,35F,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF02D,Section Chief (Gun 3),04AA,MI Team,member_6,3
+543,JBLM,O-2,2,13A,1,Secret,0,None,2025-12-13,469,Guam,3,35F,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF02D,Executive Officer,00AB,MI Team,member_5,3
+540,JBLM,O-3,3,13A,1,Secret,1,None,2025-12-22,467,Guam,3,35F,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF02D,Battery Commander,00AA,MI Team,member_3,3
+72,JBLM,E-5,5,12B,2,Secret,0,Spanish,2025-12-24,442,Guam,3,35F,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF01A,Engineer 46,99UB,MI Team,member_8,1
+70,JBLM,E-3,3,12B,1,Secret,0,None,2025-12-02,441,Guam,3,35F,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF01A,Engineer 59,99HC,MI Team,member_7,1
+66,JBLM,E-3,3,12B,1,Secret,0,None,2025-12-02,437,Guam,3,35F,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF01A,Engineer 77,99ZC,MI Team,member_3,1
+65,JBLM,E-3,3,12B,1,Secret,1,None,2026-01-01,436,Guam,3,35F,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF01A,Engineer 72,99UC,MI Team,member_2,1
+64,JBLM,E-4,4,12B,2,Secret,1,None,2025-12-03,435,Guam,3,35F,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF01A,Engineer 62,99KC,MI Team,member_1,1
+7,JBLM,O-2,2,12A,1,Secret,0,None,2025-12-16,434,Guam,3,35F,E-8,E-8,1,Secret,0,None,2025-11-22,21500.0,WFF01A,Executive Officer,00AB,MI Team,leader,1
+577,JBLM,E-3,3,13B,1,Secret,0,None,2025-12-05,499,Guam,3,68W,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF02D,Ammo Bearer (Gun 3),04AD,Medical Team,member_5,2
+578,JBLM,E-4,4,13D,1,Secret,0,None,2026-01-09,500,Guam,3,68W,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF02D,Computer Operator,01AC,Medical Team,member_6,2
+579,JBLM,E-3,3,13B,1,Secret,0,None,2025-12-09,501,Guam,3,68W,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF02D,Ammo Bearer (Gun 4),05AD,Medical Team,member_7,2
+4,JBLM,O-1,1,12A,1,Secret,0,None,2025-11-26,433,Guam,3,35F,E-7,E-7,1,Secret,0,None,2025-11-22,21500.0,WFF01A,Platoon Leader (PLT 3),03AA,MI Team,member_14,3

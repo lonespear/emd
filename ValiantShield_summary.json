@@ -1,0 +1,20 @@
+[
+  {
+    "mission":"ValiantShield",
+    "total_cost":58731.0,
+    "fill_rate":1.0,
+    "filled_billets":75,
+    "total_billets":75,
+    "by_priority_filled":{
+      "1":21,
+      "2":32,
+      "3":22
+    },
+    "by_base_filled":{
+      "Guam":19,
+      "Hawaii":24,
+      "JBLM":18,
+      "Japan":14
+    }
+  }
+]
