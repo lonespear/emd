@@ -24,6 +24,14 @@ import json
 from unit_types import Unit, LeadershipLevel
 from readiness_tracker import ReadinessProfile
 
+# Import extended requirements
+try:
+    from billet_requirements import BilletRequirements, create_basic_requirements
+    EXTENDED_REQUIREMENTS_AVAILABLE = True
+except ImportError:
+    EXTENDED_REQUIREMENTS_AVAILABLE = False
+    BilletRequirements = None
+
 
 @dataclass
 class CapabilityRequirement:
@@ -66,6 +74,9 @@ class CapabilityRequirement:
     # Sourcing preferences
     prefer_from_uic: Optional[str] = None  # Prefer sourcing from specific unit
     keep_team_together: bool = True  # Prefer pulling intact teams vs individuals
+
+    # Extended qualifications (optional, for detailed matching)
+    extended_requirements: Optional[BilletRequirements] = None
 
 
 @dataclass
@@ -168,13 +179,28 @@ class ManningDocumentBuilder:
         rank_num_map = {"E-1":1, "E-2":2, "E-3":3, "E-4":4, "E-5":5, "E-6":6, "E-7":7, "E-8":8, "O-1":1, "O-2":2, "O-3":3}
         clear_num_map = {"None":0, "Secret":1, "TS":2}
 
+        # Helper function to add extended requirements to billet dict
+        def add_extended_requirements(billet_dict: Dict, req: CapabilityRequirement, position_type: str = "individual"):
+            """Add extended requirements to billet dictionary if available."""
+            if EXTENDED_REQUIREMENTS_AVAILABLE and req.extended_requirements:
+                ext_req = req.extended_requirements
+                ext_req.billet_id = billet_dict['billet_id']
+                ext_req.capability_name = req.capability_name
+                ext_req.position_title = f"{req.capability_name} - {position_type}"
+
+                # Merge extended requirement fields
+                req_dict = ext_req.to_dict()
+                billet_dict.update(req_dict)
+
+            return billet_dict
+
         for req in manning_doc.requirements:
             # Generate billets for each quantity requested
             for i in range(req.quantity):
                 # If team, generate leader + subordinates
                 if req.team_size > 1 and req.leader_required:
                     # Leader billet
-                    billets.append({
+                    leader_billet = {
                         "billet_id": billet_id,
                         "base": req.location,
                         "priority": req.priority,
@@ -193,7 +219,9 @@ class ManningDocumentBuilder:
                         "capability_instance": i + 1,
                         "team_position": "leader",
                         "keep_together": req.keep_team_together,
-                    })
+                    }
+                    leader_billet = add_extended_requirements(leader_billet, req, "leader")
+                    billets.append(leader_billet)
                     billet_id += 1
 
                     # Subordinate billets
@@ -202,7 +230,7 @@ class ManningDocumentBuilder:
                         # Subordinates typically one rank lower
                         sub_rank = req.subordinate_ranks[j] if req.subordinate_ranks and j < len(req.subordinate_ranks) else ManningDocumentBuilder._decrement_rank(req.min_rank)
 
-                        billets.append({
+                        sub_billet = {
                             "billet_id": billet_id,
                             "base": req.location,
                             "priority": req.priority,
@@ -221,12 +249,14 @@ class ManningDocumentBuilder:
                             "capability_instance": i + 1,
                             "team_position": f"member_{j+1}",
                             "keep_together": req.keep_team_together,
-                        })
+                        }
+                        sub_billet = add_extended_requirements(sub_billet, req, f"member_{j+1}")
+                        billets.append(sub_billet)
                         billet_id += 1
 
                 else:
                     # Single-person capability
-                    billets.append({
+                    single_billet = {
                         "billet_id": billet_id,
                         "base": req.location,
                         "priority": req.priority,
@@ -245,7 +275,9 @@ class ManningDocumentBuilder:
                         "capability_instance": i + 1,
                         "team_position": "individual",
                         "keep_together": False,
-                    })
+                    }
+                    single_billet = add_extended_requirements(single_billet, req, "individual")
+                    billets.append(single_billet)
                     billet_id += 1
 
         return pd.DataFrame(billets)

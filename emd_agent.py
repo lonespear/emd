@@ -16,9 +16,13 @@ from __future__ import annotations
 import numpy as np
 import pandas as pd
 import json
+import logging
 from datetime import datetime, timedelta
 from typing import Dict, Optional, Tuple, List
 from dataclasses import dataclass, field
+
+# Setup logging
+logger = logging.getLogger(__name__)
 
 try:
     from scipy.optimize import linear_sum_assignment
@@ -118,6 +122,47 @@ class EMD:
             "lead_time_penalty_oconus": 500,       # additional penalty for OCONUS (coordination)
             "same_theater_bonus": -300,            # bonus if soldier already in destination theater
             "distance_penalty_per_1000mi": 100,    # additional penalty per 1000 miles (beyond cost)
+            # NEW: Qualification penalties (Phase 4)
+            # Education
+            "education_mismatch_penalty": 1000,    # soldier below required education level
+            "education_exceed_bonus": -100,        # soldier exceeds required education
+            # Languages
+            "language_proficiency_penalty": 2000,  # missing required language proficiency
+            "language_native_bonus": -200,         # native speaker bonus
+            "any_language_bonus": -150,            # has any foreign language when preferred
+            # ASI/SQI
+            "asi_missing_penalty": 1500,           # missing required ASI
+            "asi_preferred_bonus": -200,           # has preferred ASI
+            "sqi_missing_penalty": 2500,           # missing required SQI (critical quals)
+            "sqi_preferred_bonus": -300,           # has preferred SQI
+            # Badges
+            "badge_missing_penalty": 1200,         # missing required badge
+            "badge_alternative_penalty": 400,      # has alternative badge (partial credit)
+            "badge_preferred_bonus": -150,         # has preferred badge
+            "combat_badge_bonus": -250,            # has combat badge (CIB, CAB, CMB)
+            # Licenses
+            "license_missing_penalty": 800,        # missing required license
+            "license_preferred_bonus": -100,       # has preferred license
+            # Experience
+            "combat_experience_missing_penalty": 2000,  # missing required combat experience
+            "deployment_missing_penalty": 1000,    # below minimum deployment count
+            "theater_experience_bonus": -400,      # has required theater experience
+            "leadership_experience_penalty": 1500, # below required leadership level
+            "tis_short_penalty": 500,              # below minimum TIS requirement
+            "tig_short_penalty": 300,              # below minimum TIG requirement
+            # Awards
+            "award_missing_penalty": 600,          # missing required award
+            "valor_award_bonus": -500,             # has valor award (BSM-V, ARCOM-V, etc.)
+            # Medical/Fitness
+            "medical_category_penalty": 1000,      # exceeds max medical category
+            "dental_category_penalty": 500,        # exceeds max dental category
+            "acft_short_penalty": 800,             # below minimum ACFT score
+            "weapons_qual_penalty": 400,           # below minimum weapons qual
+            # Availability
+            "dwell_requirement_penalty": 1200,     # below minimum dwell requirement
+            # Overall match quality
+            "perfect_match_bonus": -1000,          # meets all required + preferred quals
+            "critical_qual_missing_penalty": 5000, # missing any critical qualification
         }
 
     def _default_mission(self) -> Dict[str, Dict]:
@@ -660,6 +705,453 @@ class EMD:
 
         return cost_matrix
 
+    def apply_qualification_penalties(self, cost_matrix: np.ndarray) -> np.ndarray:
+        """
+        Apply comprehensive qualification matching penalties to cost matrix.
+
+        Evaluates soldier qualifications against billet requirements across:
+        - Education (degrees, majors)
+        - Languages (proficiency levels)
+        - ASIs/SQIs (additional skill identifiers)
+        - Badges (Airborne, Ranger, CIB, etc.)
+        - Licenses (CDL, medical, IT certs)
+        - Experience (combat, deployments, theater, leadership, TIS/TIG)
+        - Awards (valor, achievement)
+        - Medical/Fitness (categories, ACFT, weapons qual)
+        - Availability (dwell time)
+
+        Returns:
+            Enhanced cost matrix with qualification penalties (or original on errors)
+        """
+        try:
+            from profile_utils import (
+                has_language, has_asi, has_sqi, has_badge, has_award,
+                has_combat_experience, has_theater_experience,
+                get_deployment_count, get_education_level_value,
+                has_minimum_education, has_combat_badge,
+                parse_json_field
+            )
+            from billet_requirements import BilletRequirements
+
+            P = self.policies
+
+            # Check if billets have extended requirements
+            if 'min_education_level' not in self.billets.columns:
+                logger.info("Billets do not have extended requirements, skipping qualification penalties")
+                return cost_matrix
+
+            # Check if soldiers have extended profiles
+            if 'education_level' not in self.soldiers.columns:
+                logger.info("Soldiers do not have extended profiles, skipping qualification penalties")
+                return cost_matrix
+
+            # Track statistics
+            total_matches = 0
+            perfect_matches = 0
+            critical_mismatches = 0
+            success_count = 0
+            failure_count = 0
+
+            # Reset index to ensure sequential 0, 1, 2, ... matching matrix rows/cols
+            S = self.soldiers.reset_index(drop=True)
+            B = self.billets.reset_index(drop=True)
+
+            logger.info(f"Applying qualification penalties to {len(S)} soldiers x {len(B)} billets")
+
+            for j, billet_row in B.iterrows():
+                try:
+                    # Track requirements for this billet
+                    required_count = 0
+                    preferred_count = 0
+                    critical_missing = False
+
+                    # Get billet criticality
+                    criticality = billet_row.get('criticality', 2)
+                    is_critical = criticality >= 3
+
+                    for i, soldier_row in S.iterrows():
+                        try:
+                            total_matches += 1
+                            penalty = 0.0
+                            bonus = 0.0
+                            requirements_met = 0
+                            requirements_missed = 0
+                            preferred_met = 0
+
+                            # ========================================
+                            # 1. EDUCATION REQUIREMENTS
+                            # ========================================
+                            min_edu = billet_row.get('min_education_level')
+                            if min_edu and not pd.isna(min_edu):
+                                required_count += 1
+                                soldier_edu_level = get_education_level_value(soldier_row)
+                                edu_map = {'NONE': 0, 'GED': 1, 'HS': 2, 'SOME_COLLEGE': 3,
+                                          'AA': 4, 'BA': 5, 'MA': 6, 'PHD': 7, 'PROFESSIONAL': 7}
+                                required_edu_level = edu_map.get(min_edu, 2)
+
+                                if soldier_edu_level < required_edu_level:
+                                    penalty += P["education_mismatch_penalty"]
+                                    requirements_missed += 1
+                                    if is_critical:
+                                        critical_missing = True
+                                elif soldier_edu_level > required_edu_level:
+                                    bonus += P["education_exceed_bonus"]
+                                    requirements_met += 1
+                                else:
+                                    requirements_met += 1
+
+                            # Preferred education
+                            pref_edu = billet_row.get('preferred_education_level')
+                            if pref_edu and not pd.isna(pref_edu):
+                                preferred_count += 1
+                                if has_minimum_education(soldier_row, pref_edu):
+                                    preferred_met += 1
+
+                            # ========================================
+                            # 2. LANGUAGE REQUIREMENTS
+                            # ========================================
+                            langs_required_json = billet_row.get('languages_required_json')
+                            if langs_required_json and not pd.isna(langs_required_json):
+                                langs_required = parse_json_field(langs_required_json, [])
+                                for lang_req in langs_required:
+                                    lang_code = lang_req.get('language_code')
+                                    min_level = lang_req.get('min_listening_level', 2)
+                                    is_required = lang_req.get('required', True)
+
+                                    if is_required:
+                                        required_count += 1
+                                        if has_language(soldier_row, lang_code, min_level):
+                                            requirements_met += 1
+                                            # Bonus for native speaker
+                                            if lang_req.get('native_acceptable', True):
+                                                bonus += P["language_native_bonus"]
+                                        else:
+                                            penalty += P["language_proficiency_penalty"]
+                                            requirements_missed += 1
+                                            if is_critical:
+                                                critical_missing = True
+                                    else:
+                                        preferred_count += 1
+                                        if has_language(soldier_row, lang_code, min_level):
+                                            preferred_met += 1
+
+                            # Any language acceptable
+                            any_lang = billet_row.get('any_language_acceptable', False)
+                            if any_lang:
+                                from profile_utils import has_any_language
+                                if has_any_language(soldier_row, min_level=2):
+                                    bonus += P["any_language_bonus"]
+
+                            # ========================================
+                            # 3. ASI/SQI REQUIREMENTS
+                            # ========================================
+                            # Required ASIs
+                            asis_required_json = billet_row.get('asi_codes_required_json')
+                            if asis_required_json and not pd.isna(asis_required_json):
+                                asis_required = parse_json_field(asis_required_json, [])
+                                for asi_code in asis_required:
+                                    required_count += 1
+                                    if has_asi(soldier_row, asi_code):
+                                        requirements_met += 1
+                                    else:
+                                        penalty += P["asi_missing_penalty"]
+                                        requirements_missed += 1
+                                        if is_critical:
+                                            critical_missing = True
+
+                            # Preferred ASIs
+                            asis_preferred_json = billet_row.get('asi_codes_preferred_json')
+                            if asis_preferred_json and not pd.isna(asis_preferred_json):
+                                asis_preferred = parse_json_field(asis_preferred_json, [])
+                                for asi_code in asis_preferred:
+                                    preferred_count += 1
+                                    if has_asi(soldier_row, asi_code):
+                                        bonus += P["asi_preferred_bonus"]
+                                        preferred_met += 1
+
+                            # Required SQIs
+                            sqis_required_json = billet_row.get('sqi_codes_required_json')
+                            if sqis_required_json and not pd.isna(sqis_required_json):
+                                sqis_required = parse_json_field(sqis_required_json, [])
+                                for sqi_code in sqis_required:
+                                    required_count += 1
+                                    if has_sqi(soldier_row, sqi_code):
+                                        requirements_met += 1
+                                    else:
+                                        penalty += P["sqi_missing_penalty"]
+                                        requirements_missed += 1
+                                        critical_missing = True  # SQIs are always critical
+
+                            # Preferred SQIs
+                            sqis_preferred_json = billet_row.get('sqi_codes_preferred_json')
+                            if sqis_preferred_json and not pd.isna(sqis_preferred_json):
+                                sqis_preferred = parse_json_field(sqis_preferred_json, [])
+                                for sqi_code in sqis_preferred:
+                                    preferred_count += 1
+                                    if has_sqi(soldier_row, sqi_code):
+                                        bonus += P["sqi_preferred_bonus"]
+                                        preferred_met += 1
+
+                            # ========================================
+                            # 4. BADGE REQUIREMENTS
+                            # ========================================
+                            # Required badges
+                            badges_required_json = billet_row.get('badges_required_json')
+                            if badges_required_json and not pd.isna(badges_required_json):
+                                badges_required = parse_json_field(badges_required_json, [])
+                                for badge_req in badges_required:
+                                    badge_code = badge_req.get('badge_code')
+                                    is_required = badge_req.get('required', True)
+                                    alternatives = badge_req.get('alternative_badges', [])
+
+                                    if is_required:
+                                        required_count += 1
+                                        if has_badge(soldier_row, badge_code):
+                                            requirements_met += 1
+                                        elif any(has_badge(soldier_row, alt) for alt in alternatives):
+                                            # Has alternative badge - partial penalty
+                                            penalty += P["badge_alternative_penalty"]
+                                            requirements_met += 1
+                                        else:
+                                            penalty += P["badge_missing_penalty"]
+                                            requirements_missed += 1
+                                            if is_critical:
+                                                critical_missing = True
+                                    else:
+                                        preferred_count += 1
+                                        if has_badge(soldier_row, badge_code):
+                                            bonus += P["badge_preferred_bonus"]
+                                            preferred_met += 1
+
+                            # Preferred badges
+                            badges_preferred_json = billet_row.get('badges_preferred_json')
+                            if badges_preferred_json and not pd.isna(badges_preferred_json):
+                                badges_preferred = parse_json_field(badges_preferred_json, [])
+                                for badge_req in badges_preferred:
+                                    badge_code = badge_req.get('badge_code')
+                                    preferred_count += 1
+                                    if has_badge(soldier_row, badge_code):
+                                        bonus += P["badge_preferred_bonus"]
+                                        preferred_met += 1
+
+                            # Combat badge bonus (general preference)
+                            if has_combat_badge(soldier_row):
+                                bonus += P["combat_badge_bonus"]
+
+                            # ========================================
+                            # 5. LICENSE REQUIREMENTS
+                            # ========================================
+                            # Required licenses
+                            licenses_required_json = billet_row.get('licenses_required_json')
+                            if licenses_required_json and not pd.isna(licenses_required_json):
+                                licenses_required = parse_json_field(licenses_required_json, [])
+                                from profile_utils import get_licenses
+                                soldier_licenses = get_licenses(soldier_row)
+                                soldier_license_types = {lic.get('license_type') for lic in soldier_licenses}
+
+                                for lic_type in licenses_required:
+                                    required_count += 1
+                                    if lic_type in soldier_license_types:
+                                        requirements_met += 1
+                                    else:
+                                        penalty += P["license_missing_penalty"]
+                                        requirements_missed += 1
+
+                            # Preferred licenses
+                            licenses_preferred_json = billet_row.get('licenses_preferred_json')
+                            if licenses_preferred_json and not pd.isna(licenses_preferred_json):
+                                licenses_preferred = parse_json_field(licenses_preferred_json, [])
+                                for lic_type in licenses_preferred:
+                                    preferred_count += 1
+                                    if lic_type in soldier_license_types:
+                                        bonus += P["license_preferred_bonus"]
+                                        preferred_met += 1
+
+                            # ========================================
+                            # 6. EXPERIENCE REQUIREMENTS
+                            # ========================================
+                            experience_required_json = billet_row.get('experience_required_json')
+                            if experience_required_json and not pd.isna(experience_required_json):
+                                experiences_required = parse_json_field(experience_required_json, [])
+                                for exp_req in experiences_required:
+                                    exp_type = exp_req.get('requirement_type')
+                                    is_required = exp_req.get('required', True)
+
+                                    if not is_required:
+                                        continue  # Handle in preferred section
+
+                                    required_count += 1
+
+                                    if exp_type == 'combat':
+                                        if exp_req.get('combat_required', False):
+                                            if has_combat_experience(soldier_row):
+                                                requirements_met += 1
+                                            else:
+                                                penalty += P["combat_experience_missing_penalty"]
+                                                requirements_missed += 1
+                                                if is_critical:
+                                                    critical_missing = True
+
+                                        min_deploys = exp_req.get('min_deployments', 0)
+                                        if min_deploys > 0:
+                                            soldier_deploys = get_deployment_count(soldier_row, combat_only=True)
+                                            if soldier_deploys >= min_deploys:
+                                                requirements_met += 1
+                                            else:
+                                                penalty += P["deployment_missing_penalty"]
+                                                requirements_missed += 1
+
+                                    elif exp_type == 'theater':
+                                        theater = exp_req.get('theater')
+                                        if theater and has_theater_experience(soldier_row, theater):
+                                            bonus += P["theater_experience_bonus"]
+                                            requirements_met += 1
+                                        else:
+                                            requirements_missed += 1
+
+                                    elif exp_type == 'leadership':
+                                        min_leadership = exp_req.get('min_leadership_level', 0)
+                                        soldier_leadership = soldier_row.get('leadership_level', 0)
+                                        if soldier_leadership >= min_leadership:
+                                            requirements_met += 1
+                                        else:
+                                            penalty += P["leadership_experience_penalty"]
+                                            requirements_missed += 1
+
+                                    # TIS/TIG requirements
+                                    min_tis = exp_req.get('min_time_in_service_months', 0)
+                                    if min_tis > 0:
+                                        soldier_tis = soldier_row.get('time_in_service_months', 0)
+                                        if soldier_tis >= min_tis:
+                                            requirements_met += 1
+                                        else:
+                                            penalty += P["tis_short_penalty"]
+                                            requirements_missed += 1
+
+                                    min_tig = exp_req.get('min_time_in_grade_months', 0)
+                                    if min_tig > 0:
+                                        soldier_tig = soldier_row.get('time_in_grade_months', 0)
+                                        if soldier_tig >= min_tig:
+                                            requirements_met += 1
+                                        else:
+                                            penalty += P["tig_short_penalty"]
+                                            requirements_missed += 1
+
+                            # ========================================
+                            # 7. AWARD REQUIREMENTS
+                            # ========================================
+                            awards_required_json = billet_row.get('awards_required_json')
+                            if awards_required_json and not pd.isna(awards_required_json):
+                                awards_required = parse_json_field(awards_required_json, [])
+                                for award_type in awards_required:
+                                    required_count += 1
+                                    if has_award(soldier_row, award_type):
+                                        requirements_met += 1
+                                        # Bonus for valor awards
+                                        if award_type in ['BSM', 'ARCOM', 'AAM'] and '-V' in award_type:
+                                            bonus += P["valor_award_bonus"]
+                                    else:
+                                        penalty += P["award_missing_penalty"]
+                                        requirements_missed += 1
+
+                            # ========================================
+                            # 8. MEDICAL/FITNESS REQUIREMENTS
+                            # ========================================
+                            max_med_cat = billet_row.get('max_medical_category')
+                            if max_med_cat and not pd.isna(max_med_cat):
+                                soldier_med_cat = soldier_row.get('med_cat', 1)
+                                if soldier_med_cat > max_med_cat:
+                                    penalty += P["medical_category_penalty"]
+                                    requirements_missed += 1
+                                    if is_critical:
+                                        critical_missing = True
+
+                            max_dental_cat = billet_row.get('max_dental_category')
+                            if max_dental_cat and not pd.isna(max_dental_cat):
+                                soldier_dental_cat = soldier_row.get('dental_cat', 1)
+                                if soldier_dental_cat > max_dental_cat:
+                                    penalty += P["dental_category_penalty"]
+                                    requirements_missed += 1
+
+                            min_acft = billet_row.get('min_acft_score')
+                            if min_acft and not pd.isna(min_acft):
+                                required_count += 1
+                                soldier_acft = soldier_row.get('acft_score', 0)
+                                if soldier_acft >= min_acft:
+                                    requirements_met += 1
+                                else:
+                                    penalty += P["acft_short_penalty"]
+                                    requirements_missed += 1
+
+                            min_weapons = billet_row.get('min_weapons_qual')
+                            if min_weapons and not pd.isna(min_weapons):
+                                required_count += 1
+                                soldier_weapons = soldier_row.get('m4_score', 0)
+                                if soldier_weapons >= min_weapons:
+                                    requirements_met += 1
+                                else:
+                                    penalty += P["weapons_qual_penalty"]
+                                    requirements_missed += 1
+
+                            # ========================================
+                            # 9. AVAILABILITY REQUIREMENTS
+                            # ========================================
+                            min_dwell = billet_row.get('min_dwell_months', 0)
+                            if min_dwell > 0:
+                                required_count += 1
+                                soldier_dwell = soldier_row.get('dwell_months', 0)
+                                if soldier_dwell >= min_dwell:
+                                    requirements_met += 1
+                                else:
+                                    penalty += P["dwell_requirement_penalty"]
+                                    requirements_missed += 1
+
+                            # ========================================
+                            # 10. OVERALL MATCH QUALITY
+                            # ========================================
+                            # Perfect match bonus
+                            if required_count > 0 and requirements_missed == 0 and preferred_met == preferred_count:
+                                bonus += P["perfect_match_bonus"]
+                                perfect_matches += 1
+
+                            # Critical qualification missing
+                            if critical_missing:
+                                penalty += P["critical_qual_missing_penalty"]
+                                critical_mismatches += 1
+
+                            # Apply total penalty/bonus to cost matrix
+                            cost_matrix[i, j] += (penalty + bonus)
+
+                            success_count += 1
+
+                        except Exception as soldier_error:
+                            failure_count += 1
+                            logger.debug(f"Error processing qualification for soldier {i}, billet {j}: {soldier_error}")
+                            continue
+
+                except Exception as billet_error:
+                    failure_count += 1
+                    logger.debug(f"Error processing billet {j}: {billet_error}")
+                    continue
+
+            # Log summary
+            logger.info(f"Qualification penalties applied: {success_count}/{total_matches} matches processed successfully")
+            logger.info(f"  Perfect matches: {perfect_matches}")
+            logger.info(f"  Critical mismatches: {critical_mismatches}")
+
+            if failure_count > 0:
+                logger.warning(f"{failure_count} soldier-billet matches failed qualification processing")
+
+        except ImportError as e:
+            logger.warning(f"Qualification matching modules not available: {e}")
+            return cost_matrix
+        except Exception as e:
+            logger.error(f"Critical error in qualification penalties: {e}", exc_info=True)
+            logger.info("Returning original cost matrix")
+            return cost_matrix
+
+        return cost_matrix
+
     def assign(self, mission_name: str = "default") -> Tuple[pd.DataFrame, Dict]:
         """
         Returns:
@@ -672,6 +1164,7 @@ class EMD:
         C = self.apply_readiness_penalties(C)
         C = self.apply_cohesion_adjustments(C)
         C = self.apply_geographic_penalties(C)
+        C = self.apply_qualification_penalties(C)
 
         # Solve: soldiers (rows) to billets (cols). If more soldiers than billets, Hungarian picks best subset.
         if SCIPY_AVAILABLE:

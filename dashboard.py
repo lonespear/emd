@@ -42,6 +42,15 @@ from emd_agent import EMD
 from pareto_optimizer import ParetoOptimizer, TradeOffAnalyzer
 from deployment_tracker import OPTEMPOTracker, AvailabilityAnalyzer
 
+# Qualification system imports
+try:
+    from qualification_filter import QualificationFilter, FilterCriterion, FilterGroup
+    from billet_requirements import BilletRequirementTemplates, create_basic_requirements
+    QUALIFICATION_FEATURES_AVAILABLE = True
+except ImportError:
+    QUALIFICATION_FEATURES_AVAILABLE = False
+    print("Warning: Qualification features not available")
+
 # Geographic optimization imports
 try:
     from geolocation import LocationDatabase, DistanceCalculator, TravelCostEstimator
@@ -725,15 +734,20 @@ def main():
     st.markdown("**Enlisted Manpower Distribution - Interactive Planning Tool**")
 
     # Sidebar navigation
-    page = st.sidebar.radio(
-        "Navigation",
-        ["🏠 Home", "👥 Force Generation", "📋 Manning Document", "⚙️ Optimization", "📊 Analysis", "📈 Pareto Trade-offs"]
-    )
+    pages = ["🏠 Home", "👥 Force Generation", "📋 Manning Document", "⚙️ Optimization", "📊 Analysis", "📈 Pareto Trade-offs"]
+
+    # Add qualification filtering if available
+    if QUALIFICATION_FEATURES_AVAILABLE:
+        pages.insert(3, "🎯 Qualification Filtering")
+
+    page = st.sidebar.radio("Navigation", pages)
 
     if page == "🏠 Home":
         show_home()
     elif page == "👥 Force Generation":
         show_force_generation()
+    elif page == "🎯 Qualification Filtering":
+        show_qualification_filtering()
     elif page == "📋 Manning Document":
         show_manning_document()
     elif page == "⚙️ Optimization":
@@ -748,7 +762,7 @@ def show_home():
     """Home page with overview and quick start."""
     st.header("Welcome to EMD Manning Dashboard")
 
-    st.markdown("""
+    feature_list = """
     This dashboard helps you plan and optimize military manning assignments.
 
     ### Features:
@@ -757,17 +771,32 @@ def show_home():
     - ✅ **Readiness Validation** - Check training gates and deployment history
     - ✅ **Unit Cohesion** - Prefer keeping teams together
     - ✅ **Multi-Objective Optimization** - Explore fill vs cost trade-offs
-    - ✅ **OPTEMPO Tracking** - Account for deployment windows
+    - ✅ **OPTEMPO Tracking** - Account for deployment windows"""
+
+    if QUALIFICATION_FEATURES_AVAILABLE:
+        feature_list += """
+    - ✅ **Qualification Filtering** - Filter soldiers by badges, skills, and experience
+    - ✅ **Advanced Matching** - Match soldiers to billets based on 30+ qualification criteria"""
+
+    feature_list += """
 
     ### Quick Start:
-    1. **Force Generation** → Create your force from MTOE templates
+    1. **Force Generation** → Create your force from MTOE templates"""
+
+    if QUALIFICATION_FEATURES_AVAILABLE:
+        feature_list += """
+    2. **Qualification Filtering** → Search and filter soldiers by qualifications"""
+
+    feature_list += """
     2. **Manning Document** → Define exercise requirements
     3. **Optimization** → Run assignment algorithm
     4. **Analysis** → Review results and sourcing
     5. **Pareto Trade-offs** → Explore alternative solutions
 
     Use the sidebar to navigate between sections.
-    """)
+    """
+
+    st.markdown(feature_list)
 
     # Quick stats if data loaded
     if st.session_state.soldiers_df is not None:
@@ -848,6 +877,264 @@ def show_force_generation():
             barmode="group"
         )
         st.plotly_chart(fig, use_container_width=True)
+
+
+def show_qualification_filtering():
+    """Qualification filtering and soldier search page."""
+    st.header("🎯 Qualification Filtering & Search")
+
+    if not QUALIFICATION_FEATURES_AVAILABLE:
+        st.error("❌ Qualification features not available. Please ensure qualification_filter.py is present.")
+        return
+
+    if st.session_state.soldiers_df is None:
+        st.warning("⚠️ Please generate a force first (Force Generation page)")
+        return
+
+    st.markdown("""
+    Filter and search for soldiers based on qualifications, experience, and readiness criteria.
+    Use preset filters for common use cases or build custom filters.
+    """)
+
+    # Initialize filter
+    qf = QualificationFilter(st.session_state.soldiers_df)
+
+    # Tabs for different filter modes
+    tab1, tab2, tab3, tab4 = st.tabs(["🔍 Preset Filters", "🛠️ Custom Filters", "📊 Statistics", "🔎 Advanced Search"])
+
+    with tab1:
+        st.subheader("Preset Filters")
+        st.markdown("Quick access to common soldier qualification filters")
+
+        col1, col2 = st.columns(2)
+
+        with col1:
+            selected_preset = st.selectbox(
+                "Select Preset Filter",
+                qf.list_available_presets(),
+                format_func=lambda x: x.replace("_", " ").title()
+            )
+
+            if st.button("🔍 Apply Preset Filter", type="primary"):
+                with st.spinner(f"Applying {selected_preset} filter..."):
+                    filtered = qf.apply_preset(selected_preset)
+                    st.session_state.filtered_soldiers = filtered
+                    st.success(f"✅ Found {len(filtered)} soldiers matching '{selected_preset}'")
+
+            # Show preset description
+            desc = qf.get_preset_description(selected_preset)
+            st.info(f"**Description:** {desc}")
+
+        with col2:
+            # Quick stats for all presets
+            st.markdown("**Filter Results Preview:**")
+            preset_stats = {}
+            for preset_name in qf.list_available_presets():
+                result = qf.apply_preset(preset_name)
+                preset_stats[preset_name.replace("_", " ").title()] = len(result)
+
+            stats_df = pd.DataFrame(list(preset_stats.items()), columns=["Filter", "Matches"])
+            stats_df = stats_df.sort_values("Matches", ascending=False)
+
+            fig = px.bar(
+                stats_df,
+                x="Filter",
+                y="Matches",
+                title="Soldiers by Preset Filter",
+                color="Matches",
+                color_continuous_scale="Blues"
+            )
+            fig.update_layout(showlegend=False, xaxis_tickangle=-45)
+            st.plotly_chart(fig, use_container_width=True)
+
+    with tab2:
+        st.subheader("Build Custom Filter")
+        st.markdown("Create your own filter criteria")
+
+        # Filter options
+        col1, col2, col3 = st.columns(3)
+
+        with col1:
+            st.markdown("**Rank & MOS**")
+            filter_ranks = st.multiselect(
+                "Ranks",
+                ["E-1", "E-2", "E-3", "E-4", "E-5", "E-6", "E-7", "E-8", "E-9"],
+                default=[]
+            )
+            filter_mos = st.multiselect(
+                "MOS",
+                sorted(st.session_state.soldiers_df["MOS"].unique().tolist()),
+                default=[]
+            )
+
+        with col2:
+            st.markdown("**Fitness & Readiness**")
+            min_acft = st.slider("Min ACFT Score", 0, 600, 450)
+            deployable_only = st.checkbox("Deployable Only", value=False)
+            min_dwell = st.slider("Min Dwell (months)", 0, 36, 0)
+
+        with col3:
+            st.markdown("**Qualifications**")
+            require_airborne = st.checkbox("Airborne Qualified")
+            require_ranger = st.checkbox("Ranger Qualified")
+            require_combat = st.checkbox("Combat Experience")
+            min_deployments = st.slider("Min Deployments", 0, 5, 0)
+
+        if st.button("🔍 Apply Custom Filter", type="primary"):
+            with st.spinner("Filtering soldiers..."):
+                # Start with all soldiers
+                result = st.session_state.soldiers_df.copy()
+                temp_qf = QualificationFilter(result)
+
+                # Apply filters progressively
+                if filter_ranks:
+                    result = temp_qf.filter_by_rank(filter_ranks)
+                    temp_qf = QualificationFilter(result)
+
+                if filter_mos:
+                    result = temp_qf.filter_by_mos(filter_mos)
+                    temp_qf = QualificationFilter(result)
+
+                if min_acft > 0:
+                    result = temp_qf.filter_by_acft_score(min_acft)
+                    temp_qf = QualificationFilter(result)
+
+                if deployable_only:
+                    result = temp_qf.filter_deployable()
+                    temp_qf = QualificationFilter(result)
+
+                if min_dwell > 0:
+                    result = temp_qf.filter_by_dwell(min_dwell)
+                    temp_qf = QualificationFilter(result)
+
+                if require_airborne:
+                    result = temp_qf.filter_by_badge("AIRBORNE")
+                    temp_qf = QualificationFilter(result)
+
+                if require_ranger:
+                    result = temp_qf.filter_by_badge("RANGER")
+                    temp_qf = QualificationFilter(result)
+
+                if require_combat:
+                    result = temp_qf.filter_combat_veterans()
+                    temp_qf = QualificationFilter(result)
+
+                if min_deployments > 0:
+                    result = temp_qf.filter_by_deployment_count(min_deployments)
+                    temp_qf = QualificationFilter(result)
+
+                st.session_state.filtered_soldiers = result
+                st.success(f"✅ Found {len(result)} soldiers matching your criteria")
+
+    with tab3:
+        st.subheader("Filter Statistics & Analysis")
+
+        if 'filtered_soldiers' in st.session_state and len(st.session_state.filtered_soldiers) > 0:
+            filtered = st.session_state.filtered_soldiers
+            stats = qf.get_filter_statistics(filtered)
+
+            col1, col2, col3, col4 = st.columns(4)
+
+            with col1:
+                st.metric("Total Soldiers", stats['total_soldiers'])
+            with col2:
+                st.metric("Filtered Count", stats['filtered_count'])
+            with col3:
+                st.metric("Filter Rate", f"{stats['filter_rate']*100:.1f}%")
+            with col4:
+                if stats.get('avg_acft'):
+                    st.metric("Avg ACFT", f"{stats['avg_acft']:.0f}")
+
+            # Detailed statistics
+            if stats['filtered_count'] > 0:
+                st.markdown("---")
+                col1, col2 = st.columns(2)
+
+                with col1:
+                    st.markdown("**Readiness Metrics:**")
+                    st.write(f"- Deployable: {stats.get('deployable_pct', 0)*100:.1f}%")
+                    st.write(f"- Avg Dwell: {stats.get('avg_dwell', 0):.1f} months")
+                    st.write(f"- Avg TIS: {stats.get('avg_tis', 0):.1f} months")
+
+                with col2:
+                    st.markdown("**Top Ranks:**")
+                    if stats.get('ranks'):
+                        for rank, count in list(stats['ranks'].items())[:5]:
+                            st.write(f"- {rank}: {count} soldiers")
+
+                # Rank distribution chart
+                if stats.get('ranks'):
+                    fig = px.pie(
+                        names=list(stats['ranks'].keys()),
+                        values=list(stats['ranks'].values()),
+                        title="Rank Distribution in Filtered Set"
+                    )
+                    st.plotly_chart(fig, use_container_width=True)
+
+        else:
+            st.info("📊 Apply a filter to see statistics")
+
+    with tab4:
+        st.subheader("Advanced Search")
+
+        search_type = st.radio(
+            "Search Type",
+            ["Soldier ID", "Qualification Text"]
+        )
+
+        if search_type == "Soldier ID":
+            soldier_id = st.text_input("Enter Soldier ID")
+            if st.button("🔎 Search"):
+                if soldier_id:
+                    result = qf.search_by_soldier_id(int(soldier_id))
+                    st.session_state.filtered_soldiers = result
+                    if len(result) > 0:
+                        st.success(f"✅ Found soldier {soldier_id}")
+                    else:
+                        st.warning(f"⚠️ No soldier found with ID {soldier_id}")
+        else:
+            search_text = st.text_input("Search for qualification text (e.g., 'CIB', 'Ranger', 'Airborne')")
+            if st.button("🔎 Search"):
+                if search_text:
+                    result = qf.search_qualification_text(search_text)
+                    st.session_state.filtered_soldiers = result
+                    st.success(f"✅ Found {len(result)} soldiers with '{search_text}'")
+
+    # Display filtered results
+    if 'filtered_soldiers' in st.session_state and len(st.session_state.filtered_soldiers) > 0:
+        st.markdown("---")
+        st.subheader("📋 Filtered Results")
+
+        filtered = st.session_state.filtered_soldiers
+
+        # Display controls
+        col1, col2 = st.columns([3, 1])
+
+        with col1:
+            st.write(f"**Showing {len(filtered)} soldiers**")
+
+        with col2:
+            csv = filtered.to_csv(index=False)
+            st.download_button(
+                "📥 Download CSV",
+                data=csv,
+                file_name="filtered_soldiers.csv",
+                mime="text/csv"
+            )
+
+        # Display table
+        display_cols = ["soldier_id", "rank", "MOS", "acft_score", "deployable",
+                       "months_since_deployment", "airborne", "ranger"]
+        available_cols = [col for col in display_cols if col in filtered.columns]
+
+        st.dataframe(
+            filtered[available_cols].head(100),
+            use_container_width=True,
+            height=400
+        )
+
+        if len(filtered) > 100:
+            st.info(f"Showing first 100 of {len(filtered)} results. Download CSV for full list.")
 
 
 def show_manning_document():
@@ -1443,6 +1730,71 @@ def show_analysis():
         fig.add_vline(x=avg_cost, line_dash="dash", line_color="red",
                       annotation_text=f"Avg: ${avg_cost:,.0f}")
         st.plotly_chart(fig, use_container_width=True)
+
+    # ====================
+    # QUALIFICATION MATCH ANALYSIS
+    # ====================
+    if QUALIFICATION_FEATURES_AVAILABLE:
+        st.markdown("---")
+        st.subheader("🎯 Qualification Match Analysis")
+
+        try:
+            # Check if we have extended profile data
+            has_extended = any(col in assignments.columns for col in ['education_level', 'badges_required_json'])
+
+            if has_extended:
+                st.markdown("**Qualification matching was applied during optimization**")
+
+                col1, col2 = st.columns(2)
+
+                with col1:
+                    # Calculate match quality metrics
+                    if 'match_quality' in st.session_state.summary:
+                        match_quality = st.session_state.summary['match_quality']
+                        st.metric("Perfect Matches", f"{match_quality.get('perfect', 0)}")
+                        st.metric("Good Matches", f"{match_quality.get('good', 0)}")
+                        st.metric("Acceptable Matches", f"{match_quality.get('acceptable', 0)}")
+                        st.metric("Poor Matches", f"{match_quality.get('poor', 0)}")
+
+                    # Show qualification penalty impact
+                    if 'qual_penalty_avg' in st.session_state.summary:
+                        qual_penalty = st.session_state.summary['qual_penalty_avg']
+                        st.metric("Avg Qualification Penalty", f"${qual_penalty:,.0f}")
+
+                with col2:
+                    # Top qualification mismatches
+                    st.markdown("**Top Qualification Requirements:**")
+
+                    if 'top_requirements' in st.session_state.summary:
+                        for req in st.session_state.summary['top_requirements'][:5]:
+                            st.write(f"- {req}")
+                    else:
+                        st.info("Detailed qualification matching was used to optimize assignments")
+
+                # Qualification insights
+                st.markdown("**Qualification Insights:**")
+                qual_insights = []
+
+                if 'qual_penalty_avg' in st.session_state.summary:
+                    qual_penalty = st.session_state.summary['qual_penalty_avg']
+                    if qual_penalty < 500:
+                        qual_insights.append("✅ Excellent qualification matching - soldiers well-suited to billets")
+                    elif qual_penalty < 1500:
+                        qual_insights.append("📊 Good qualification matching - minor gaps present")
+                    else:
+                        qual_insights.append("⚠️ Some qualification mismatches - review assignments for critical requirements")
+
+                if qual_insights:
+                    for insight in qual_insights:
+                        st.markdown(f"- {insight}")
+                else:
+                    st.info("✓ Qualification penalties were considered in cost optimization")
+
+            else:
+                st.info("💡 Enable extended profiles to see detailed qualification matching analysis")
+
+        except Exception as e:
+            st.warning(f"⚠️ Could not generate qualification analysis: {e}")
 
     # ====================
     # KEY INSIGHTS

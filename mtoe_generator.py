@@ -16,6 +16,7 @@ Classes:
 from __future__ import annotations
 import numpy as np
 import pandas as pd
+import json
 from datetime import datetime, timedelta, date
 from typing import Dict, List, Optional, Tuple
 from dataclasses import dataclass, field
@@ -24,6 +25,14 @@ from unit_types import (
     Unit, Position, SoldierExtended, TrainingGate, Equipment,
     DeploymentRecord, LeadershipLevel
 )
+
+# Import extended profile generation
+try:
+    from profile_generator import ProfileGenerator
+    EXTENDED_PROFILES_AVAILABLE = True
+except ImportError:
+    EXTENDED_PROFILES_AVAILABLE = False
+    ProfileGenerator = None
 
 
 @dataclass
@@ -304,6 +313,12 @@ class UnitGenerator:
         self.soldiers_extended: Dict[int, SoldierExtended] = {}
         self.soldier_counter = 0
 
+        # Initialize extended profile generator
+        if EXTENDED_PROFILES_AVAILABLE:
+            self.profile_generator = ProfileGenerator(seed=seed)
+        else:
+            self.profile_generator = None
+
     def create_unit(
         self,
         template: MTOETemplate,
@@ -484,8 +499,53 @@ class UnitGenerator:
         pme_map = {"E-3":"None", "E-4":"BLC", "E-5":"ALC", "E-6":"ALC", "E-7":"SLC", "E-8":"SLC"}
         pme = pme_map.get(rank, "None")
 
-        # Generate attributes
-        return {
+        # Calculate time in service and time in grade
+        tig_months = self._realistic_tig_for_rank(rank)
+        # TIS is TIG + additional time from previous ranks
+        rank_progression_months = {"E-1":0, "E-2":6, "E-3":18, "E-4":30, "E-5":48, "E-6":78, "E-7":126, "E-8":174, "O-1":0, "O-2":24, "O-3":48}
+        base_tis = rank_progression_months.get(rank, 24)
+        tis_months = base_tis + tig_months
+
+        # Determine unit type for badge correlation
+        unit_type = unit.short_name if hasattr(unit, 'short_name') else None
+
+        # Generate extended profile if available
+        extended_profile_data = {}
+        if self.profile_generator is not None:
+            try:
+                extended_profile = self.profile_generator.generate_profile(
+                    soldier_id=str(soldier_id),
+                    rank=rank,
+                    mos=position.mos_required,
+                    base=unit.home_station,
+                    tis_months=tis_months,
+                    tig_months=tig_months,
+                    unit_type=unit_type
+                )
+                # Convert to dictionary for DataFrame storage
+                profile_dict = extended_profile.to_dict()
+
+                # Add extended profile columns
+                extended_profile_data = {
+                    "education_level": profile_dict["highest_education"],
+                    "education_records_json": json.dumps(profile_dict.get("education_records", [])),
+                    "languages_json": json.dumps(profile_dict.get("languages", [])),
+                    "asi_codes_json": json.dumps(profile_dict.get("asi_codes", [])),
+                    "sqi_codes_json": json.dumps(profile_dict.get("sqi_codes", [])),
+                    "badges_json": json.dumps(profile_dict.get("badges", [])),
+                    "awards_json": json.dumps(profile_dict.get("awards", [])),
+                    "licenses_json": json.dumps(profile_dict.get("licenses", [])),
+                    "time_in_service_months": tis_months,
+                    "time_in_grade_months": tig_months,
+                    "deployments_json": json.dumps(profile_dict.get("deployments", [])),
+                    "duty_history_json": json.dumps(profile_dict.get("duty_history", []))
+                }
+            except Exception as e:
+                # If profile generation fails, continue without extended data
+                print(f"Warning: Failed to generate extended profile for soldier {soldier_id}: {e}")
+
+        # Generate base attributes
+        base_data = {
             "soldier_id": soldier_id,
             "base": unit.home_station,
             "paygrade": rank,
@@ -514,12 +574,17 @@ class UnitGenerator:
             "rank_num": {"E-1":1, "E-2":2, "E-3":3, "E-4":4, "E-5":5, "E-6":6, "E-7":7, "E-8":8, "O-1":1, "O-2":2, "O-3":3}.get(rank, 3),
             "clear_num": {"None":0, "Secret":1, "TS":2}.get(position.clearance, 1),
             "deployable": 1 if np.random.rand() > 0.1 else 0,
-            # Unit-specific fields (new)
+            # Unit-specific fields
             "uic": unit.uic,
             "para_line": position.para_line,
             "duty_position": position.title,
             "leadership_level": int(position.leadership_level),
         }
+
+        # Merge extended profile data if available
+        base_data.update(extended_profile_data)
+
+        return base_data
 
     def _create_extended_soldier(
         self,
