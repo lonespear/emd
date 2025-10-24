@@ -528,7 +528,7 @@ class EMD:
 
     def apply_geographic_penalties(self, cost_matrix: np.ndarray) -> np.ndarray:
         """
-        Apply geographic distance penalties to cost matrix.
+        Apply geographic distance penalties to cost matrix with comprehensive error handling.
 
         Factors considered:
         1. Travel cost (transportation + per diem)
@@ -537,9 +537,10 @@ class EMD:
         4. Additional distance penalty (coordination complexity)
 
         Returns:
-            Enhanced cost matrix with geographic penalties
+            Enhanced cost matrix with geographic penalties (or original on errors)
         """
         if self.exercise_location is None:
+            logger.info("No exercise location specified, skipping geographic penalties")
             return cost_matrix
 
         try:
@@ -549,10 +550,15 @@ class EMD:
             P = self.policies
             db = LocationDatabase()
 
-            # Get exercise location
+            # Get exercise location with error handling
             exercise_loc = db.get(self.exercise_location)
             if exercise_loc is None:
-                # Location not found, skip geographic penalties
+                logger.warning(f"Exercise location not found: {self.exercise_location}, skipping geographic penalties")
+                return cost_matrix
+
+            # Validate exercise location
+            if not exercise_loc.is_valid():
+                logger.warning(f"Exercise location has invalid coordinates: {exercise_loc}, skipping geographic penalties")
                 return cost_matrix
 
             # Determine if OCONUS and get duration from profile
@@ -566,48 +572,91 @@ class EMD:
                 isinstance(self.readiness_profile, AdvancedReadinessProfile)
             ) else 14
 
+            # Track success/failure for reporting
+            success_count = 0
+            failure_count = 0
+            soldiers_missing_base = []
+
             # Reset index to ensure sequential 0, 1, 2, ... matching matrix rows
             S = self.soldiers.reset_index(drop=True)
 
             for i, soldier_row in S.iterrows():
-                # Get soldier's home station
-                home_station = soldier_row.get("base", "JBLM")
-                home_loc = db.get(home_station)
+                try:
+                    # Get soldier's home station
+                    home_station = soldier_row.get("base", None)
 
-                if home_loc is None:
-                    # Home station not found, skip this soldier
+                    if not home_station:
+                        failure_count += 1
+                        soldier_id = soldier_row.get("soldier_id", f"index_{i}")
+                        soldiers_missing_base.append(soldier_id)
+                        logger.debug(f"Soldier {soldier_id} missing base information")
+                        continue
+
+                    home_loc = db.get(home_station)
+
+                    if home_loc is None:
+                        failure_count += 1
+                        logger.debug(f"Home station not found: {home_station} for soldier {i}")
+                        continue
+
+                    # Validate home location
+                    if not home_loc.is_valid():
+                        failure_count += 1
+                        logger.debug(f"Invalid home station coordinates: {home_station} for soldier {i}")
+                        continue
+
+                    # Calculate distance with error handling
+                    distance_miles = DistanceCalculator.calculate(home_loc, exercise_loc, db)
+
+                    # Calculate costs with validation (already validated in TravelCostEstimator)
+                    travel_cost = TravelCostEstimator.estimate_travel_cost(
+                        distance_miles,
+                        duration_days,
+                        is_oconus
+                    )
+
+                    # Apply penalties
+                    weighted_travel_cost = travel_cost * P["geographic_cost_weight"]
+                    cost_matrix[i, :] += weighted_travel_cost
+
+                    # 2. Lead time penalty for OCONUS
+                    if is_oconus:
+                        cost_matrix[i, :] += P["lead_time_penalty_oconus"]
+
+                    # 3. Same-theater bonus
+                    # If soldier's home station is already in the same AOR, give bonus
+                    if home_loc.aor == exercise_loc.aor and home_loc.aor != "NORTHCOM":
+                        cost_matrix[i, :] += P["same_theater_bonus"]
+
+                    # 4. Distance complexity penalty (beyond just cost)
+                    # For very long distances, add coordination penalty
+                    distance_penalty = (distance_miles / 1000.0) * P["distance_penalty_per_1000mi"]
+                    cost_matrix[i, :] += distance_penalty
+
+                    success_count += 1
+
+                except Exception as soldier_error:
+                    failure_count += 1
+                    logger.debug(f"Error processing geographic penalty for soldier {i}: {soldier_error}")
                     continue
 
-                # Calculate distance
-                distance_miles = DistanceCalculator.calculate(home_loc, exercise_loc, db)
+            # Log summary
+            total_soldiers = len(S)
+            logger.info(f"Geographic penalties applied: {success_count}/{total_soldiers} soldiers processed successfully")
 
-                # 1. Travel cost (transportation + per diem)
-                travel_cost = TravelCostEstimator.estimate_travel_cost(
-                    distance_miles,
-                    duration_days,
-                    is_oconus
-                )
-                weighted_travel_cost = travel_cost * P["geographic_cost_weight"]
-                cost_matrix[i, :] += weighted_travel_cost
+            if failure_count > 0:
+                logger.warning(f"{failure_count} soldiers failed geographic processing")
 
-                # 2. Lead time penalty for OCONUS
-                if is_oconus:
-                    cost_matrix[i, :] += P["lead_time_penalty_oconus"]
-
-                # 3. Same-theater bonus
-                # If soldier's home station is already in the same AOR, give bonus
-                if home_loc.aor == exercise_loc.aor and home_loc.aor != "NORTHCOM":
-                    cost_matrix[i, :] += P["same_theater_bonus"]
-
-                # 4. Distance complexity penalty (beyond just cost)
-                # For very long distances, add coordination penalty
-                distance_penalty = (distance_miles / 1000.0) * P["distance_penalty_per_1000mi"]
-                cost_matrix[i, :] += distance_penalty
+            if soldiers_missing_base:
+                logger.warning(f"{len(soldiers_missing_base)} soldiers missing base information: {soldiers_missing_base[:5]}")
 
         except ImportError as e:
-            # Geolocation module not available, skip
-            print(f"Warning: Geographic penalties not applied ({e})")
-            pass
+            logger.warning(f"Geographic optimization modules not available: {e}")
+            return cost_matrix
+        except Exception as e:
+            logger.error(f"Critical error in geographic penalties: {e}", exc_info=True)
+            logger.info("Returning original cost matrix")
+            return cost_matrix  # Return original matrix on critical error
 
         return cost_matrix
 
@@ -725,7 +774,12 @@ class EMD:
             "by_priority_filled": by_priority,
             "by_base_filled": by_base,
         }
-        return assignments.sort_values("pair_cost"), summary
+
+        # Sort by pair_cost if assignments exist
+        if len(assignments) > 0:
+            return assignments.sort_values("pair_cost"), summary
+        else:
+            return assignments, summary
 
     # ------------------------
     # Convenience helpers

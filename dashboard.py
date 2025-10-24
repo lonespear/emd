@@ -514,147 +514,192 @@ def calculate_geographic_metrics(assignments, exercise_location):
 
 def show_geographic_analysis(assignments, exercise_location):
     """
-    Display comprehensive geographic analysis section.
+    Display comprehensive geographic analysis section with error handling.
     """
-    if not GEOGRAPHIC_AVAILABLE:
-        st.warning("⚠️ Geographic analysis not available. Geographic optimization modules not loaded.")
-        return
+    try:
+        # Check if geographic features are available
+        if not GEOGRAPHIC_AVAILABLE:
+            st.warning("⚠️ Geographic analysis not available. Install geographic modules:")
+            st.code("pip install folium streamlit-folium", language="bash")
+            st.info("The system will continue with standard analysis.")
+            return
 
-    st.markdown("---")
-    st.subheader("🌍 Geographic & Travel Analysis")
+        # Validate inputs
+        if assignments is None or len(assignments) == 0:
+            st.info("📊 No assignments to analyze. Please run optimization first.")
+            return
 
-    # Calculate metrics
-    geo_metrics = calculate_geographic_metrics(assignments, exercise_location)
+        if not exercise_location:
+            st.warning("⚠️ Exercise location not specified. Please select a location in the Manning Document page.")
+            return
 
-    if geo_metrics is None:
-        st.info("Geographic data not available for this assignment.")
-        return
+        st.markdown("---")
+        st.subheader("🌍 Geographic & Travel Analysis")
 
-    # Top-level metrics
-    col1, col2, col3, col4 = st.columns(4)
+        # Calculate metrics with error handling
+        try:
+            geo_metrics = calculate_geographic_metrics(assignments, exercise_location)
+        except Exception as metrics_error:
+            st.error(f"❌ Error calculating geographic metrics: {metrics_error}")
+            st.info("Showing partial analysis...")
+            geo_metrics = None
 
-    with col1:
-        st.metric(
-            "Total Travel Cost",
-            f"${geo_metrics['total_cost']:,.0f}",
-            help="Total estimated travel cost for all assigned soldiers"
-        )
-
-    with col2:
-        st.metric(
-            "Avg Cost/Soldier",
-            f"${geo_metrics['avg_cost']:,.0f}",
-            delta=f"Range: ${geo_metrics['min_cost']:.0f}-${geo_metrics['max_cost']:.0f}"
-        )
-
-    with col3:
-        st.metric(
-            "Avg Distance",
-            f"{geo_metrics['avg_distance']:,.0f} mi",
-            delta=f"Range: {geo_metrics['min_distance']:.0f}-{geo_metrics['max_distance']:.0f} mi"
-        )
-
-    with col4:
-        # Calculate potential savings vs worst case
-        worst_case_cost = geo_metrics['max_cost'] * geo_metrics['total_soldiers']
-        savings = worst_case_cost - geo_metrics['total_cost']
-        savings_pct = (savings / worst_case_cost) * 100 if worst_case_cost > 0 else 0
-        st.metric(
-            "Cost Optimization",
-            f"{savings_pct:.0f}% saved",
-            delta=f"${savings:,.0f} vs worst case",
-            help="Savings compared to sourcing all soldiers from farthest base"
-        )
-
-    # Interactive map
-    if MAPS_AVAILABLE:
-        st.markdown("#### Interactive Sourcing Map")
-        geo_map = create_geographic_map(assignments, exercise_location)
-        if geo_map:
-            st_folium(geo_map, width=1200, height=500)
-        else:
-            st.info("Map not available for selected location.")
-
-    # Travel cost breakdown
-    col1, col2 = st.columns(2)
-
-    with col1:
-        st.markdown("#### Cost by Distance Tier")
-        tier_data = pd.DataFrame({
-            "Tier": list(geo_metrics["cost_by_tier"].keys()),
-            "Total Cost": list(geo_metrics["cost_by_tier"].values()),
-            "Soldiers": [geo_metrics["soldiers_by_tier"].get(tier, 0) for tier in geo_metrics["cost_by_tier"].keys()]
-        })
-
-        fig = px.pie(
-            tier_data,
-            values="Total Cost",
-            names="Tier",
-            title="Travel Cost Distribution",
-            color_discrete_sequence=px.colors.sequential.RdYlGn_r
-        )
-        st.plotly_chart(fig, use_container_width=True)
-
-    with col2:
-        st.markdown("#### Distance Distribution")
-        fig2 = px.histogram(
-            geo_metrics["metrics_df"],
-            x="distance",
-            nbins=20,
-            title="Soldier Distribution by Distance",
-            labels={"distance": "Distance (miles)", "count": "# Soldiers"},
-            color_discrete_sequence=["#0066CC"]
-        )
-        st.plotly_chart(fig2, use_container_width=True)
-
-    # Sourcing by base table
-    st.markdown("#### Sourcing Analysis by Base")
-
-    base_stats = geo_metrics["by_base"].copy()
-    base_stats.columns = ["Distance (mi)", "# Soldiers", "Total Cost", "Avg Cost/Soldier"]
-    base_stats = base_stats.sort_values("Total Cost", ascending=False)
-
-    # Add cost efficiency score (lower is better)
-    base_stats["Cost Efficiency"] = (base_stats["Avg Cost/Soldier"] / geo_metrics["avg_cost"] * 100).round(0).astype(int)
-    base_stats["Rating"] = base_stats["Cost Efficiency"].apply(
-        lambda x: "🟢 Excellent" if x < 90 else "🟡 Good" if x < 110 else "🔴 Expensive"
-    )
-
-    st.dataframe(base_stats, use_container_width=True)
-
-    # Recommendations
-    st.markdown("#### 💡 Sourcing Recommendations")
-
-    # Find most cost-effective base
-    best_base = base_stats["Avg Cost/Soldier"].idxmin()
-    best_cost = base_stats.loc[best_base, "Avg Cost/Soldier"]
-    best_count = int(base_stats.loc[best_base, "# Soldiers"])
-
-    # Find most expensive base
-    worst_base = base_stats["Avg Cost/Soldier"].idxmax()
-    worst_cost = base_stats.loc[worst_base, "Avg Cost/Soldier"]
-    worst_count = int(base_stats.loc[worst_base, "# Soldiers"])
-
-    col1, col2 = st.columns(2)
-
-    with col1:
-        st.success(f"""
-        **Most Cost-Effective: {best_base}**
-        - {best_count} soldiers at ${best_cost:,.0f}/soldier
-        - {base_stats.loc[best_base, 'Distance (mi)']:.0f} miles from {exercise_location}
-        - Consider prioritizing this base for future sourcing
-        """)
-
-    with col2:
-        if worst_cost > best_cost * 1.2:  # Only show if significantly more expensive
-            st.warning(f"""
-            **Most Expensive: {worst_base}**
-            - {worst_count} soldiers at ${worst_cost:,.0f}/soldier
-            - {base_stats.loc[worst_base, 'Distance (mi)']:.0f} miles from {exercise_location}
-            - {((worst_cost - best_cost) / best_cost * 100):.0f}% more expensive than {best_base}
+        if geo_metrics is None:
+            st.info("📍 Geographic data not available for this assignment. This may be due to:")
+            st.markdown("""
+            - Missing location data for some soldiers
+            - Exercise location not in database
+            - No geographic penalties applied during optimization
             """)
-        else:
-            st.info("All bases are within reasonable cost range of each other.")
+            return
+
+        # Top-level metrics with error handling
+        try:
+            col1, col2, col3, col4 = st.columns(4)
+
+            with col1:
+                st.metric(
+                    "Total Travel Cost",
+                    f"${geo_metrics['total_cost']:,.0f}",
+                    help="Total estimated travel cost for all assigned soldiers"
+                )
+
+            with col2:
+                st.metric(
+                    "Avg Cost/Soldier",
+                    f"${geo_metrics['avg_cost']:,.0f}",
+                    delta=f"Range: ${geo_metrics['min_cost']:.0f}-${geo_metrics['max_cost']:.0f}"
+                )
+
+            with col3:
+                st.metric(
+                    "Avg Distance",
+                    f"{geo_metrics['avg_distance']:,.0f} mi",
+                    delta=f"Range: {geo_metrics['min_distance']:.0f}-{geo_metrics['max_distance']:.0f} mi"
+                )
+
+            with col4:
+                # Calculate potential savings vs worst case
+                worst_case_cost = geo_metrics['max_cost'] * geo_metrics['total_soldiers']
+                savings = worst_case_cost - geo_metrics['total_cost']
+                savings_pct = (savings / worst_case_cost) * 100 if worst_case_cost > 0 else 0
+                st.metric(
+                    "Cost Optimization",
+                    f"{savings_pct:.0f}% saved",
+                    delta=f"${savings:,.0f} vs worst case",
+                    help="Savings compared to sourcing all soldiers from farthest base"
+                )
+        except Exception as metric_error:
+            st.error(f"Error displaying metrics: {metric_error}")
+
+        # Interactive map with error handling
+        if MAPS_AVAILABLE:
+            try:
+                st.markdown("#### Interactive Sourcing Map")
+                geo_map = create_geographic_map(assignments, exercise_location)
+                if geo_map:
+                    st_folium(geo_map, width=1200, height=500)
+                else:
+                    st.info("🗺️ Map not available for selected location.")
+            except Exception as map_error:
+                st.warning(f"⚠️ Could not generate map: {map_error}")
+                st.info("Geographic analysis will continue without the map.")
+
+        # Travel cost breakdown with error handling
+        try:
+            col1, col2 = st.columns(2)
+
+            with col1:
+                st.markdown("#### Cost by Distance Tier")
+                tier_data = pd.DataFrame({
+                    "Tier": list(geo_metrics["cost_by_tier"].keys()),
+                    "Total Cost": list(geo_metrics["cost_by_tier"].values()),
+                    "Soldiers": [geo_metrics["soldiers_by_tier"].get(tier, 0) for tier in geo_metrics["cost_by_tier"].keys()]
+                })
+
+                fig = px.pie(
+                    tier_data,
+                    values="Total Cost",
+                    names="Tier",
+                    title="Travel Cost Distribution",
+                    color_discrete_sequence=px.colors.sequential.RdYlGn_r
+                )
+                st.plotly_chart(fig, use_container_width=True)
+
+            with col2:
+                st.markdown("#### Distance Distribution")
+                fig2 = px.histogram(
+                    geo_metrics["metrics_df"],
+                    x="distance",
+                    nbins=20,
+                    title="Soldier Distribution by Distance",
+                    labels={"distance": "Distance (miles)", "count": "# Soldiers"},
+                    color_discrete_sequence=["#0066CC"]
+                )
+                st.plotly_chart(fig2, use_container_width=True)
+        except Exception as viz_error:
+            st.warning(f"⚠️ Error creating visualizations: {viz_error}")
+
+        # Sourcing by base table with error handling
+        try:
+            st.markdown("#### Sourcing Analysis by Base")
+
+            base_stats = geo_metrics["by_base"].copy()
+            base_stats.columns = ["Distance (mi)", "# Soldiers", "Total Cost", "Avg Cost/Soldier"]
+            base_stats = base_stats.sort_values("Total Cost", ascending=False)
+
+            # Add cost efficiency score (lower is better)
+            base_stats["Cost Efficiency"] = (base_stats["Avg Cost/Soldier"] / geo_metrics["avg_cost"] * 100).round(0).astype(int)
+            base_stats["Rating"] = base_stats["Cost Efficiency"].apply(
+                lambda x: "🟢 Excellent" if x < 90 else "🟡 Good" if x < 110 else "🔴 Expensive"
+            )
+
+            st.dataframe(base_stats, use_container_width=True)
+        except Exception as table_error:
+            st.warning(f"⚠️ Error creating sourcing table: {table_error}")
+
+        # Recommendations with error handling
+        try:
+            st.markdown("#### 💡 Sourcing Recommendations")
+
+            # Find most cost-effective base
+            best_base = base_stats["Avg Cost/Soldier"].idxmin()
+            best_cost = base_stats.loc[best_base, "Avg Cost/Soldier"]
+            best_count = int(base_stats.loc[best_base, "# Soldiers"])
+
+            # Find most expensive base
+            worst_base = base_stats["Avg Cost/Soldier"].idxmax()
+            worst_cost = base_stats.loc[worst_base, "Avg Cost/Soldier"]
+            worst_count = int(base_stats.loc[worst_base, "# Soldiers"])
+
+            col1, col2 = st.columns(2)
+
+            with col1:
+                st.success(f"""
+                **Most Cost-Effective: {best_base}**
+                - {best_count} soldiers at ${best_cost:,.0f}/soldier
+                - {base_stats.loc[best_base, 'Distance (mi)']:.0f} miles from {exercise_location}
+                - Consider prioritizing this base for future sourcing
+                """)
+
+            with col2:
+                if worst_cost > best_cost * 1.2:  # Only show if significantly more expensive
+                    st.warning(f"""
+                    **Most Expensive: {worst_base}**
+                    - {worst_count} soldiers at ${worst_cost:,.0f}/soldier
+                    - {base_stats.loc[worst_base, 'Distance (mi)']:.0f} miles from {exercise_location}
+                    - {((worst_cost - best_cost) / best_cost * 100):.0f}% more expensive than {best_base}
+                    """)
+                else:
+                    st.info("All bases are within reasonable cost range of each other.")
+        except Exception as rec_error:
+            st.info(f"💡 Could not generate recommendations: {rec_error}")
+
+    except Exception as e:
+        st.error(f"❌ Error in geographic analysis: {e}")
+        st.info("Geographic analysis unavailable. Please check error logs or try again.")
+        import logging
+        logging.getLogger("dashboard").error(f"Geographic analysis error: {e}", exc_info=True)
 
 
 def initialize_session_state():

@@ -24,6 +24,27 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Dict, Tuple, Optional
 import math
+import logging
+
+# Import error handling utilities
+try:
+    from error_handling import (
+        setup_logging, validate_coordinates, validate_distance,
+        validate_duration, validate_cost, safe_float_conversion,
+        safe_int_conversion, safe_divide, handle_calculation_error,
+        ErrorContext, GeoConfig, InvalidCoordinateError,
+        InvalidDistanceError, LocationNotFoundError, CalculationError
+    )
+    ERROR_HANDLING_AVAILABLE = True
+except ImportError:
+    ERROR_HANDLING_AVAILABLE = False
+    logging.basicConfig(level=logging.WARNING)
+
+# Setup logger
+if ERROR_HANDLING_AVAILABLE:
+    logger = setup_logging("geolocation")
+else:
+    logger = logging.getLogger("geolocation")
 
 
 @dataclass
@@ -46,8 +67,24 @@ class GeoLocation:
     aor: str = "NORTHCOM"
     installation_type: str = "Army Base"
 
+    def __post_init__(self):
+        """Validate coordinates after initialization."""
+        if ERROR_HANDLING_AVAILABLE:
+            is_valid, error_msg = validate_coordinates(self.lat, self.lon, self.name)
+            if not is_valid:
+                logger.warning(f"Invalid coordinates for {self.name}: {error_msg}")
+                # Don't raise, just log warning to allow system to continue
+
     def __str__(self):
         return f"{self.name} ({self.lat:.4f}, {self.lon:.4f})"
+
+    def is_valid(self) -> bool:
+        """Check if location has valid coordinates."""
+        if ERROR_HANDLING_AVAILABLE:
+            is_valid, _ = validate_coordinates(self.lat, self.lon, self.name)
+            return is_valid
+        else:
+            return (-90 <= self.lat <= 90) and (-180 <= self.lon <= 180)
 
 
 class LocationDatabase:
@@ -174,24 +211,92 @@ class LocationDatabase:
 
     def _add(self, key: str, location: GeoLocation):
         """Add location to database with case-insensitive key."""
-        self.locations[key.lower()] = location
+        try:
+            if not key or not isinstance(key, str):
+                logger.warning(f"Invalid key for location: {key}")
+                return
+
+            # Validate location coordinates if possible
+            if ERROR_HANDLING_AVAILABLE and not location.is_valid():
+                logger.warning(f"Adding location with invalid coordinates: {location.name}")
+
+            self.locations[key.lower()] = location
+        except Exception as e:
+            logger.error(f"Error adding location {key}: {e}")
 
     def get(self, location_name: str) -> Optional[GeoLocation]:
-        """Get location by name (case-insensitive)."""
-        return self.locations.get(location_name.lower())
+        """
+        Get location by name (case-insensitive).
+
+        Args:
+            location_name: Name of location to retrieve
+
+        Returns:
+            GeoLocation if found, None otherwise
+        """
+        try:
+            if not location_name or not isinstance(location_name, str):
+                logger.warning(f"Invalid location_name provided: {location_name}")
+                return None
+
+            result = self.locations.get(location_name.lower())
+
+            if result is None:
+                logger.info(f"Location not found: {location_name}")
+                # Try partial match as fallback
+                matches = self.search(location_name)
+                if matches:
+                    logger.info(f"Found {len(matches)} partial matches for {location_name}")
+                    return matches[0]  # Return best match
+
+            return result
+
+        except Exception as e:
+            logger.error(f"Error retrieving location {location_name}: {e}")
+            return None
+
+    def get_safe(self, location_name: str, default_location: Optional[GeoLocation] = None) -> Optional[GeoLocation]:
+        """
+        Safely get location with fallback.
+
+        Args:
+            location_name: Name of location
+            default_location: Fallback location if not found
+
+        Returns:
+            GeoLocation or default
+        """
+        result = self.get(location_name)
+        if result is None and default_location is not None:
+            logger.info(f"Using default location for {location_name}")
+            return default_location
+        return result
 
     def search(self, query: str) -> list[GeoLocation]:
         """Search for locations matching query."""
-        query_lower = query.lower()
-        matches = []
-        for key, loc in self.locations.items():
-            if query_lower in key or query_lower in loc.name.lower():
-                matches.append(loc)
-        return matches
+        try:
+            if not query or not isinstance(query, str):
+                return []
+
+            query_lower = query.lower()
+            matches = []
+            for key, loc in self.locations.items():
+                if query_lower in key or query_lower in loc.name.lower():
+                    matches.append(loc)
+            return matches
+        except Exception as e:
+            logger.error(f"Error searching for {query}: {e}")
+            return []
 
     def list_by_aor(self, aor: str) -> list[GeoLocation]:
         """List all locations in a specific AOR."""
-        return [loc for loc in self.locations.values() if loc.aor == aor]
+        try:
+            if not aor or not isinstance(aor, str):
+                return []
+            return [loc for loc in self.locations.values() if loc.aor == aor]
+        except Exception as e:
+            logger.error(f"Error listing locations for AOR {aor}: {e}")
+            return []
 
 
 class DistanceCalculator:
@@ -213,31 +318,75 @@ class DistanceCalculator:
             unit: "miles" or "km"
 
         Returns:
-            Distance in specified unit
+            Distance in specified unit (or default if calculation fails)
         """
-        # Convert to radians
-        lat1_rad = math.radians(lat1)
-        lon1_rad = math.radians(lon1)
-        lat2_rad = math.radians(lat2)
-        lon2_rad = math.radians(lon2)
+        try:
+            # Validate inputs if error handling available
+            if ERROR_HANDLING_AVAILABLE:
+                # Validate latitude 1
+                is_valid, msg = validate_coordinates(lat1, lon1, "point1")
+                if not is_valid:
+                    logger.warning(msg)
+                    return GeoConfig.DEFAULT_DISTANCE
 
-        # Haversine formula
-        dlat = lat2_rad - lat1_rad
-        dlon = lon2_rad - lon1_rad
+                # Validate latitude 2
+                is_valid, msg = validate_coordinates(lat2, lon2, "point2")
+                if not is_valid:
+                    logger.warning(msg)
+                    return GeoConfig.DEFAULT_DISTANCE
 
-        a = math.sin(dlat/2)**2 + math.cos(lat1_rad) * math.cos(lat2_rad) * math.sin(dlon/2)**2
-        c = 2 * math.asin(math.sqrt(a))
+            # Safe conversion to float
+            if ERROR_HANDLING_AVAILABLE:
+                lat1 = safe_float_conversion(lat1, 0, "lat1")
+                lon1 = safe_float_conversion(lon1, 0, "lon1")
+                lat2 = safe_float_conversion(lat2, 0, "lat2")
+                lon2 = safe_float_conversion(lon2, 0, "lon2")
 
-        # Calculate distance
-        if unit == "km":
-            return c * DistanceCalculator.EARTH_RADIUS_KM
-        else:
-            return c * DistanceCalculator.EARTH_RADIUS_MILES
+            # Convert to radians
+            lat1_rad = math.radians(lat1)
+            lon1_rad = math.radians(lon1)
+            lat2_rad = math.radians(lat2)
+            lon2_rad = math.radians(lon2)
+
+            # Haversine formula
+            dlat = lat2_rad - lat1_rad
+            dlon = lon2_rad - lon1_rad
+
+            a = math.sin(dlat/2)**2 + math.cos(lat1_rad) * math.cos(lat2_rad) * math.sin(dlon/2)**2
+
+            # Check for domain errors
+            if a < 0 or a > 1:
+                logger.warning(f"Invalid haversine intermediate value a={a}, using default distance")
+                return GeoConfig.DEFAULT_DISTANCE if ERROR_HANDLING_AVAILABLE else 1000.0
+
+            c = 2 * math.asin(math.sqrt(a))
+
+            # Calculate distance
+            if unit == "km":
+                distance = c * DistanceCalculator.EARTH_RADIUS_KM
+            else:
+                distance = c * DistanceCalculator.EARTH_RADIUS_MILES
+
+            # Validate result
+            if ERROR_HANDLING_AVAILABLE:
+                is_valid, msg = validate_distance(distance)
+                if not is_valid:
+                    logger.warning(f"Invalid calculated distance: {msg}")
+                    return GeoConfig.DEFAULT_DISTANCE
+
+            return distance
+
+        except (ValueError, TypeError, ZeroDivisionError) as e:
+            logger.error(f"Error in haversine calculation: {e}")
+            return GeoConfig.DEFAULT_DISTANCE if ERROR_HANDLING_AVAILABLE else 1000.0
+        except Exception as e:
+            logger.error(f"Unexpected error in haversine: {e}")
+            return GeoConfig.DEFAULT_DISTANCE if ERROR_HANDLING_AVAILABLE else 1000.0
 
     @staticmethod
     def calculate(loc1: str | GeoLocation, loc2: str | GeoLocation, db: Optional[LocationDatabase] = None) -> float:
         """
-        Calculate distance between two locations.
+        Calculate distance between two locations with error handling.
 
         Args:
             loc1: Location name or GeoLocation object
@@ -245,27 +394,40 @@ class DistanceCalculator:
             db: LocationDatabase (created if None)
 
         Returns:
-            Distance in miles
+            Distance in miles (or default if calculation fails)
         """
-        if db is None:
-            db = LocationDatabase()
+        try:
+            if db is None:
+                db = LocationDatabase()
 
-        # Resolve location names to GeoLocation objects
-        if isinstance(loc1, str):
-            geo1 = db.get(loc1)
-            if geo1 is None:
-                raise ValueError(f"Location not found: {loc1}")
-        else:
-            geo1 = loc1
+            # Resolve location names to GeoLocation objects
+            if isinstance(loc1, str):
+                geo1 = db.get(loc1)
+                if geo1 is None:
+                    logger.warning(f"Location not found: {loc1}, using default distance")
+                    return GeoConfig.DEFAULT_DISTANCE if ERROR_HANDLING_AVAILABLE else 1000.0
+            else:
+                geo1 = loc1
 
-        if isinstance(loc2, str):
-            geo2 = db.get(loc2)
-            if geo2 is None:
-                raise ValueError(f"Location not found: {loc2}")
-        else:
-            geo2 = loc2
+            if isinstance(loc2, str):
+                geo2 = db.get(loc2)
+                if geo2 is None:
+                    logger.warning(f"Location not found: {loc2}, using default distance")
+                    return GeoConfig.DEFAULT_DISTANCE if ERROR_HANDLING_AVAILABLE else 1000.0
+            else:
+                geo2 = loc2
 
-        return DistanceCalculator.haversine(geo1.lat, geo1.lon, geo2.lat, geo2.lon)
+            # Validate locations have valid coordinates
+            if ERROR_HANDLING_AVAILABLE:
+                if not geo1.is_valid() or not geo2.is_valid():
+                    logger.warning(f"Invalid coordinates for {geo1.name} or {geo2.name}")
+                    return GeoConfig.DEFAULT_DISTANCE
+
+            return DistanceCalculator.haversine(geo1.lat, geo1.lon, geo2.lat, geo2.lon)
+
+        except Exception as e:
+            logger.error(f"Error calculating distance between {loc1} and {loc2}: {e}")
+            return GeoConfig.DEFAULT_DISTANCE if ERROR_HANDLING_AVAILABLE else 1000.0
 
 
 class TravelCostEstimator:
@@ -290,7 +452,7 @@ class TravelCostEstimator:
     @staticmethod
     def estimate_travel_cost(distance_miles: float, duration_days: int, is_oconus: bool = False) -> float:
         """
-        Estimate total travel cost (transportation + per diem).
+        Estimate total travel cost (transportation + per diem) with validation.
 
         Args:
             distance_miles: Distance to travel
@@ -298,32 +460,69 @@ class TravelCostEstimator:
             is_oconus: Whether destination is OCONUS
 
         Returns:
-            Estimated cost in USD
+            Estimated cost in USD (or default if calculation fails)
         """
-        # Transportation cost
-        if distance_miles < 500:
-            # Ground transport (POV or bus)
-            transport_cost = 150 + (distance_miles * TravelCostEstimator.IRS_MILEAGE_RATE)
-        elif distance_miles < 3000:
-            # Domestic flight
-            transport_cost = (TravelCostEstimator.DOMESTIC_FLIGHT_BASE +
-                            distance_miles * TravelCostEstimator.DOMESTIC_FLIGHT_PER_MILE)
-        else:
-            # International flight
-            transport_cost = (TravelCostEstimator.INTERNATIONAL_FLIGHT_BASE +
-                            distance_miles * TravelCostEstimator.INTERNATIONAL_FLIGHT_PER_MILE)
+        try:
+            # Validate inputs
+            if ERROR_HANDLING_AVAILABLE:
+                is_valid_dist, msg_dist = validate_distance(distance_miles)
+                is_valid_dur, msg_dur = validate_duration(duration_days)
 
-        # Per diem
-        per_diem_rate = TravelCostEstimator.PER_DIEM_OCONUS if is_oconus else TravelCostEstimator.PER_DIEM_CONUS
-        per_diem_cost = duration_days * per_diem_rate
+                if not is_valid_dist:
+                    logger.warning(msg_dist)
+                    distance_miles = GeoConfig.DEFAULT_DISTANCE
 
-        total_cost = transport_cost + per_diem_cost
-        return total_cost
+                if not is_valid_dur:
+                    logger.warning(msg_dur)
+                    duration_days = GeoConfig.DEFAULT_DURATION
+
+            # Safe conversions
+            if ERROR_HANDLING_AVAILABLE:
+                distance_miles = safe_float_conversion(distance_miles, GeoConfig.DEFAULT_DISTANCE, "distance")
+                duration_days = safe_int_conversion(duration_days, GeoConfig.DEFAULT_DURATION, "duration")
+            else:
+                distance_miles = float(distance_miles) if distance_miles > 0 else 1000.0
+                duration_days = int(duration_days) if duration_days > 0 else 14
+
+            # Transportation cost
+            if distance_miles < 500:
+                # Ground transport (POV or bus)
+                transport_cost = 150 + (distance_miles * TravelCostEstimator.IRS_MILEAGE_RATE)
+            elif distance_miles < 3000:
+                # Domestic flight
+                transport_cost = (TravelCostEstimator.DOMESTIC_FLIGHT_BASE +
+                                distance_miles * TravelCostEstimator.DOMESTIC_FLIGHT_PER_MILE)
+            else:
+                # International flight
+                transport_cost = (TravelCostEstimator.INTERNATIONAL_FLIGHT_BASE +
+                                distance_miles * TravelCostEstimator.INTERNATIONAL_FLIGHT_PER_MILE)
+
+            # Per diem
+            per_diem_rate = TravelCostEstimator.PER_DIEM_OCONUS if is_oconus else TravelCostEstimator.PER_DIEM_CONUS
+            per_diem_cost = duration_days * per_diem_rate
+
+            total_cost = transport_cost + per_diem_cost
+
+            # Validate result
+            if ERROR_HANDLING_AVAILABLE:
+                is_valid_cost, msg_cost = validate_cost(total_cost)
+                if not is_valid_cost:
+                    logger.warning(msg_cost)
+                    return GeoConfig.DEFAULT_COST
+
+            return total_cost
+
+        except (ValueError, TypeError) as e:
+            logger.error(f"Error estimating travel cost: {e}")
+            return GeoConfig.DEFAULT_COST if ERROR_HANDLING_AVAILABLE else 3000.0
+        except Exception as e:
+            logger.error(f"Unexpected error in travel cost estimation: {e}")
+            return GeoConfig.DEFAULT_COST if ERROR_HANDLING_AVAILABLE else 3000.0
 
     @staticmethod
     def estimate_lead_time(distance_miles: float, is_oconus: bool = False) -> int:
         """
-        Estimate lead time required for coordination (in days).
+        Estimate lead time required for coordination (in days) with validation.
 
         Args:
             distance_miles: Distance to travel
@@ -332,36 +531,63 @@ class TravelCostEstimator:
         Returns:
             Lead time in days
         """
-        if is_oconus:
-            # OCONUS requires passport, country clearance, etc.
-            if distance_miles > 7000:  # Far OCONUS (Asia, Africa)
-                return 28  # 4 weeks
-            else:  # Near OCONUS (Europe, Korea)
-                return 21  # 3 weeks
-        else:
-            # CONUS
-            if distance_miles > 2000:
-                return 14  # 2 weeks
-            elif distance_miles > 500:
-                return 7  # 1 week
+        try:
+            # Validate and convert distance
+            if ERROR_HANDLING_AVAILABLE:
+                is_valid, msg = validate_distance(distance_miles)
+                if not is_valid:
+                    logger.warning(f"{msg}, using default for lead time calculation")
+                    distance_miles = GeoConfig.DEFAULT_DISTANCE
+                else:
+                    distance_miles = safe_float_conversion(distance_miles, GeoConfig.DEFAULT_DISTANCE, "distance")
             else:
-                return 3  # 3 days for local
+                distance_miles = float(distance_miles) if distance_miles > 0 else 1000.0
+
+            if is_oconus:
+                # OCONUS requires passport, country clearance, etc.
+                if distance_miles > 7000:  # Far OCONUS (Asia, Africa)
+                    return 28  # 4 weeks
+                else:  # Near OCONUS (Europe, Korea)
+                    return 21  # 3 weeks
+            else:
+                # CONUS
+                if distance_miles > 2000:
+                    return 14  # 2 weeks
+                elif distance_miles > 500:
+                    return 7  # 1 week
+                else:
+                    return 3  # 3 days for local
+
+        except Exception as e:
+            logger.error(f"Error estimating lead time: {e}")
+            return 14  # Default to 2 weeks
 
     @staticmethod
     def categorize_distance(distance_miles: float) -> str:
-        """Categorize distance for reporting."""
-        if distance_miles < 100:
-            return "Local"
-        elif distance_miles < 500:
-            return "Regional"
-        elif distance_miles < 1500:
-            return "Domestic - Near"
-        elif distance_miles < 3000:
-            return "Domestic - Far"
-        elif distance_miles < 7000:
-            return "OCONUS - Near"
-        else:
-            return "OCONUS - Far"
+        """Categorize distance for reporting with validation."""
+        try:
+            # Safe conversion
+            if ERROR_HANDLING_AVAILABLE:
+                distance_miles = safe_float_conversion(distance_miles, 0, "distance")
+            else:
+                distance_miles = float(distance_miles) if distance_miles >= 0 else 0
+
+            if distance_miles < 100:
+                return "Local"
+            elif distance_miles < 500:
+                return "Regional"
+            elif distance_miles < 1500:
+                return "Domestic - Near"
+            elif distance_miles < 3000:
+                return "Domestic - Far"
+            elif distance_miles < 7000:
+                return "OCONUS - Near"
+            else:
+                return "OCONUS - Far"
+
+        except Exception as e:
+            logger.error(f"Error categorizing distance: {e}")
+            return "Unknown"
 
 
 class GeocodingService:
