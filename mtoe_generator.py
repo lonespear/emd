@@ -1038,6 +1038,132 @@ class UnitGenerator:
         combined_df = pd.concat(all_soldiers_df, ignore_index=True)
         return combined_df, all_soldiers_ext
 
+    def generate_brigade(
+        self,
+        brigade_uic: str,
+        brigade_name: str,
+        brigade_type: str,  # "IBCT", "SBCT", "ABCT", "Support"
+        home_station: str = "JBLM",
+        fill_rate: float = 0.93,
+        n_battalions: int = 6  # Realistic brigade = ~6 battalions = ~36 companies
+    ) -> Tuple[pd.DataFrame, Dict[int, SoldierExtended]]:
+        """
+        Generate a complete brigade with ~6 battalions and ~36 companies.
+
+        Args:
+            brigade_uic: Brigade UIC
+            brigade_name: Brigade name (e.g., "1-2 SBCT, 7th ID")
+            brigade_type: "IBCT", "SBCT", "ABCT", or "Support"
+            home_station: Base location
+            fill_rate: Manning level (0.0-1.0)
+            n_battalions: Number of battalions in brigade (default 6)
+
+        Returns:
+            Combined DataFrame of all soldiers and extended records (~3,600-7,200 soldiers)
+        """
+        all_soldiers_df = []
+        all_soldiers_ext = {}
+
+        # Define battalion composition based on brigade type
+        if brigade_type == "IBCT":
+            # Infantry BCT: Infantry battalions + support
+            battalion_configs = [
+                ["Infantry"] * 6,  # Infantry battalion
+                ["Infantry"] * 6,
+                ["Infantry"] * 6,
+                ["FieldArtillery"] * 6,  # Artillery battalion
+                ["Engineer"] * 4,  # Engineer battalion
+                ["MilitaryIntelligence"] * 4,  # MI company
+            ]
+        elif brigade_type == "SBCT":
+            # Stryker BCT: Infantry (mounted) + support
+            battalion_configs = [
+                ["Infantry"] * 6,
+                ["Infantry"] * 6,
+                ["Infantry"] * 6,
+                ["FieldArtillery"] * 6,
+                ["Engineer"] * 4,
+                ["MilitaryIntelligence"] * 4,
+            ]
+        elif brigade_type == "ABCT":
+            # Armored BCT: Mix of armor and mechanized infantry
+            battalion_configs = [
+                ["Armor"] * 6,  # Tank battalion
+                ["Armor"] * 6,
+                ["MechanizedInfantry"] * 6,  # Mechanized infantry
+                ["MechanizedInfantry"] * 6,
+                ["FieldArtillery"] * 6,
+                ["Engineer"] * 4,
+            ]
+        elif brigade_type == "Support":
+            # Support brigade: Engineers, MI, Signal, etc.
+            battalion_configs = [
+                ["Engineer"] * 6,
+                ["Engineer"] * 6,
+                ["MilitaryIntelligence"] * 6,
+                ["FieldArtillery"] * 4,
+            ]
+        else:
+            raise ValueError(f"Unknown brigade type: {brigade_type}")
+
+        for bn_idx, unit_types in enumerate(battalion_configs):
+            bn_uic = f"{brigade_uic}B{bn_idx+1}"
+            bn_name = f"{bn_idx+1}-{brigade_name.split('-')[0]} BN, {brigade_name.split(',')[-1]}"
+
+            soldiers_df, soldiers_ext = self.generate_battalion(
+                battalion_uic=bn_uic,
+                battalion_name=bn_name,
+                unit_types=unit_types,
+                home_station=home_station,
+                fill_rate=fill_rate
+            )
+
+            all_soldiers_df.append(soldiers_df)
+            all_soldiers_ext.update(soldiers_ext)
+
+        combined_df = pd.concat(all_soldiers_df, ignore_index=True)
+        return combined_df, all_soldiers_ext
+
+    def generate_division(
+        self,
+        division_uic: str,
+        division_name: str,
+        brigade_configs: List[tuple],  # List of (brigade_type, home_station, fill_rate)
+        n_brigades: int = 6
+    ) -> Tuple[pd.DataFrame, Dict[int, SoldierExtended]]:
+        """
+        Generate a complete division with ~6 brigades.
+
+        Args:
+            division_uic: Division UIC
+            division_name: Division name (e.g., "7th Infantry Division")
+            brigade_configs: List of (brigade_type, home_station, fill_rate) tuples
+            n_brigades: Number of brigades (default 6)
+
+        Returns:
+            Combined DataFrame of all soldiers (~21,600-43,200 soldiers)
+        """
+        all_soldiers_df = []
+        all_soldiers_ext = {}
+
+        for bde_idx, (bde_type, home_station, fill_rate) in enumerate(brigade_configs):
+            bde_uic = f"{division_uic}BDE{bde_idx+1}"
+            bde_name = f"{bde_idx+1}-{division_name.split()[0]} {bde_type}, {division_name}"
+
+            soldiers_df, soldiers_ext = self.generate_brigade(
+                brigade_uic=bde_uic,
+                brigade_name=bde_name,
+                brigade_type=bde_type,
+                home_station=home_station,
+                fill_rate=fill_rate
+            )
+
+            all_soldiers_df.append(soldiers_df)
+            all_soldiers_ext.update(soldiers_ext)
+
+        combined_df = pd.concat(all_soldiers_df, ignore_index=True)
+        return combined_df, all_soldiers_ext
+
 
 # -------------------------
 # Convenience functions
@@ -1090,7 +1216,11 @@ def generate_corps_force(
     fill_rate_base: float = 0.93
 ) -> Tuple[UnitGenerator, pd.DataFrame, Dict[int, SoldierExtended]]:
     """
-    Generate a realistic Corps-level force structure.
+    Generate a realistic Corps-level force structure with proper division/brigade/battalion hierarchy.
+
+    Each brigade = ~6 battalions = ~36 companies = ~3,600-7,200 soldiers
+    Each division = ~6 brigades = ~21,600-43,200 soldiers
+    Each corps = ~2-3 divisions = ~65,000-130,000 soldiers
 
     Args:
         corps_name: "I Corps", "III Corps", or "XVIII Airborne Corps"
@@ -1099,7 +1229,7 @@ def generate_corps_force(
 
     Returns:
         - generator: UnitGenerator instance with all units
-        - soldiers_df: Combined DataFrame (~45-65k soldiers)
+        - soldiers_df: Combined DataFrame (~65,000-130,000 soldiers)
         - soldiers_ext: Extended soldier records
     """
     generator = UnitGenerator(seed=seed)
@@ -1107,342 +1237,156 @@ def generate_corps_force(
     all_soldiers_ext = {}
 
     if corps_name == "I Corps":
-        # I Corps (Pacific) - ~45,000 soldiers
-        # 7th Infantry Division (JBLM)
-        # 1-2 SBCT "Arrowhead"
-        soldiers_df, soldiers_ext = generator.generate_battalion(
-            battalion_uic="W7I01",
-            battalion_name="1-2 SBCT, 7th ID",
-            unit_types=["Infantry", "Infantry", "Infantry", "Infantry"],  # Stryker battalions use Infantry template
+        # I Corps (Pacific) - ~75,000 soldiers
+        # 7th Infantry Division (JBLM) - ~22,000 soldiers
+        soldiers_df, soldiers_ext = generator.generate_division(
+            division_uic="W7ID",
+            division_name="7th Infantry Division",
+            brigade_configs=[
+                ("SBCT", "JBLM", fill_rate_base),  # 1-2 SBCT
+                ("IBCT", "JBLM", fill_rate_base),  # 2-2 IBCT
+                ("IBCT", "JBLM", fill_rate_base * 0.92),  # 3-2 IBCT
+                ("SBCT", "JBLM", fill_rate_base * 0.91),  # 4-2 SBCT
+                ("Support", "JBLM", fill_rate_base * 0.85),  # Div Artillery
+                ("Support", "JBLM", fill_rate_base * 0.88),  # Engineer Brigade
+            ]
+        )
+        all_soldiers_df.append(soldiers_df)
+        all_soldiers_ext.update(soldiers_ext)
+
+        # 25th Infantry Division (Hawaii/Alaska) - ~18,000 soldiers
+        soldiers_df, soldiers_ext = generator.generate_division(
+            division_uic="W25ID",
+            division_name="25th Infantry Division",
+            brigade_configs=[
+                ("SBCT", "JBER", fill_rate_base * 0.88),  # 1-25 SBCT (Alaska)
+                ("IBCT", "Hawaii", fill_rate_base * 0.93),  # 2-25 IBCT
+                ("IBCT", "Hawaii", fill_rate_base * 0.92),  # 3-25 IBCT
+                ("IBCT", "JBLM", fill_rate_base * 0.90),  # 4-25 IBCT (rotational)
+                ("Support", "Hawaii", fill_rate_base * 0.86),  # Div Artillery
+            ]
+        )
+        all_soldiers_df.append(soldiers_df)
+        all_soldiers_ext.update(soldiers_ext)
+
+        # Corps Support Brigades (~8,000 soldiers)
+        soldiers_df, soldiers_ext = generator.generate_brigade(
+            brigade_uic="WIC555",
+            brigade_name="555th Engineer Brigade",
+            brigade_type="Support",
             home_station="JBLM",
-            fill_rate=fill_rate_base
-        )
-        all_soldiers_df.append(soldiers_df)
-        all_soldiers_ext.update(soldiers_ext)
-
-        # 4-2 IBCT "Commando"
-        soldiers_df, soldiers_ext = generator.generate_battalion(
-            battalion_uic="W7I04",
-            battalion_name="4-2 IBCT, 7th ID",
-            unit_types=["Infantry", "Infantry", "Infantry"],
-            home_station="JBLM",
-            fill_rate=fill_rate_base
-        )
-        all_soldiers_df.append(soldiers_df)
-        all_soldiers_ext.update(soldiers_ext)
-
-        # 3-2 IBCT "Bayonet"
-        soldiers_df, soldiers_ext = generator.generate_battalion(
-            battalion_uic="W7I03",
-            battalion_name="3-2 IBCT, 7th ID",
-            unit_types=["Infantry", "Infantry", "Infantry"],
-            home_station="JBLM",
-            fill_rate=fill_rate_base
-        )
-        all_soldiers_df.append(soldiers_df)
-        all_soldiers_ext.update(soldiers_ext)
-
-        # 25th Infantry Division (Hawaii/Alaska)
-        # 1-25 SBCT (Alaska)
-        soldiers_df, soldiers_ext = generator.generate_battalion(
-            battalion_uic="W2501",
-            battalion_name="1-25 SBCT, 25th ID",
-            unit_types=["Infantry", "Infantry", "Infantry", "Infantry"],
-            home_station="JBER",
-            fill_rate=fill_rate_base * 0.90  # Alaska typically lower manning
-        )
-        all_soldiers_df.append(soldiers_df)
-        all_soldiers_ext.update(soldiers_ext)
-
-        # 2-25 IBCT "Lightning" (Hawaii)
-        soldiers_df, soldiers_ext = generator.generate_battalion(
-            battalion_uic="W2502",
-            battalion_name="2-25 IBCT, 25th ID",
-            unit_types=["Infantry", "Infantry", "Infantry"],
-            home_station="Hawaii",
-            fill_rate=fill_rate_base
-        )
-        all_soldiers_df.append(soldiers_df)
-        all_soldiers_ext.update(soldiers_ext)
-
-        # 3-25 IBCT (JBLM)
-        soldiers_df, soldiers_ext = generator.generate_battalion(
-            battalion_uic="W2503",
-            battalion_name="3-25 IBCT, 25th ID",
-            unit_types=["Infantry", "Infantry", "Infantry"],
-            home_station="JBLM",
-            fill_rate=fill_rate_base
-        )
-        all_soldiers_df.append(soldiers_df)
-        all_soldiers_ext.update(soldiers_ext)
-
-        # Corps Support - Engineers, MI, Signal
-        soldiers_df, soldiers_ext = generator.generate_battalion(
-            battalion_uic="WIC555",
-            battalion_name="555th Engineer Brigade",
-            unit_types=["Engineer", "Engineer", "Engineer"],
-            home_station="JBLM",
-            fill_rate=fill_rate_base * 0.85  # Support units typically lower
-        )
-        all_soldiers_df.append(soldiers_df)
-        all_soldiers_ext.update(soldiers_ext)
-
-        soldiers_df, soldiers_ext = generator.generate_battalion(
-            battalion_uic="WIC201",
-            battalion_name="201st MI Brigade",
-            unit_types=["MilitaryIntelligence", "MilitaryIntelligence"],
-            home_station="JBLM",
-            fill_rate=fill_rate_base * 0.88
-        )
-        all_soldiers_df.append(soldiers_df)
-        all_soldiers_ext.update(soldiers_ext)
-
-        soldiers_df, soldiers_ext = generator.generate_battalion(
-            battalion_uic="WIC017",
-            battalion_name="17th FA Brigade (LRPF)",
-            unit_types=["FieldArtillery", "FieldArtillery"],
-            home_station="JBLM",
-            fill_rate=fill_rate_base * 0.91
+            fill_rate=fill_rate_base * 0.85
         )
         all_soldiers_df.append(soldiers_df)
         all_soldiers_ext.update(soldiers_ext)
 
     elif corps_name == "III Corps":
-        # III Corps (Central) - ~42,000 soldiers
-        # 1st Cavalry Division (Fort Cavazos) - Heavy armor
-        # 1st ABCT
-        soldiers_df, soldiers_ext = generator.generate_battalion(
-            battalion_uic="W1C01A",
-            battalion_name="1st ABCT, 1st CAV",
-            unit_types=["Armor", "Armor", "MechanizedInfantry"],
-            home_station="Fort Cavazos",
-            fill_rate=fill_rate_base * 0.95  # Heavy units well-manned
+        # III Corps (Central) - ~80,000 soldiers (Heavy Armor Focus)
+        # 1st Cavalry Division (Fort Cavazos) - ~24,000 soldiers
+        soldiers_df, soldiers_ext = generator.generate_division(
+            division_uic="W1CAV",
+            division_name="1st Cavalry Division",
+            brigade_configs=[
+                ("ABCT", "Fort Cavazos", fill_rate_base * 0.95),  # 1st ABCT
+                ("ABCT", "Fort Cavazos", fill_rate_base * 0.95),  # 2nd ABCT
+                ("ABCT", "Fort Cavazos", fill_rate_base * 0.94),  # 3rd ABCT
+                ("SBCT", "Fort Cavazos", fill_rate_base * 0.93),  # 1st SBCT
+                ("Support", "Fort Cavazos", fill_rate_base * 0.88),  # Div Artillery
+                ("Support", "Fort Cavazos", fill_rate_base * 0.86),  # Engineer
+            ]
         )
         all_soldiers_df.append(soldiers_df)
         all_soldiers_ext.update(soldiers_ext)
 
-        # 2nd ABCT
-        soldiers_df, soldiers_ext = generator.generate_battalion(
-            battalion_uic="W1C02A",
-            battalion_name="2nd ABCT, 1st CAV",
-            unit_types=["Armor", "Armor", "MechanizedInfantry"],
-            home_station="Fort Cavazos",
-            fill_rate=fill_rate_base * 0.95
+        # 1st Armored Division (Fort Bliss) - ~23,000 soldiers
+        soldiers_df, soldiers_ext = generator.generate_division(
+            division_uic="W1AD",
+            division_name="1st Armored Division",
+            brigade_configs=[
+                ("ABCT", "Fort Bliss", fill_rate_base * 0.94),  # 1st ABCT
+                ("ABCT", "Fort Bliss", fill_rate_base * 0.94),  # 2nd ABCT
+                ("ABCT", "Fort Bliss", fill_rate_base * 0.93),  # 3rd ABCT
+                ("IBCT", "Fort Bliss", fill_rate_base * 0.91),  # 1st IBCT
+                ("Support", "Fort Bliss", fill_rate_base * 0.87),  # Div Artillery
+                ("Support", "Fort Bliss", fill_rate_base * 0.85),  # Engineer
+            ]
         )
         all_soldiers_df.append(soldiers_df)
         all_soldiers_ext.update(soldiers_ext)
 
-        # 3rd ABCT
-        soldiers_df, soldiers_ext = generator.generate_battalion(
-            battalion_uic="W1C03A",
-            battalion_name="3rd ABCT, 1st CAV",
-            unit_types=["Armor", "Armor", "MechanizedInfantry"],
-            home_station="Fort Cavazos",
-            fill_rate=fill_rate_base * 0.95
-        )
-        all_soldiers_df.append(soldiers_df)
-        all_soldiers_ext.update(soldiers_ext)
-
-        # 1st SBCT
-        soldiers_df, soldiers_ext = generator.generate_battalion(
-            battalion_uic="W1C01S",
-            battalion_name="1st SBCT, 1st CAV",
-            unit_types=["Infantry", "Infantry", "Infantry", "Infantry"],
-            home_station="Fort Cavazos",
-            fill_rate=fill_rate_base
-        )
-        all_soldiers_df.append(soldiers_df)
-        all_soldiers_ext.update(soldiers_ext)
-
-        # 1st Armored Division (Fort Bliss)
-        # 1st ABCT
-        soldiers_df, soldiers_ext = generator.generate_battalion(
-            battalion_uic="W1A01A",
-            battalion_name="1st ABCT, 1st AD",
-            unit_types=["Armor", "Armor", "MechanizedInfantry"],
-            home_station="Fort Bliss",
-            fill_rate=fill_rate_base * 0.94
-        )
-        all_soldiers_df.append(soldiers_df)
-        all_soldiers_ext.update(soldiers_ext)
-
-        # 2nd ABCT
-        soldiers_df, soldiers_ext = generator.generate_battalion(
-            battalion_uic="W1A02A",
-            battalion_name="2nd ABCT, 1st AD",
-            unit_types=["Armor", "Armor", "MechanizedInfantry"],
-            home_station="Fort Bliss",
-            fill_rate=fill_rate_base * 0.94
-        )
-        all_soldiers_df.append(soldiers_df)
-        all_soldiers_ext.update(soldiers_ext)
-
-        # 3rd ABCT
-        soldiers_df, soldiers_ext = generator.generate_battalion(
-            battalion_uic="W1A03A",
-            battalion_name="3rd ABCT, 1st AD",
-            unit_types=["Armor", "Armor", "MechanizedInfantry"],
-            home_station="Fort Bliss",
-            fill_rate=fill_rate_base * 0.94
-        )
-        all_soldiers_df.append(soldiers_df)
-        all_soldiers_ext.update(soldiers_ext)
-
-        # Corps Support
-        soldiers_df, soldiers_ext = generator.generate_battalion(
-            battalion_uic="W3C041",
-            battalion_name="41st FA Brigade",
-            unit_types=["FieldArtillery", "FieldArtillery"],
-            home_station="Fort Cavazos",
-            fill_rate=fill_rate_base * 0.90
+        # 1st Infantry Division (Fort Riley) - ~21,000 soldiers
+        soldiers_df, soldiers_ext = generator.generate_division(
+            division_uic="W1ID",
+            division_name="1st Infantry Division",
+            brigade_configs=[
+                ("ABCT", "Fort Riley", fill_rate_base * 0.93),  # 1st ABCT
+                ("ABCT", "Fort Riley", fill_rate_base * 0.93),  # 2nd ABCT
+                ("IBCT", "Fort Riley", fill_rate_base * 0.92),  # 3rd IBCT (rotates to Germany)
+                ("IBCT", "Fort Riley", fill_rate_base * 0.91),  # 4th IBCT
+                ("Support", "Fort Riley", fill_rate_base * 0.86),  # Div Artillery
+            ]
         )
         all_soldiers_df.append(soldiers_df)
         all_soldiers_ext.update(soldiers_ext)
 
     elif corps_name == "XVIII Airborne Corps":
-        # XVIII Airborne Corps (Global Response) - ~65,000 soldiers
-        # 82nd Airborne Division (Fort Liberty)
-        # 1st BCT (Airborne)
-        soldiers_df, soldiers_ext = generator.generate_battalion(
-            battalion_uic="W8201A",
-            battalion_name="1st BCT, 82nd ABN",
-            unit_types=["AirborneInfantry", "AirborneInfantry", "AirborneInfantry"],
-            home_station="Fort Liberty",
-            fill_rate=fill_rate_base * 0.96  # Airborne units prioritized
+        # XVIII Airborne Corps (Global Response) - ~90,000 soldiers
+        # 82nd Airborne Division (Fort Liberty) - ~16,000 soldiers
+        soldiers_df, soldiers_ext = generator.generate_division(
+            division_uic="W82ABN",
+            division_name="82nd Airborne Division",
+            brigade_configs=[
+                ("IBCT", "Fort Liberty", fill_rate_base * 0.96),  # 1st BCT (uses airborne infantry)
+                ("IBCT", "Fort Liberty", fill_rate_base * 0.96),  # 2nd BCT
+                ("IBCT", "Fort Liberty", fill_rate_base * 0.95),  # 3rd BCT
+                ("IBCT", "Fort Liberty", fill_rate_base * 0.94),  # 4th BCT (added 2021)
+                ("Support", "Fort Liberty", fill_rate_base * 0.90),  # Div Artillery
+            ]
         )
         all_soldiers_df.append(soldiers_df)
         all_soldiers_ext.update(soldiers_ext)
 
-        # 2nd BCT (Airborne)
-        soldiers_df, soldiers_ext = generator.generate_battalion(
-            battalion_uic="W8202A",
-            battalion_name="2nd BCT, 82nd ABN",
-            unit_types=["AirborneInfantry", "AirborneInfantry", "AirborneInfantry"],
-            home_station="Fort Liberty",
-            fill_rate=fill_rate_base * 0.96
+        # 101st Airborne Division (Air Assault) - Fort Campbell - ~25,000 soldiers
+        soldiers_df, soldiers_ext = generator.generate_division(
+            division_uic="W101ABN",
+            division_name="101st Airborne Division",
+            brigade_configs=[
+                ("IBCT", "Fort Campbell", fill_rate_base * 0.95),  # 1st BCT
+                ("IBCT", "Fort Campbell", fill_rate_base * 0.95),  # 2nd BCT
+                ("IBCT", "Fort Campbell", fill_rate_base * 0.94),  # 3rd BCT
+                ("IBCT", "Fort Campbell", fill_rate_base * 0.93),  # 4th BCT (rotational)
+                ("Support", "Fort Campbell", fill_rate_base * 0.89),  # Div Artillery
+                ("Support", "Fort Campbell", fill_rate_base * 0.87),  # Aviation Brigade
+            ]
         )
         all_soldiers_df.append(soldiers_df)
         all_soldiers_ext.update(soldiers_ext)
 
-        # 3rd BCT (Airborne)
-        soldiers_df, soldiers_ext = generator.generate_battalion(
-            battalion_uic="W8203A",
-            battalion_name="3rd BCT, 82nd ABN",
-            unit_types=["AirborneInfantry", "AirborneInfantry", "AirborneInfantry"],
-            home_station="Fort Liberty",
-            fill_rate=fill_rate_base * 0.96
+        # 10th Mountain Division (Fort Drum) - ~15,000 soldiers
+        soldiers_df, soldiers_ext = generator.generate_division(
+            division_uic="W10MTN",
+            division_name="10th Mountain Division",
+            brigade_configs=[
+                ("IBCT", "Fort Drum", fill_rate_base * 0.92),  # 1st BCT
+                ("IBCT", "Fort Drum", fill_rate_base * 0.92),  # 2nd BCT
+                ("IBCT", "Fort Drum", fill_rate_base * 0.91),  # 3rd BCT (rotates to Middle East)
+                ("Support", "Fort Drum", fill_rate_base * 0.86),  # Div Artillery
+            ]
         )
         all_soldiers_df.append(soldiers_df)
         all_soldiers_ext.update(soldiers_ext)
 
-        # 101st Airborne Division (Air Assault) - Fort Campbell
-        # 1st BCT
-        soldiers_df, soldiers_ext = generator.generate_battalion(
-            battalion_uic="W10101",
-            battalion_name="1st BCT, 101st ABN",
-            unit_types=["Infantry", "Infantry", "Infantry"],
-            home_station="Fort Campbell",
-            fill_rate=fill_rate_base * 0.95
-        )
-        all_soldiers_df.append(soldiers_df)
-        all_soldiers_ext.update(soldiers_ext)
-
-        # 2nd BCT
-        soldiers_df, soldiers_ext = generator.generate_battalion(
-            battalion_uic="W10102",
-            battalion_name="2nd BCT, 101st ABN",
-            unit_types=["Infantry", "Infantry", "Infantry"],
-            home_station="Fort Campbell",
-            fill_rate=fill_rate_base * 0.95
-        )
-        all_soldiers_df.append(soldiers_df)
-        all_soldiers_ext.update(soldiers_ext)
-
-        # 3rd BCT
-        soldiers_df, soldiers_ext = generator.generate_battalion(
-            battalion_uic="W10103",
-            battalion_name="3rd BCT, 101st ABN",
-            unit_types=["Infantry", "Infantry", "Infantry"],
-            home_station="Fort Campbell",
-            fill_rate=fill_rate_base * 0.95
-        )
-        all_soldiers_df.append(soldiers_df)
-        all_soldiers_ext.update(soldiers_ext)
-
-        # 10th Mountain Division (Fort Drum)
-        # 1st BCT
-        soldiers_df, soldiers_ext = generator.generate_battalion(
-            battalion_uic="W10M01",
-            battalion_name="1st BCT, 10th MTN",
-            unit_types=["Infantry", "Infantry", "Infantry"],
-            home_station="Fort Drum",
-            fill_rate=fill_rate_base
-        )
-        all_soldiers_df.append(soldiers_df)
-        all_soldiers_ext.update(soldiers_ext)
-
-        # 2nd BCT
-        soldiers_df, soldiers_ext = generator.generate_battalion(
-            battalion_uic="W10M02",
-            battalion_name="2nd BCT, 10th MTN",
-            unit_types=["Infantry", "Infantry", "Infantry"],
-            home_station="Fort Drum",
-            fill_rate=fill_rate_base
-        )
-        all_soldiers_df.append(soldiers_df)
-        all_soldiers_ext.update(soldiers_ext)
-
-        # 3rd Infantry Division (Fort Stewart)
-        # 1st ABCT
-        soldiers_df, soldiers_ext = generator.generate_battalion(
-            battalion_uic="W3I01A",
-            battalion_name="1st ABCT, 3rd ID",
-            unit_types=["Armor", "Armor", "MechanizedInfantry"],
-            home_station="Fort Stewart",
-            fill_rate=fill_rate_base * 0.94
-        )
-        all_soldiers_df.append(soldiers_df)
-        all_soldiers_ext.update(soldiers_ext)
-
-        # 2nd ABCT
-        soldiers_df, soldiers_ext = generator.generate_battalion(
-            battalion_uic="W3I02A",
-            battalion_name="2nd ABCT, 3rd ID",
-            unit_types=["Armor", "Armor", "MechanizedInfantry"],
-            home_station="Fort Stewart",
-            fill_rate=fill_rate_base * 0.94
-        )
-        all_soldiers_df.append(soldiers_df)
-        all_soldiers_ext.update(soldiers_ext)
-
-        # 3rd IBCT
-        soldiers_df, soldiers_ext = generator.generate_battalion(
-            battalion_uic="W3I03I",
-            battalion_name="3rd IBCT, 3rd ID",
-            unit_types=["Infantry", "Infantry", "Infantry"],
-            home_station="Fort Stewart",
-            fill_rate=fill_rate_base
-        )
-        all_soldiers_df.append(soldiers_df)
-        all_soldiers_ext.update(soldiers_ext)
-
-        # Corps Support
-        soldiers_df, soldiers_ext = generator.generate_battalion(
-            battalion_uic="W18C18",
-            battalion_name="18th FA Brigade (LRPF)",
-            unit_types=["FieldArtillery", "FieldArtillery"],
-            home_station="Fort Liberty",
-            fill_rate=fill_rate_base * 0.92
-        )
-        all_soldiers_df.append(soldiers_df)
-        all_soldiers_ext.update(soldiers_ext)
-
-        soldiers_df, soldiers_ext = generator.generate_battalion(
-            battalion_uic="W18C20",
-            battalion_name="20th Engineer Brigade (ABN)",
-            unit_types=["Engineer", "Engineer"],
-            home_station="Fort Liberty",
-            fill_rate=fill_rate_base * 0.88
+        # 3rd Infantry Division (Fort Stewart) - ~21,000 soldiers
+        soldiers_df, soldiers_ext = generator.generate_division(
+            division_uic="W3ID",
+            division_name="3rd Infantry Division",
+            brigade_configs=[
+                ("ABCT", "Fort Stewart", fill_rate_base * 0.94),  # 1st ABCT
+                ("ABCT", "Fort Stewart", fill_rate_base * 0.93),  # 2nd ABCT
+                ("IBCT", "Fort Stewart", fill_rate_base * 0.92),  # 3rd IBCT
+                ("SBCT", "Fort Stewart", fill_rate_base * 0.91),  # 1st SBCT
+                ("Support", "Fort Stewart", fill_rate_base * 0.87),  # Div Artillery
+            ]
         )
         all_soldiers_df.append(soldiers_df)
         all_soldiers_ext.update(soldiers_ext)

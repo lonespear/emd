@@ -829,8 +829,10 @@ def show_force_generation():
     if CORPS_GENERATION_AVAILABLE:
         force_type = st.selectbox(
             "Select Force Structure",
-            ["I Corps (Pacific) - ~4,500 soldiers", "III Corps (Central) - ~4,000 soldiers",
-             "XVIII Airborne Corps (Global Response) - ~6,000 soldiers", "Custom (Random Generation)"],
+            ["I Corps (Pacific) - ~22,500 soldiers (2 divisions)",
+             "III Corps (Central) - ~32,000 soldiers (3 divisions)",
+             "XVIII Airborne Corps (Global Response) - ~35,000 soldiers (4 divisions)",
+             "Custom (Random Generation)"],
             help="Select a pre-configured Corps or create a custom force"
         )
     else:
