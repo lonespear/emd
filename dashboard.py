@@ -31,7 +31,14 @@ except ImportError:
     print("Warning: folium/streamlit-folium not available. Install with: pip install folium streamlit-folium")
 
 # EMD imports
-from mtoe_generator import quick_generate_force, generate_corps_force, apply_jitter_to_force, UnitGenerator
+from mtoe_generator import quick_generate_force, UnitGenerator
+# Import corps generation functions if available (may not be in older deployments)
+try:
+    from mtoe_generator import generate_corps_force, apply_jitter_to_force
+    CORPS_GENERATION_AVAILABLE = True
+except ImportError:
+    CORPS_GENERATION_AVAILABLE = False
+    print("Warning: Corps generation features not available in this deployment")
 from manning_document import (
     ManningDocument, CapabilityRequirement,
     ManningDocumentBuilder, create_custom_manning_document
@@ -819,12 +826,16 @@ def show_force_generation():
     """)
 
     # Force type selector
-    force_type = st.selectbox(
-        "Select Force Structure",
-        ["I Corps (Pacific) - ~4,500 soldiers", "III Corps (Central) - ~4,000 soldiers",
-         "XVIII Airborne Corps (Global Response) - ~6,000 soldiers", "Custom (Random Generation)"],
-        help="Select a pre-configured Corps or create a custom force"
-    )
+    if CORPS_GENERATION_AVAILABLE:
+        force_type = st.selectbox(
+            "Select Force Structure",
+            ["I Corps (Pacific) - ~4,500 soldiers", "III Corps (Central) - ~4,000 soldiers",
+             "XVIII Airborne Corps (Global Response) - ~6,000 soldiers", "Custom (Random Generation)"],
+            help="Select a pre-configured Corps or create a custom force"
+        )
+    else:
+        st.info("ℹ️ Corps generation features will be available after deployment update. Using custom generation.")
+        force_type = "Custom (Random Generation)"
 
     # Configuration based on selection
     if force_type == "Custom (Random Generation)":
@@ -856,37 +867,45 @@ def show_force_generation():
             seed = st.number_input("Random Seed", min_value=1, max_value=999, value=42)
 
     # Jitter controls
-    with st.expander("🎲 Apply Jitter (for Sensitivity Analysis)", expanded=False):
-        st.markdown("""
-        Apply controlled perturbations to test how parameter changes affect optimization results.
-        Useful for analyzing system sensitivity and robustness.
-        """)
+    if CORPS_GENERATION_AVAILABLE:
+        with st.expander("🎲 Apply Jitter (for Sensitivity Analysis)", expanded=False):
+            st.markdown("""
+            Apply controlled perturbations to test how parameter changes affect optimization results.
+            Useful for analyzing system sensitivity and robustness.
+            """)
 
-        apply_jitter = st.checkbox("Enable Jitter", value=False)
+            apply_jitter = st.checkbox("Enable Jitter", value=False)
 
-        if apply_jitter:
-            col1, col2 = st.columns(2)
+            if apply_jitter:
+                col1, col2 = st.columns(2)
 
-            with col1:
-                fill_rate_var = st.slider("Fill Rate Variance (%)", 0, 15, 0,
-                                         help="Randomly reduce unit manning by up to this %") / 100
-                training_expiry = st.slider("Training Expiry Rate (%)", 0, 25, 0,
-                                           help="% of training gates to randomly expire") / 100
+                with col1:
+                    fill_rate_var = st.slider("Fill Rate Variance (%)", 0, 15, 0,
+                                             help="Randomly reduce unit manning by up to this %") / 100
+                    training_expiry = st.slider("Training Expiry Rate (%)", 0, 25, 0,
+                                               help="% of training gates to randomly expire") / 100
 
-            with col2:
-                readiness_deg = st.slider("Readiness Degradation (%)", 0, 30, 0,
-                                         help="% of soldiers to make non-ready (med/dental/deployable)") / 100
-                experience_var = st.slider("Experience Variance (%)", 0, 30, 0,
-                                          help="±% variance in time-in-service and deployments") / 100
+                with col2:
+                    readiness_deg = st.slider("Readiness Degradation (%)", 0, 30, 0,
+                                             help="% of soldiers to make non-ready (med/dental/deployable)") / 100
+                    experience_var = st.slider("Experience Variance (%)", 0, 30, 0,
+                                              help="±% variance in time-in-service and deployments") / 100
 
-            jitter_seed = st.number_input("Jitter Seed", min_value=1, max_value=999, value=123,
-                                         help="Separate seed for jitter randomization")
-        else:
-            fill_rate_var = 0
-            readiness_deg = 0
-            training_expiry = 0
-            experience_var = 0
-            jitter_seed = None
+                jitter_seed = st.number_input("Jitter Seed", min_value=1, max_value=999, value=123,
+                                             help="Separate seed for jitter randomization")
+            else:
+                fill_rate_var = 0
+                readiness_deg = 0
+                training_expiry = 0
+                experience_var = 0
+                jitter_seed = None
+    else:
+        apply_jitter = False
+        fill_rate_var = 0
+        readiness_deg = 0
+        training_expiry = 0
+        experience_var = 0
+        jitter_seed = None
 
     if st.button("🏗️ Generate Force", type="primary"):
         with st.spinner("Generating force structure..."):
