@@ -31,14 +31,7 @@ except ImportError:
     print("Warning: folium/streamlit-folium not available. Install with: pip install folium streamlit-folium")
 
 # EMD imports
-from mtoe_generator import quick_generate_force, UnitGenerator
-# Import corps generation functions if available (may not be in older deployments)
-try:
-    from mtoe_generator import generate_corps_force, apply_jitter_to_force
-    CORPS_GENERATION_AVAILABLE = True
-except ImportError:
-    CORPS_GENERATION_AVAILABLE = False
-    print("Warning: Corps generation features not available in this deployment")
+from mtoe_generator import quick_generate_force, UnitGenerator, apply_jitter_to_force
 from manning_document import (
     ManningDocument, CapabilityRequirement,
     ManningDocumentBuilder, create_custom_manning_document
@@ -822,25 +815,50 @@ def show_force_generation():
     st.header("👥 Force Generation")
 
     st.markdown("""
-    Generate a realistic force structure. Choose from realistic Corps structures or custom generation.
+    Generate a realistic U.S. Army division with accurate unit structure and soldier composition.
     """)
 
-    # Force type selector
-    if CORPS_GENERATION_AVAILABLE:
-        force_type = st.selectbox(
-            "Select Force Structure",
-            ["I Corps (Pacific) - ~22,500 soldiers (2 divisions)",
-             "III Corps (Central) - ~32,000 soldiers (3 divisions)",
-             "XVIII Airborne Corps (Global Response) - ~35,000 soldiers (4 divisions)",
-             "Custom (Random Generation)"],
-            help="Select a pre-configured Corps or create a custom force"
+    # Force type selector - Import division list
+    try:
+        from division_library import ACTIVE_DIVISIONS, get_divisions_grouped_by_theater
+        DIVISION_GENERATION_AVAILABLE = True
+    except ImportError:
+        DIVISION_GENERATION_AVAILABLE = False
+
+    if DIVISION_GENERATION_AVAILABLE:
+        # Group divisions by theater
+        grouped_divisions = get_divisions_grouped_by_theater()
+
+        # Build flat list for dropdown with separators
+        division_options = ["Custom (Random Generation)"]
+        division_keys = ["custom"]  # Parallel list for keys
+
+        for theater in ["FORSCOM", "INDOPACOM", "USAREUR", "USARAK"]:
+            if theater in grouped_divisions:
+                division_options.append(f"── {theater} ──")
+                division_keys.append(None)  # Separator has no key
+
+                for key, display in grouped_divisions[theater]:
+                    division_options.append(f"  {display}")
+                    division_keys.append(key)
+
+        # Dropdown
+        selected_idx = st.selectbox(
+            "Select Division",
+            range(len(division_options)),
+            format_func=lambda i: division_options[i],
+            help="Select a real U.S. Army division or custom generation"
         )
+
+        force_type = division_options[selected_idx]
+        selected_division_key = division_keys[selected_idx]
     else:
-        st.info("ℹ️ Corps generation features will be available after deployment update. Using custom generation.")
+        st.info("ℹ️ Division generation features will be available after deployment update. Using custom generation.")
         force_type = "Custom (Random Generation)"
+        selected_division_key = "custom"
 
     # Configuration based on selection
-    if force_type == "Custom (Random Generation)":
+    if selected_division_key == "custom":
         st.subheader("Custom Force Configuration")
 
         col1, col2, col3, col4 = st.columns(4)
@@ -856,9 +874,9 @@ def show_force_generation():
 
         with col4:
             seed = st.number_input("Random Seed", min_value=1, max_value=999, value=42)
-    else:
-        # Corps generation
-        st.subheader("Corps Force Configuration")
+    elif selected_division_key is not None:
+        # Division generation
+        st.subheader("Division Force Configuration")
 
         col1, col2 = st.columns(2)
 
@@ -867,9 +885,13 @@ def show_force_generation():
 
         with col2:
             seed = st.number_input("Random Seed", min_value=1, max_value=999, value=42)
+    else:
+        # User clicked on separator - set defaults
+        fill_rate = 0.93
+        seed = 42
 
     # Jitter controls
-    if CORPS_GENERATION_AVAILABLE:
+    if DIVISION_GENERATION_AVAILABLE:
         with st.expander("🎲 Apply Jitter (for Sensitivity Analysis)", expanded=False):
             st.markdown("""
             Apply controlled perturbations to test how parameter changes affect optimization results.
@@ -910,23 +932,27 @@ def show_force_generation():
         jitter_seed = None
 
     if st.button("🏗️ Generate Force", type="primary"):
-        with st.spinner("Generating force structure..."):
-            # Generate base force
-            if force_type == "Custom (Random Generation)":
-                generator, soldiers_df, soldiers_ext = quick_generate_force(
-                    n_battalions=n_battalions,
-                    companies_per_bn=companies_per_bn,
-                    seed=seed,
-                    fill_rate=fill_rate
-                )
-            else:
-                # Extract corps name
-                corps_name = force_type.split(" (")[0]
-                generator, soldiers_df, soldiers_ext = generate_corps_force(
-                    corps_name=corps_name,
-                    seed=seed,
-                    fill_rate_base=fill_rate
-                )
+        # Don't allow generation if user clicked on separator
+        if selected_division_key is None:
+            st.error("⚠️ Please select a division (not a theater header)")
+        else:
+            with st.spinner("Generating force structure..."):
+                # Generate base force
+                if selected_division_key == "custom":
+                    generator, soldiers_df, soldiers_ext = quick_generate_force(
+                        n_battalions=n_battalions,
+                        companies_per_bn=companies_per_bn,
+                        seed=seed,
+                        fill_rate=fill_rate
+                    )
+                else:
+                    # Generate division from config
+                    from mtoe_generator import generate_division_from_config
+                    generator, soldiers_df, soldiers_ext = generate_division_from_config(
+                        division_key=selected_division_key,
+                        seed=seed,
+                        fill_rate_base=fill_rate
+                    )
 
             # Apply jitter if enabled
             if apply_jitter and (fill_rate_var > 0 or readiness_deg > 0 or training_expiry > 0 or experience_var > 0):

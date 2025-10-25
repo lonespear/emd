@@ -1169,6 +1169,95 @@ class UnitGenerator:
 # Convenience functions
 # -------------------------
 
+def generate_division_from_config(
+    division_key: str,
+    seed: int = 42,
+    fill_rate_base: float = 0.93
+) -> Tuple[UnitGenerator, pd.DataFrame, Dict[int, SoldierExtended]]:
+    """
+    Generate a division based on real-world configuration from division_library.
+
+    Args:
+        division_key: Division key (e.g., "82nd_airborne", "1st_cavalry")
+        seed: Random seed for reproducibility
+        fill_rate_base: Base fill rate (will vary by brigade)
+
+    Returns:
+        - generator: UnitGenerator instance with all units
+        - soldiers_df: Combined DataFrame (~9,000-21,000 soldiers depending on division)
+        - soldiers_ext: Extended soldier records
+    """
+    from division_library import get_division_by_key
+
+    # Get division configuration
+    config = get_division_by_key(division_key)
+
+    generator = UnitGenerator(seed=seed)
+    all_soldiers_df = []
+    all_soldiers_ext = {}
+
+    # Generate each brigade in the division
+    for bde_idx, bde_config in enumerate(config["brigades"]):
+        bde_uic = f"W{division_key[:3].upper()}{bde_idx+1:02d}"
+        bde_name = f"{bde_config['name']}, {config['name']}"
+
+        # Adjust fill rate based on brigade specialty
+        fill_rate = fill_rate_base
+        if bde_config["specialty"] == "airborne":
+            fill_rate = fill_rate_base * 0.96  # Airborne units prioritized
+        elif bde_config["specialty"] == "armor":
+            fill_rate = fill_rate_base * 0.95  # Heavy units well-manned
+        elif bde_config["specialty"] == "air_assault":
+            fill_rate = fill_rate_base * 0.94
+        else:
+            fill_rate = fill_rate_base * 0.92
+
+        soldiers_df, soldiers_ext = generator.generate_brigade(
+            brigade_uic=bde_uic,
+            brigade_name=bde_name,
+            brigade_type=bde_config["type"],
+            home_station=config["home_station"],
+            fill_rate=fill_rate
+        )
+
+        all_soldiers_df.append(soldiers_df)
+        all_soldiers_ext.update(soldiers_ext)
+
+    # Add division artillery if present
+    if config["div_artillery"]:
+        bde_uic = f"W{division_key[:3].upper()}DA"
+        bde_name = f"Division Artillery, {config['name']}"
+
+        soldiers_df, soldiers_ext = generator.generate_brigade(
+            brigade_uic=bde_uic,
+            brigade_name=bde_name,
+            brigade_type="Support",  # Artillery uses support template
+            home_station=config["home_station"],
+            fill_rate=fill_rate_base * 0.88
+        )
+
+        all_soldiers_df.append(soldiers_df)
+        all_soldiers_ext.update(soldiers_ext)
+
+    # Add division support/sustainment if present
+    if config["div_support"]:
+        bde_uic = f"W{division_key[:3].upper()}SB"
+        bde_name = f"Sustainment Brigade, {config['name']}"
+
+        soldiers_df, soldiers_ext = generator.generate_brigade(
+            brigade_uic=bde_uic,
+            brigade_name=bde_name,
+            brigade_type="Support",
+            home_station=config["home_station"],
+            fill_rate=fill_rate_base * 0.85  # Support units typically lower
+        )
+
+        all_soldiers_df.append(soldiers_df)
+        all_soldiers_ext.update(soldiers_ext)
+
+    combined_df = pd.concat(all_soldiers_df, ignore_index=True)
+    return generator, combined_df, all_soldiers_ext
+
 def quick_generate_force(
     n_battalions: int = 1,
     companies_per_bn: int = 4,
