@@ -28,7 +28,7 @@ from unit_types import (
 
 # Import extended profile generation
 try:
-    from profile_generator import ProfileGenerator
+    from qualifications import ProfileGenerator
     EXTENDED_PROFILES_AVAILABLE = True
 except ImportError:
     EXTENDED_PROFILES_AVAILABLE = False

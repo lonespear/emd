@@ -131,8 +131,8 @@ try:
     from mtoe_generator import UnitGenerator, MTOELibrary
     from manning_document import ManningDocument, CapabilityRequirement
     from emd_agent import EMD
-    from qualification_filter import QualificationFilter
-    from billet_requirements import BilletRequirementTemplates
+    from qualifications import QualificationFilter
+    from qualifications import BilletRequirementTemplates
 
     # Test basic functionality
     try:
@@ -214,7 +214,7 @@ print("[PHASE 7] Data Integrity Checks")
 print("-" * 40)
 
 try:
-    from soldier_profile_extended import (
+    from qualifications import (
         EducationLevel, DLPTLevel, BadgeType, AwardType
     )
 

@@ -724,14 +724,14 @@ class EMD:
             Enhanced cost matrix with qualification penalties (or original on errors)
         """
         try:
-            from profile_utils import (
+            from qualifications import (
                 has_language, has_asi, has_sqi, has_badge, has_award,
                 has_combat_experience, has_theater_experience,
                 get_deployment_count, get_education_level_value,
                 has_minimum_education, has_combat_badge,
                 parse_json_field
             )
-            from billet_requirements import BilletRequirements
+            from qualifications import BilletRequirements
 
             P = self.policies
 
@@ -838,7 +838,7 @@ class EMD:
                             # Any language acceptable
                             any_lang = billet_row.get('any_language_acceptable', False)
                             if any_lang:
-                                from profile_utils import has_any_language
+                                from qualifications import has_any_language
                                 if has_any_language(soldier_row, min_level=2):
                                     bonus += P["any_language_bonus"]
 
@@ -945,7 +945,7 @@ class EMD:
                             licenses_required_json = billet_row.get('licenses_required_json')
                             if licenses_required_json and not pd.isna(licenses_required_json):
                                 licenses_required = parse_json_field(licenses_required_json, [])
-                                from profile_utils import get_licenses
+                                from qualifications import get_licenses
                                 soldier_licenses = get_licenses(soldier_row)
                                 soldier_license_types = {lic.get('license_type') for lic in soldier_licenses}
 

@@ -26,7 +26,7 @@ from readiness_tracker import ReadinessProfile
 
 # Import extended requirements
 try:
-    from billet_requirements import BilletRequirements, create_basic_requirements
+    from qualifications import BilletRequirements, create_basic_requirements
     EXTENDED_REQUIREMENTS_AVAILABLE = True
 except ImportError:
     EXTENDED_REQUIREMENTS_AVAILABLE = False

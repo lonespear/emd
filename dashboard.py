@@ -44,8 +44,8 @@ from deployment_tracker import OPTEMPOTracker, AvailabilityAnalyzer
 
 # Qualification system imports
 try:
-    from qualification_filter import QualificationFilter, FilterCriterion, FilterGroup
-    from billet_requirements import BilletRequirementTemplates, create_basic_requirements
+    from qualifications import QualificationFilter, FilterCriterion, FilterGroup
+    from qualifications import BilletRequirementTemplates, create_basic_requirements
     QUALIFICATION_FEATURES_AVAILABLE = True
 except ImportError:
     QUALIFICATION_FEATURES_AVAILABLE = False
