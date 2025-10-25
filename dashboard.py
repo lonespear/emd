@@ -631,7 +631,7 @@ def show_geographic_analysis(assignments, exercise_location):
                     values="Total Cost",
                     names="Tier",
                     title="Travel Cost Distribution",
-                    color_discrete_sequence=px.colors.sequential.RdYlGn_r
+                    color_discrete_sequence=px.colors.diverging.RdYlGn_r if hasattr(px.colors.diverging, 'RdYlGn_r') else px.colors.sequential.Reds_r
                 )
                 st.plotly_chart(fig, use_container_width=True)
 
