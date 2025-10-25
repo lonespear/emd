@@ -678,6 +678,65 @@ class UnitGenerator:
                 currency_days=1825,  # 5 years
                 category="deployment"
             )
+            # Also add as jungle_operations for JRTC compatibility
+            training_gates["jungle_operations"] = training_gates["jungle_training"]
+
+        if np.random.rand() > 0.15:  # 85% have insect-borne disease training (JRTC)
+            training_gates["insect_borne_disease"] = TrainingGate(
+                name="Insect_Borne_Disease_Prevention",
+                completion_date=date.today() - timedelta(days=np.random.randint(0, 365)),
+                currency_days=365,
+                category="medical"
+            )
+
+        # CONUS training center requirements (NTC/JRTC)
+        if np.random.rand() > 0.15:  # 85% have crew qualification
+            training_gates["crew_qualification"] = TrainingGate(
+                name="Crew_Qualification",
+                completion_date=date.today() - timedelta(days=np.random.randint(0, 180)),
+                currency_days=365,
+                category="general"
+            )
+
+        if np.random.rand() > 0.1:  # 90% have driver license
+            training_gates["driver_license"] = TrainingGate(
+                name="Driver_License",
+                completion_date=date.today() - timedelta(days=np.random.randint(0, 730)),
+                currency_days=1825,  # 5 years
+                category="general"
+            )
+
+        if np.random.rand() > 0.15:  # 85% have heat injury prevention
+            training_gates["heat_injury_prevention"] = TrainingGate(
+                name="Heat_Injury_Prevention",
+                completion_date=date.today() - timedelta(days=np.random.randint(0, 365)),
+                currency_days=365,
+                category="medical"
+            )
+
+        if np.random.rand() > 0.2:  # 80% have laser safety (MILES gear)
+            training_gates["laser_safety"] = TrainingGate(
+                name="Laser_Safety",
+                completion_date=date.today() - timedelta(days=np.random.randint(0, 365)),
+                currency_days=365,
+                category="general"
+            )
+
+        if np.random.rand() > 0.15:  # 85% have land navigation
+            training_gates["land_navigation"] = TrainingGate(
+                name="Land_Navigation",
+                completion_date=date.today() - timedelta(days=np.random.randint(0, 730)),
+                currency_days=1825,  # 5 years
+                category="general"
+            )
+
+        if np.random.rand() > 0.25:  # 75% have combatives level 1
+            training_gates["combatives_level1"] = TrainingGate(
+                name="Combatives_Level1",
+                completion_date=date.today() - timedelta(days=np.random.randint(0, 1095)),
+                currency_days=9999,  # Doesn't expire
+                category="general"
+            )
 
         # Position-specific training
         if "radio_operator" in position.training_gates_required:
