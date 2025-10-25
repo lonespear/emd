@@ -1158,6 +1158,27 @@ class EMD:
             assignments: DataFrame with soldier-billet pairs and costs
             summary:     dict with fill stats and totals
         """
+        # Validate inputs
+        if len(self.soldiers) == 0:
+            logger.warning("No soldiers available for assignment")
+            return pd.DataFrame(), {
+                "total_billets": len(self.billets),
+                "filled_billets": 0,
+                "fill_rate": 0.0,
+                "total_cost": 0.0,
+                "unfilled_billets": len(self.billets)
+            }
+
+        if len(self.billets) == 0:
+            logger.warning("No billets available for assignment")
+            return pd.DataFrame(), {
+                "total_billets": 0,
+                "filled_billets": 0,
+                "fill_rate": 0.0,
+                "total_cost": 0.0,
+                "unfilled_billets": 0
+            }
+
         C = self.build_cost_matrix(mission_name)
 
         # Apply enhancements if configured

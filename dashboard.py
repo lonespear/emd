@@ -1463,13 +1463,27 @@ def show_optimization():
                 emd.policies["lead_time_penalty_oconus"] = lead_time_penalty
                 emd.policies["distance_penalty_per_1000mi"] = distance_penalty
 
+            # Validate inputs before optimization
+            if len(ready_soldiers) == 0:
+                st.error("❌ No soldiers meet the readiness criteria. Please adjust the readiness profile filters.")
+                return
+
+            if len(billets_df) == 0:
+                st.error("❌ No billets generated from the manning document. Please check your capability selections.")
+                return
+
+            st.info(f"📊 Running optimization with {len(ready_soldiers)} ready soldiers and {len(billets_df)} billets...")
+
             # Run
             assignments, summary = emd.assign()
 
             st.session_state.assignments = assignments
             st.session_state.summary = summary
 
-            st.success("✅ Optimization complete!")
+            if summary['filled_billets'] == 0:
+                st.warning("⚠️ No assignments made. This may indicate overly restrictive filters or no suitable matches.")
+            else:
+                st.success("✅ Optimization complete!")
 
     # Show results
     if st.session_state.summary is not None:
@@ -1483,8 +1497,11 @@ def show_optimization():
         with col3:
             st.metric("Billets Filled", f"{st.session_state.summary['filled_billets']}/{st.session_state.summary['total_billets']}")
         with col4:
-            avg_cost = st.session_state.summary['total_cost'] / st.session_state.summary['filled_billets']
-            st.metric("Avg Cost/Soldier", f"${avg_cost:,.0f}")
+            if st.session_state.summary['filled_billets'] > 0:
+                avg_cost = st.session_state.summary['total_cost'] / st.session_state.summary['filled_billets']
+                st.metric("Avg Cost/Soldier", f"${avg_cost:,.0f}")
+            else:
+                st.metric("Avg Cost/Soldier", "N/A")
 
 
 def show_analysis():
