@@ -963,7 +963,7 @@ def show_qualification_filtering():
             )
             filter_mos = st.multiselect(
                 "MOS",
-                sorted(st.session_state.soldiers_df["MOS"].unique().tolist()),
+                sorted(st.session_state.soldiers_df["mos"].unique().tolist()),
                 default=[]
             )
 
