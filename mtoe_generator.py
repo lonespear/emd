@@ -298,6 +298,175 @@ class MTOELibrary:
                                "E-8": 0.02, "O-1": 0.03, "O-2": 0.02, "O-3": 0.03}
         )
 
+    @staticmethod
+    def armor_battalion_company() -> MTOETemplate:
+        """
+        Armored Battalion Tank Company (ABCT).
+
+        ~90 soldiers with M1A2 Abrams tanks.
+        """
+        positions = []
+
+        # Company HQ
+        positions.extend([
+            Position("00AA", "Company Commander", "19A", "O-3", leadership_level=LeadershipLevel.PLATOON_SGT),
+            Position("00AB", "Executive Officer", "19A", "O-2", leadership_level=LeadershipLevel.PLATOON_SGT),
+            Position("00AC", "First Sergeant", "19K", "E-8", leadership_level=LeadershipLevel.FIRST_SGT),
+            Position("00AD", "Master Gunner", "19K", "E-7", leadership_level=LeadershipLevel.PLATOON_SGT),
+            Position("00AE", "Company RTO", "19K", "E-4", training_gates_required=["radio_operator"]),
+            Position("00AF", "Supply Sergeant", "92Y", "E-6", leadership_level=LeadershipLevel.TEAM_LEADER),
+            Position("00AG", "Armorer", "91A", "E-5", equipment_required=["armory_certified"]),
+        ])
+
+        # 3x Tank Platoons (4 tanks each = 12 tanks total)
+        for plt in range(1, 4):
+            prefix = f"{plt:02d}"
+            positions.extend([
+                Position(f"{prefix}AA", f"Platoon Leader (PLT {plt})", "19A", "O-1",
+                         leadership_level=LeadershipLevel.PLATOON_SGT),
+                Position(f"{prefix}AB", f"Platoon Sergeant (PLT {plt})", "19K", "E-7",
+                         leadership_level=LeadershipLevel.PLATOON_SGT,
+                         supervisor_paraline=f"{prefix}AA"),
+            ])
+
+            # 4x Tank Crews per platoon
+            for tank in range(1, 5):
+                tank_code = chr(ord('B') + tank)
+                positions.extend([
+                    Position(f"{prefix}{tank_code}A", f"Tank Commander (PLT{plt}/TNK{tank})", "19K", "E-6",
+                             leadership_level=LeadershipLevel.SQUAD_LEADER,
+                             supervisor_paraline=f"{prefix}AB"),
+                    Position(f"{prefix}{tank_code}B", f"Gunner (PLT{plt}/TNK{tank})", "19K", "E-5"),
+                    Position(f"{prefix}{tank_code}C", f"Driver (PLT{plt}/TNK{tank})", "19K", "E-4"),
+                    Position(f"{prefix}{tank_code}D", f"Loader (PLT{plt}/TNK{tank})", "19K", "E-3"),
+                ])
+
+        return MTOETemplate(
+            unit_type="Armor",
+            echelon="Company",
+            authorized_strength=len(positions),
+            positions=positions,
+            mos_distribution={"19K": 0.80, "19A": 0.05, "92Y": 0.05, "91A": 0.05, "68W": 0.05},
+            rank_distribution={"E-3": 0.25, "E-4": 0.25, "E-5": 0.20, "E-6": 0.15, "E-7": 0.08,
+                               "E-8": 0.02, "O-1": 0.02, "O-2": 0.01, "O-3": 0.02}
+        )
+
+    @staticmethod
+    def mechanized_infantry_company() -> MTOETemplate:
+        """
+        Mechanized Infantry Company (ABCT).
+
+        ~120 soldiers with Bradley Fighting Vehicles.
+        """
+        positions = []
+
+        # Company HQ
+        positions.extend([
+            Position("00AA", "Company Commander", "11A", "O-3", leadership_level=LeadershipLevel.PLATOON_SGT),
+            Position("00AB", "Executive Officer", "11A", "O-2", leadership_level=LeadershipLevel.PLATOON_SGT),
+            Position("00AC", "First Sergeant", "11B", "E-8", leadership_level=LeadershipLevel.FIRST_SGT),
+            Position("00AD", "Company RTO", "11B", "E-4", training_gates_required=["radio_operator"]),
+            Position("00AE", "Supply Sergeant", "92Y", "E-6", leadership_level=LeadershipLevel.TEAM_LEADER),
+        ])
+
+        # 3x Mechanized Platoons
+        for plt in range(1, 4):
+            prefix = f"{plt:02d}"
+            positions.extend([
+                Position(f"{prefix}AA", f"Platoon Leader (PLT {plt})", "11A", "O-1",
+                         leadership_level=LeadershipLevel.PLATOON_SGT),
+                Position(f"{prefix}AB", f"Platoon Sergeant (PLT {plt})", "11B", "E-7",
+                         leadership_level=LeadershipLevel.PLATOON_SGT,
+                         supervisor_paraline=f"{prefix}AA"),
+            ])
+
+            # 4x Bradley crews per platoon
+            for brad in range(1, 5):
+                brad_code = chr(ord('B') + brad)
+                positions.extend([
+                    Position(f"{prefix}{brad_code}A", f"Squad Leader (PLT{plt}/BFV{brad})", "11B", "E-6",
+                             leadership_level=LeadershipLevel.SQUAD_LEADER,
+                             supervisor_paraline=f"{prefix}AB"),
+                    Position(f"{prefix}{brad_code}B", f"Gunner (PLT{plt}/BFV{brad})", "19D", "E-5"),
+                    Position(f"{prefix}{brad_code}C", f"Driver (PLT{plt}/BFV{brad})", "11B", "E-4"),
+                    Position(f"{prefix}{brad_code}D", f"Infantry (PLT{plt}/BFV{brad})", "11B", "E-3"),
+                    Position(f"{prefix}{brad_code}E", f"Infantry (PLT{plt}/BFV{brad})", "11B", "E-3"),
+                    Position(f"{prefix}{brad_code}F", f"Infantry (PLT{plt}/BFV{brad})", "11B", "E-3"),
+                ])
+
+        return MTOETemplate(
+            unit_type="MechanizedInfantry",
+            echelon="Company",
+            authorized_strength=len(positions),
+            positions=positions,
+            mos_distribution={"11B": 0.70, "19D": 0.10, "11A": 0.05, "92Y": 0.05, "68W": 0.05, "91B": 0.05},
+            rank_distribution={"E-3": 0.35, "E-4": 0.25, "E-5": 0.15, "E-6": 0.12, "E-7": 0.06,
+                               "E-8": 0.02, "O-1": 0.02, "O-2": 0.01, "O-3": 0.02}
+        )
+
+    @staticmethod
+    def airborne_infantry_company() -> MTOETemplate:
+        """
+        Airborne Infantry Company (82nd Airborne).
+
+        Similar to regular infantry but all positions require airborne qualification.
+        """
+        positions = []
+
+        # Company HQ
+        positions.extend([
+            Position("00AA", "Company Commander", "11A", "O-3", leadership_level=LeadershipLevel.PLATOON_SGT,
+                     airborne_required=True),
+            Position("00AB", "Executive Officer", "11A", "O-2", leadership_level=LeadershipLevel.PLATOON_SGT,
+                     airborne_required=True),
+            Position("00AC", "First Sergeant", "11B", "E-8", leadership_level=LeadershipLevel.FIRST_SGT,
+                     airborne_required=True),
+            Position("00AD", "Company RTO", "11B", "E-4", training_gates_required=["radio_operator"],
+                     airborne_required=True),
+        ])
+
+        # 3x Airborne Rifle Platoons
+        for plt in range(1, 4):
+            prefix = f"{plt:02d}"
+            positions.extend([
+                Position(f"{prefix}AA", f"Platoon Leader (PLT {plt})", "11A", "O-1",
+                         leadership_level=LeadershipLevel.PLATOON_SGT, airborne_required=True),
+                Position(f"{prefix}AB", f"Platoon Sergeant (PLT {plt})", "11B", "E-7",
+                         leadership_level=LeadershipLevel.PLATOON_SGT,
+                         supervisor_paraline=f"{prefix}AA", airborne_required=True),
+            ])
+
+            # 3x Squads per platoon
+            for sqd in range(1, 4):
+                sq_code = chr(ord('B') + sqd)
+                positions.extend([
+                    Position(f"{prefix}{sq_code}A", f"Squad Leader (PLT{plt}/SQD{sqd})", "11B", "E-6",
+                             leadership_level=LeadershipLevel.SQUAD_LEADER,
+                             supervisor_paraline=f"{prefix}AB", airborne_required=True),
+                    Position(f"{prefix}{sq_code}B", f"Team Leader (PLT{plt}/SQD{sqd})", "11B", "E-5",
+                             leadership_level=LeadershipLevel.TEAM_LEADER, airborne_required=True),
+                    Position(f"{prefix}{sq_code}C", f"Rifleman (PLT{plt}/SQD{sqd})", "11B", "E-4", airborne_required=True),
+                    Position(f"{prefix}{sq_code}D", f"Rifleman (PLT{plt}/SQD{sqd})", "11B", "E-3", airborne_required=True),
+                    Position(f"{prefix}{sq_code}E", f"Grenadier (PLT{plt}/SQD{sqd})", "11B", "E-3", airborne_required=True),
+                ])
+
+        # Fill to ~120
+        for i in range(len(positions), 120):
+            positions.append(
+                Position(f"99{chr(65+i%26)}{chr(65+(i//26)%26)}", f"Paratrooper {i}", "11B",
+                         np.random.choice(["E-3", "E-4"], p=[0.6, 0.4]), airborne_required=True)
+            )
+
+        return MTOETemplate(
+            unit_type="AirborneInfantry",
+            echelon="Company",
+            authorized_strength=len(positions),
+            positions=positions,
+            mos_distribution={"11B": 0.85, "11A": 0.05, "92Y": 0.05, "68W": 0.05},
+            rank_distribution={"E-3": 0.35, "E-4": 0.25, "E-5": 0.15, "E-6": 0.10, "E-7": 0.05,
+                               "E-8": 0.02, "O-1": 0.03, "O-2": 0.02, "O-3": 0.03}
+        )
+
 
 class UnitGenerator:
     """
@@ -834,6 +1003,9 @@ class UnitGenerator:
             "FieldArtillery": MTOELibrary.field_artillery_battery,
             "MilitaryIntelligence": MTOELibrary.military_intelligence_company,
             "Engineer": MTOELibrary.engineer_company,
+            "Armor": MTOELibrary.armor_battalion_company,
+            "MechanizedInfantry": MTOELibrary.mechanized_infantry_company,
+            "AirborneInfantry": MTOELibrary.airborne_infantry_company,
         }
 
         for idx, unit_type in enumerate(unit_types):
@@ -910,3 +1082,505 @@ def quick_generate_force(
 
     combined_df = pd.concat(all_soldiers_df, ignore_index=True)
     return generator, combined_df, all_soldiers_ext
+
+
+def generate_corps_force(
+    corps_name: str = "I Corps",
+    seed: int = 42,
+    fill_rate_base: float = 0.93
+) -> Tuple[UnitGenerator, pd.DataFrame, Dict[int, SoldierExtended]]:
+    """
+    Generate a realistic Corps-level force structure.
+
+    Args:
+        corps_name: "I Corps", "III Corps", or "XVIII Airborne Corps"
+        seed: Random seed for reproducibility
+        fill_rate_base: Base fill rate (will vary by unit type)
+
+    Returns:
+        - generator: UnitGenerator instance with all units
+        - soldiers_df: Combined DataFrame (~45-65k soldiers)
+        - soldiers_ext: Extended soldier records
+    """
+    generator = UnitGenerator(seed=seed)
+    all_soldiers_df = []
+    all_soldiers_ext = {}
+
+    if corps_name == "I Corps":
+        # I Corps (Pacific) - ~45,000 soldiers
+        # 7th Infantry Division (JBLM)
+        # 1-2 SBCT "Arrowhead"
+        soldiers_df, soldiers_ext = generator.generate_battalion(
+            battalion_uic="W7I01",
+            battalion_name="1-2 SBCT, 7th ID",
+            unit_types=["Infantry", "Infantry", "Infantry", "Infantry"],  # Stryker battalions use Infantry template
+            home_station="JBLM",
+            fill_rate=fill_rate_base
+        )
+        all_soldiers_df.append(soldiers_df)
+        all_soldiers_ext.update(soldiers_ext)
+
+        # 4-2 IBCT "Commando"
+        soldiers_df, soldiers_ext = generator.generate_battalion(
+            battalion_uic="W7I04",
+            battalion_name="4-2 IBCT, 7th ID",
+            unit_types=["Infantry", "Infantry", "Infantry"],
+            home_station="JBLM",
+            fill_rate=fill_rate_base
+        )
+        all_soldiers_df.append(soldiers_df)
+        all_soldiers_ext.update(soldiers_ext)
+
+        # 3-2 IBCT "Bayonet"
+        soldiers_df, soldiers_ext = generator.generate_battalion(
+            battalion_uic="W7I03",
+            battalion_name="3-2 IBCT, 7th ID",
+            unit_types=["Infantry", "Infantry", "Infantry"],
+            home_station="JBLM",
+            fill_rate=fill_rate_base
+        )
+        all_soldiers_df.append(soldiers_df)
+        all_soldiers_ext.update(soldiers_ext)
+
+        # 25th Infantry Division (Hawaii/Alaska)
+        # 1-25 SBCT (Alaska)
+        soldiers_df, soldiers_ext = generator.generate_battalion(
+            battalion_uic="W2501",
+            battalion_name="1-25 SBCT, 25th ID",
+            unit_types=["Infantry", "Infantry", "Infantry", "Infantry"],
+            home_station="JBER",
+            fill_rate=fill_rate_base * 0.90  # Alaska typically lower manning
+        )
+        all_soldiers_df.append(soldiers_df)
+        all_soldiers_ext.update(soldiers_ext)
+
+        # 2-25 IBCT "Lightning" (Hawaii)
+        soldiers_df, soldiers_ext = generator.generate_battalion(
+            battalion_uic="W2502",
+            battalion_name="2-25 IBCT, 25th ID",
+            unit_types=["Infantry", "Infantry", "Infantry"],
+            home_station="Hawaii",
+            fill_rate=fill_rate_base
+        )
+        all_soldiers_df.append(soldiers_df)
+        all_soldiers_ext.update(soldiers_ext)
+
+        # 3-25 IBCT (JBLM)
+        soldiers_df, soldiers_ext = generator.generate_battalion(
+            battalion_uic="W2503",
+            battalion_name="3-25 IBCT, 25th ID",
+            unit_types=["Infantry", "Infantry", "Infantry"],
+            home_station="JBLM",
+            fill_rate=fill_rate_base
+        )
+        all_soldiers_df.append(soldiers_df)
+        all_soldiers_ext.update(soldiers_ext)
+
+        # Corps Support - Engineers, MI, Signal
+        soldiers_df, soldiers_ext = generator.generate_battalion(
+            battalion_uic="WIC555",
+            battalion_name="555th Engineer Brigade",
+            unit_types=["Engineer", "Engineer", "Engineer"],
+            home_station="JBLM",
+            fill_rate=fill_rate_base * 0.85  # Support units typically lower
+        )
+        all_soldiers_df.append(soldiers_df)
+        all_soldiers_ext.update(soldiers_ext)
+
+        soldiers_df, soldiers_ext = generator.generate_battalion(
+            battalion_uic="WIC201",
+            battalion_name="201st MI Brigade",
+            unit_types=["MilitaryIntelligence", "MilitaryIntelligence"],
+            home_station="JBLM",
+            fill_rate=fill_rate_base * 0.88
+        )
+        all_soldiers_df.append(soldiers_df)
+        all_soldiers_ext.update(soldiers_ext)
+
+        soldiers_df, soldiers_ext = generator.generate_battalion(
+            battalion_uic="WIC017",
+            battalion_name="17th FA Brigade (LRPF)",
+            unit_types=["FieldArtillery", "FieldArtillery"],
+            home_station="JBLM",
+            fill_rate=fill_rate_base * 0.91
+        )
+        all_soldiers_df.append(soldiers_df)
+        all_soldiers_ext.update(soldiers_ext)
+
+    elif corps_name == "III Corps":
+        # III Corps (Central) - ~42,000 soldiers
+        # 1st Cavalry Division (Fort Cavazos) - Heavy armor
+        # 1st ABCT
+        soldiers_df, soldiers_ext = generator.generate_battalion(
+            battalion_uic="W1C01A",
+            battalion_name="1st ABCT, 1st CAV",
+            unit_types=["Armor", "Armor", "MechanizedInfantry"],
+            home_station="Fort Cavazos",
+            fill_rate=fill_rate_base * 0.95  # Heavy units well-manned
+        )
+        all_soldiers_df.append(soldiers_df)
+        all_soldiers_ext.update(soldiers_ext)
+
+        # 2nd ABCT
+        soldiers_df, soldiers_ext = generator.generate_battalion(
+            battalion_uic="W1C02A",
+            battalion_name="2nd ABCT, 1st CAV",
+            unit_types=["Armor", "Armor", "MechanizedInfantry"],
+            home_station="Fort Cavazos",
+            fill_rate=fill_rate_base * 0.95
+        )
+        all_soldiers_df.append(soldiers_df)
+        all_soldiers_ext.update(soldiers_ext)
+
+        # 3rd ABCT
+        soldiers_df, soldiers_ext = generator.generate_battalion(
+            battalion_uic="W1C03A",
+            battalion_name="3rd ABCT, 1st CAV",
+            unit_types=["Armor", "Armor", "MechanizedInfantry"],
+            home_station="Fort Cavazos",
+            fill_rate=fill_rate_base * 0.95
+        )
+        all_soldiers_df.append(soldiers_df)
+        all_soldiers_ext.update(soldiers_ext)
+
+        # 1st SBCT
+        soldiers_df, soldiers_ext = generator.generate_battalion(
+            battalion_uic="W1C01S",
+            battalion_name="1st SBCT, 1st CAV",
+            unit_types=["Infantry", "Infantry", "Infantry", "Infantry"],
+            home_station="Fort Cavazos",
+            fill_rate=fill_rate_base
+        )
+        all_soldiers_df.append(soldiers_df)
+        all_soldiers_ext.update(soldiers_ext)
+
+        # 1st Armored Division (Fort Bliss)
+        # 1st ABCT
+        soldiers_df, soldiers_ext = generator.generate_battalion(
+            battalion_uic="W1A01A",
+            battalion_name="1st ABCT, 1st AD",
+            unit_types=["Armor", "Armor", "MechanizedInfantry"],
+            home_station="Fort Bliss",
+            fill_rate=fill_rate_base * 0.94
+        )
+        all_soldiers_df.append(soldiers_df)
+        all_soldiers_ext.update(soldiers_ext)
+
+        # 2nd ABCT
+        soldiers_df, soldiers_ext = generator.generate_battalion(
+            battalion_uic="W1A02A",
+            battalion_name="2nd ABCT, 1st AD",
+            unit_types=["Armor", "Armor", "MechanizedInfantry"],
+            home_station="Fort Bliss",
+            fill_rate=fill_rate_base * 0.94
+        )
+        all_soldiers_df.append(soldiers_df)
+        all_soldiers_ext.update(soldiers_ext)
+
+        # 3rd ABCT
+        soldiers_df, soldiers_ext = generator.generate_battalion(
+            battalion_uic="W1A03A",
+            battalion_name="3rd ABCT, 1st AD",
+            unit_types=["Armor", "Armor", "MechanizedInfantry"],
+            home_station="Fort Bliss",
+            fill_rate=fill_rate_base * 0.94
+        )
+        all_soldiers_df.append(soldiers_df)
+        all_soldiers_ext.update(soldiers_ext)
+
+        # Corps Support
+        soldiers_df, soldiers_ext = generator.generate_battalion(
+            battalion_uic="W3C041",
+            battalion_name="41st FA Brigade",
+            unit_types=["FieldArtillery", "FieldArtillery"],
+            home_station="Fort Cavazos",
+            fill_rate=fill_rate_base * 0.90
+        )
+        all_soldiers_df.append(soldiers_df)
+        all_soldiers_ext.update(soldiers_ext)
+
+    elif corps_name == "XVIII Airborne Corps":
+        # XVIII Airborne Corps (Global Response) - ~65,000 soldiers
+        # 82nd Airborne Division (Fort Liberty)
+        # 1st BCT (Airborne)
+        soldiers_df, soldiers_ext = generator.generate_battalion(
+            battalion_uic="W8201A",
+            battalion_name="1st BCT, 82nd ABN",
+            unit_types=["AirborneInfantry", "AirborneInfantry", "AirborneInfantry"],
+            home_station="Fort Liberty",
+            fill_rate=fill_rate_base * 0.96  # Airborne units prioritized
+        )
+        all_soldiers_df.append(soldiers_df)
+        all_soldiers_ext.update(soldiers_ext)
+
+        # 2nd BCT (Airborne)
+        soldiers_df, soldiers_ext = generator.generate_battalion(
+            battalion_uic="W8202A",
+            battalion_name="2nd BCT, 82nd ABN",
+            unit_types=["AirborneInfantry", "AirborneInfantry", "AirborneInfantry"],
+            home_station="Fort Liberty",
+            fill_rate=fill_rate_base * 0.96
+        )
+        all_soldiers_df.append(soldiers_df)
+        all_soldiers_ext.update(soldiers_ext)
+
+        # 3rd BCT (Airborne)
+        soldiers_df, soldiers_ext = generator.generate_battalion(
+            battalion_uic="W8203A",
+            battalion_name="3rd BCT, 82nd ABN",
+            unit_types=["AirborneInfantry", "AirborneInfantry", "AirborneInfantry"],
+            home_station="Fort Liberty",
+            fill_rate=fill_rate_base * 0.96
+        )
+        all_soldiers_df.append(soldiers_df)
+        all_soldiers_ext.update(soldiers_ext)
+
+        # 101st Airborne Division (Air Assault) - Fort Campbell
+        # 1st BCT
+        soldiers_df, soldiers_ext = generator.generate_battalion(
+            battalion_uic="W10101",
+            battalion_name="1st BCT, 101st ABN",
+            unit_types=["Infantry", "Infantry", "Infantry"],
+            home_station="Fort Campbell",
+            fill_rate=fill_rate_base * 0.95
+        )
+        all_soldiers_df.append(soldiers_df)
+        all_soldiers_ext.update(soldiers_ext)
+
+        # 2nd BCT
+        soldiers_df, soldiers_ext = generator.generate_battalion(
+            battalion_uic="W10102",
+            battalion_name="2nd BCT, 101st ABN",
+            unit_types=["Infantry", "Infantry", "Infantry"],
+            home_station="Fort Campbell",
+            fill_rate=fill_rate_base * 0.95
+        )
+        all_soldiers_df.append(soldiers_df)
+        all_soldiers_ext.update(soldiers_ext)
+
+        # 3rd BCT
+        soldiers_df, soldiers_ext = generator.generate_battalion(
+            battalion_uic="W10103",
+            battalion_name="3rd BCT, 101st ABN",
+            unit_types=["Infantry", "Infantry", "Infantry"],
+            home_station="Fort Campbell",
+            fill_rate=fill_rate_base * 0.95
+        )
+        all_soldiers_df.append(soldiers_df)
+        all_soldiers_ext.update(soldiers_ext)
+
+        # 10th Mountain Division (Fort Drum)
+        # 1st BCT
+        soldiers_df, soldiers_ext = generator.generate_battalion(
+            battalion_uic="W10M01",
+            battalion_name="1st BCT, 10th MTN",
+            unit_types=["Infantry", "Infantry", "Infantry"],
+            home_station="Fort Drum",
+            fill_rate=fill_rate_base
+        )
+        all_soldiers_df.append(soldiers_df)
+        all_soldiers_ext.update(soldiers_ext)
+
+        # 2nd BCT
+        soldiers_df, soldiers_ext = generator.generate_battalion(
+            battalion_uic="W10M02",
+            battalion_name="2nd BCT, 10th MTN",
+            unit_types=["Infantry", "Infantry", "Infantry"],
+            home_station="Fort Drum",
+            fill_rate=fill_rate_base
+        )
+        all_soldiers_df.append(soldiers_df)
+        all_soldiers_ext.update(soldiers_ext)
+
+        # 3rd Infantry Division (Fort Stewart)
+        # 1st ABCT
+        soldiers_df, soldiers_ext = generator.generate_battalion(
+            battalion_uic="W3I01A",
+            battalion_name="1st ABCT, 3rd ID",
+            unit_types=["Armor", "Armor", "MechanizedInfantry"],
+            home_station="Fort Stewart",
+            fill_rate=fill_rate_base * 0.94
+        )
+        all_soldiers_df.append(soldiers_df)
+        all_soldiers_ext.update(soldiers_ext)
+
+        # 2nd ABCT
+        soldiers_df, soldiers_ext = generator.generate_battalion(
+            battalion_uic="W3I02A",
+            battalion_name="2nd ABCT, 3rd ID",
+            unit_types=["Armor", "Armor", "MechanizedInfantry"],
+            home_station="Fort Stewart",
+            fill_rate=fill_rate_base * 0.94
+        )
+        all_soldiers_df.append(soldiers_df)
+        all_soldiers_ext.update(soldiers_ext)
+
+        # 3rd IBCT
+        soldiers_df, soldiers_ext = generator.generate_battalion(
+            battalion_uic="W3I03I",
+            battalion_name="3rd IBCT, 3rd ID",
+            unit_types=["Infantry", "Infantry", "Infantry"],
+            home_station="Fort Stewart",
+            fill_rate=fill_rate_base
+        )
+        all_soldiers_df.append(soldiers_df)
+        all_soldiers_ext.update(soldiers_ext)
+
+        # Corps Support
+        soldiers_df, soldiers_ext = generator.generate_battalion(
+            battalion_uic="W18C18",
+            battalion_name="18th FA Brigade (LRPF)",
+            unit_types=["FieldArtillery", "FieldArtillery"],
+            home_station="Fort Liberty",
+            fill_rate=fill_rate_base * 0.92
+        )
+        all_soldiers_df.append(soldiers_df)
+        all_soldiers_ext.update(soldiers_ext)
+
+        soldiers_df, soldiers_ext = generator.generate_battalion(
+            battalion_uic="W18C20",
+            battalion_name="20th Engineer Brigade (ABN)",
+            unit_types=["Engineer", "Engineer"],
+            home_station="Fort Liberty",
+            fill_rate=fill_rate_base * 0.88
+        )
+        all_soldiers_df.append(soldiers_df)
+        all_soldiers_ext.update(soldiers_ext)
+
+    else:
+        raise ValueError(f"Unknown corps: {corps_name}. Choose 'I Corps', 'III Corps', or 'XVIII Airborne Corps'")
+
+    combined_df = pd.concat(all_soldiers_df, ignore_index=True)
+    return generator, combined_df, all_soldiers_ext
+
+
+def apply_jitter_to_force(
+    soldiers_df: pd.DataFrame,
+    soldiers_ext: Dict[int, SoldierExtended],
+    fill_rate_variance: float = 0.0,
+    readiness_degradation: float = 0.0,
+    training_expiry_rate: float = 0.0,
+    experience_variance: float = 0.0,
+    mode: str = "random",
+    seed: int = None
+) -> Tuple[pd.DataFrame, Dict[int, SoldierExtended]]:
+    """
+    Apply controlled perturbations to soldier data for sensitivity analysis.
+
+    Args:
+        soldiers_df: Original soldiers DataFrame
+        soldiers_ext: Original extended soldier records
+        fill_rate_variance: ±percentage variance in unit manning (0.0-0.15)
+        readiness_degradation: Percentage to degrade readiness (0.0-0.30)
+        training_expiry_rate: Percentage of training gates to expire (0.0-0.25)
+        experience_variance: ±percentage variance in TIS/deployments (0.0-0.30)
+        mode: "random", "uniform", "by_brigade", "by_location"
+        seed: Random seed for reproducibility
+
+    Returns:
+        - jittered_df: New DataFrame with perturbations applied
+        - jittered_ext: New extended records with perturbations applied
+    """
+    if seed is not None:
+        np.random.seed(seed)
+
+    # Create copies to avoid modifying originals
+    jittered_df = soldiers_df.copy()
+    jittered_ext = {k: v for k, v in soldiers_ext.items()}
+
+    # 1. Fill Rate Variance - Randomly remove soldiers to simulate lower manning
+    if fill_rate_variance > 0:
+        n_soldiers = len(jittered_df)
+        if mode == "uniform":
+            # Remove same percentage across all units
+            n_to_remove = int(n_soldiers * fill_rate_variance)
+        else:
+            # Random removal with variance
+            removal_rate = np.random.uniform(0, fill_rate_variance * 2)
+            n_to_remove = int(n_soldiers * removal_rate)
+
+        if n_to_remove > 0:
+            keep_indices = np.random.choice(
+                jittered_df.index,
+                size=n_soldiers - n_to_remove,
+                replace=False
+            )
+            removed_ids = set(jittered_df.index) - set(keep_indices)
+            jittered_df = jittered_df.loc[keep_indices].reset_index(drop=True)
+
+            # Remove from extended records too
+            for idx in removed_ids:
+                soldier_id = soldiers_df.loc[idx, "soldier_id"]
+                if soldier_id in jittered_ext:
+                    del jittered_ext[soldier_id]
+
+    # 2. Readiness Degradation - Increase med_cat, dental_cat, set non-deployable
+    if readiness_degradation > 0:
+        n_soldiers = len(jittered_df)
+        n_to_degrade = int(n_soldiers * readiness_degradation)
+
+        if n_to_degrade > 0:
+            degrade_indices = np.random.choice(
+                jittered_df.index,
+                size=n_to_degrade,
+                replace=False
+            )
+
+            for idx in degrade_indices:
+                # Randomly degrade one aspect
+                degradation_type = np.random.choice(["med", "dental", "deployable"])
+
+                if degradation_type == "med":
+                    jittered_df.at[idx, "med_cat"] = min(4, jittered_df.at[idx, "med_cat"] + 1)
+                elif degradation_type == "dental":
+                    jittered_df.at[idx, "dental_cat"] = min(4, jittered_df.at[idx, "dental_cat"] + 1)
+                else:  # deployable
+                    jittered_df.at[idx, "deployable"] = 0
+
+    # 3. Training Expiry - Randomly expire training gates
+    if training_expiry_rate > 0:
+        for soldier_id, soldier_ext in jittered_ext.items():
+            if not hasattr(soldier_ext, 'training_gates'):
+                continue
+
+            for gate_name, gate in soldier_ext.training_gates.items():
+                if np.random.rand() < training_expiry_rate:
+                    # Expire this training gate by backdating completion
+                    days_to_backdate = gate.currency_days + np.random.randint(1, 180)
+                    gate.completion_date = date.today() - timedelta(days=days_to_backdate)
+
+    # 4. Experience Variance - Adjust TIS, TIG, deployments
+    if experience_variance > 0:
+        for idx in jittered_df.index:
+            soldier_id = jittered_df.at[idx, "soldier_id"]
+
+            # Vary TIS/TIG in extended records
+            if soldier_id in jittered_ext:
+                soldier_ext = jittered_ext[soldier_id]
+
+                # Apply variance
+                tis_multiplier = 1.0 + np.random.uniform(-experience_variance, experience_variance)
+                tig_multiplier = 1.0 + np.random.uniform(-experience_variance, experience_variance)
+
+                soldier_ext.time_in_position_months = max(1, int(soldier_ext.time_in_position_months * tis_multiplier))
+                soldier_ext.time_in_grade_months = max(1, int(soldier_ext.time_in_grade_months * tig_multiplier))
+
+                # Maybe add/remove a deployment
+                if np.random.rand() < experience_variance:
+                    if len(soldier_ext.deployment_history) > 0 and np.random.rand() < 0.5:
+                        # Remove a deployment
+                        soldier_ext.deployment_history = soldier_ext.deployment_history[:-1]
+                    elif np.random.rand() < 0.3:
+                        # Add a deployment
+                        soldier_ext.deployment_history.append(
+                            DeploymentRecord(
+                                deployment_name="Previous Deployment",
+                                location="Iraq",
+                                start_date=date.today() - timedelta(days=np.random.randint(720, 1460)),
+                                end_date=date.today() - timedelta(days=np.random.randint(360, 720)),
+                                deployment_type="combat",
+                                positions_held=["Rifleman"]
+                            )
+                        )
+
+    return jittered_df, jittered_ext

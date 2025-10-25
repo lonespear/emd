@@ -31,7 +31,7 @@ except ImportError:
     print("Warning: folium/streamlit-folium not available. Install with: pip install folium streamlit-folium")
 
 # EMD imports
-from mtoe_generator import quick_generate_force, UnitGenerator
+from mtoe_generator import quick_generate_force, generate_corps_force, apply_jitter_to_force, UnitGenerator
 from manning_document import (
     ManningDocument, CapabilityRequirement,
     ManningDocumentBuilder, create_custom_manning_document
@@ -815,39 +815,117 @@ def show_force_generation():
     st.header("👥 Force Generation")
 
     st.markdown("""
-    Generate a realistic force structure from MTOE templates.
-    Choose the number of battalions, companies, and manning level.
+    Generate a realistic force structure. Choose from realistic Corps structures or custom generation.
     """)
 
-    # Configuration
-    col1, col2, col3, col4 = st.columns(4)
+    # Force type selector
+    force_type = st.selectbox(
+        "Select Force Structure",
+        ["I Corps (Pacific) - ~4,500 soldiers", "III Corps (Central) - ~4,000 soldiers",
+         "XVIII Airborne Corps (Global Response) - ~6,000 soldiers", "Custom (Random Generation)"],
+        help="Select a pre-configured Corps or create a custom force"
+    )
 
-    with col1:
-        n_battalions = st.number_input("Number of Battalions", min_value=1, max_value=5, value=2)
+    # Configuration based on selection
+    if force_type == "Custom (Random Generation)":
+        st.subheader("Custom Force Configuration")
 
-    with col2:
-        companies_per_bn = st.number_input("Companies per Battalion", min_value=2, max_value=6, value=4)
+        col1, col2, col3, col4 = st.columns(4)
 
-    with col3:
-        fill_rate = st.slider("Manning Level (%)", min_value=70, max_value=100, value=93) / 100
+        with col1:
+            n_battalions = st.number_input("Number of Battalions", min_value=1, max_value=5, value=2)
 
-    with col4:
-        seed = st.number_input("Random Seed", min_value=1, max_value=999, value=42)
+        with col2:
+            companies_per_bn = st.number_input("Companies per Battalion", min_value=2, max_value=6, value=4)
+
+        with col3:
+            fill_rate = st.slider("Manning Level (%)", min_value=70, max_value=100, value=93) / 100
+
+        with col4:
+            seed = st.number_input("Random Seed", min_value=1, max_value=999, value=42)
+    else:
+        # Corps generation
+        st.subheader("Corps Force Configuration")
+
+        col1, col2 = st.columns(2)
+
+        with col1:
+            fill_rate = st.slider("Base Manning Level (%)", min_value=85, max_value=100, value=93) / 100
+
+        with col2:
+            seed = st.number_input("Random Seed", min_value=1, max_value=999, value=42)
+
+    # Jitter controls
+    with st.expander("🎲 Apply Jitter (for Sensitivity Analysis)", expanded=False):
+        st.markdown("""
+        Apply controlled perturbations to test how parameter changes affect optimization results.
+        Useful for analyzing system sensitivity and robustness.
+        """)
+
+        apply_jitter = st.checkbox("Enable Jitter", value=False)
+
+        if apply_jitter:
+            col1, col2 = st.columns(2)
+
+            with col1:
+                fill_rate_var = st.slider("Fill Rate Variance (%)", 0, 15, 0,
+                                         help="Randomly reduce unit manning by up to this %") / 100
+                training_expiry = st.slider("Training Expiry Rate (%)", 0, 25, 0,
+                                           help="% of training gates to randomly expire") / 100
+
+            with col2:
+                readiness_deg = st.slider("Readiness Degradation (%)", 0, 30, 0,
+                                         help="% of soldiers to make non-ready (med/dental/deployable)") / 100
+                experience_var = st.slider("Experience Variance (%)", 0, 30, 0,
+                                          help="±% variance in time-in-service and deployments") / 100
+
+            jitter_seed = st.number_input("Jitter Seed", min_value=1, max_value=999, value=123,
+                                         help="Separate seed for jitter randomization")
+        else:
+            fill_rate_var = 0
+            readiness_deg = 0
+            training_expiry = 0
+            experience_var = 0
+            jitter_seed = None
 
     if st.button("🏗️ Generate Force", type="primary"):
         with st.spinner("Generating force structure..."):
-            generator, soldiers_df, soldiers_ext = quick_generate_force(
-                n_battalions=n_battalions,
-                companies_per_bn=companies_per_bn,
-                seed=seed,
-                fill_rate=fill_rate
-            )
+            # Generate base force
+            if force_type == "Custom (Random Generation)":
+                generator, soldiers_df, soldiers_ext = quick_generate_force(
+                    n_battalions=n_battalions,
+                    companies_per_bn=companies_per_bn,
+                    seed=seed,
+                    fill_rate=fill_rate
+                )
+            else:
+                # Extract corps name
+                corps_name = force_type.split(" (")[0]
+                generator, soldiers_df, soldiers_ext = generate_corps_force(
+                    corps_name=corps_name,
+                    seed=seed,
+                    fill_rate_base=fill_rate
+                )
+
+            # Apply jitter if enabled
+            if apply_jitter and (fill_rate_var > 0 or readiness_deg > 0 or training_expiry > 0 or experience_var > 0):
+                soldiers_df, soldiers_ext = apply_jitter_to_force(
+                    soldiers_df, soldiers_ext,
+                    fill_rate_variance=fill_rate_var,
+                    readiness_degradation=readiness_deg,
+                    training_expiry_rate=training_expiry,
+                    experience_variance=experience_var,
+                    seed=jitter_seed
+                )
+                jitter_msg = f" (with jitter: -{fill_rate_var:.0%} manning, +{readiness_deg:.0%} degradation)"
+            else:
+                jitter_msg = ""
 
             st.session_state.generator = generator
             st.session_state.soldiers_df = soldiers_df
             st.session_state.soldiers_ext = soldiers_ext
 
-            st.success(f"✅ Generated {len(generator.units)} units with {len(soldiers_df):,} soldiers!")
+            st.success(f"✅ Generated {len(generator.units)} units with {len(soldiers_df):,} soldiers!{jitter_msg}")
 
     # Display results
     if st.session_state.generator is not None:
