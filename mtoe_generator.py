@@ -615,12 +615,69 @@ class UnitGenerator:
             currency_days=365,
             category="medical"
         )
+        training_gates["acft"] = TrainingGate(
+            name="ACFT",
+            completion_date=date.today() - timedelta(days=np.random.randint(0, 180)),
+            currency_days=365,
+            category="medical"
+        )
         training_gates["sere"] = TrainingGate(
             name="SERE_Training",
             completion_date=date.today() - timedelta(days=np.random.randint(0, 1095)),
             currency_days=1825,  # 5 years
             category="deployment"
         )
+
+        # Common deployment-related training (all soldiers will have these)
+        training_gates["passport_current"] = TrainingGate(
+            name="Passport_Current",
+            completion_date=date.today() - timedelta(days=np.random.randint(0, 1825)),
+            currency_days=3650,  # 10 years
+            category="deployment"
+        )
+
+        # Theater-specific training (generate with high probability to simulate realistic global force)
+        # Most units train for multiple theaters to maintain flexibility
+        if np.random.rand() > 0.15:  # 85% have cold weather training
+            training_gates["cold_weather"] = TrainingGate(
+                name="Cold_Weather_Training",
+                completion_date=date.today() - timedelta(days=np.random.randint(0, 730)),
+                currency_days=1825,  # 5 years
+                category="deployment"
+            )
+
+        if np.random.rand() > 0.15:  # 85% have European driving
+            training_gates["european_driving"] = TrainingGate(
+                name="European_Driving_License",
+                completion_date=date.today() - timedelta(days=np.random.randint(0, 1095)),
+                currency_days=1825,  # 5 years
+                category="deployment"
+            )
+
+        if np.random.rand() > 0.15:  # 85% have cultural awareness Europe
+            training_gates["cultural_awareness_europe"] = TrainingGate(
+                name="Cultural_Awareness_Europe",
+                completion_date=date.today() - timedelta(days=np.random.randint(0, 730)),
+                currency_days=1825,  # 5 years
+                category="deployment"
+            )
+
+        # Similar for other theaters
+        if np.random.rand() > 0.15:  # 85% have Pacific cultural awareness
+            training_gates["cultural_awareness_pacific"] = TrainingGate(
+                name="Cultural_Awareness_Pacific",
+                completion_date=date.today() - timedelta(days=np.random.randint(0, 730)),
+                currency_days=1825,  # 5 years
+                category="deployment"
+            )
+
+        if np.random.rand() > 0.2:  # 80% have tropical/jungle training
+            training_gates["jungle_training"] = TrainingGate(
+                name="Jungle_Operations_Training",
+                completion_date=date.today() - timedelta(days=np.random.randint(0, 730)),
+                currency_days=1825,  # 5 years
+                category="deployment"
+            )
 
         # Position-specific training
         if "radio_operator" in position.training_gates_required:

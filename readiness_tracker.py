@@ -129,7 +129,8 @@ class ReadinessValidator:
                     failures.append(f"Training: {gate_name} not completed")
 
             # Equipment qualifications
-            for eq_type in profile.required_equipment:
+            required_equipment = getattr(profile, 'required_equipment', [])
+            for eq_type in required_equipment:
                 qualified = any(
                     eq.equipment_type == eq_type and eq.is_valid(check_date)
                     for eq in soldier_ext.equipment_quals
@@ -140,12 +141,13 @@ class ReadinessValidator:
                     failures.append(f"Equipment: {eq_type} not qualified or expired")
 
             # Deployment history
-            if profile.max_deployment_count is not None:
+            max_deployment_count = getattr(profile, 'max_deployment_count', None)
+            if max_deployment_count is not None:
                 dep_count = len(soldier_ext.deployment_history)
-                if dep_count <= profile.max_deployment_count:
-                    passes.append(f"Deployments: {dep_count}/{profile.max_deployment_count}")
+                if dep_count <= max_deployment_count:
+                    passes.append(f"Deployments: {dep_count}/{max_deployment_count}")
                 else:
-                    failures.append(f"Deployments: {dep_count} exceeds max {profile.max_deployment_count}")
+                    failures.append(f"Deployments: {dep_count} exceeds max {max_deployment_count}")
 
         is_ready = len(failures) == 0
         return is_ready, passes, failures
