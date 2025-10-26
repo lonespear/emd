@@ -2528,6 +2528,8 @@ def show_guided_welcome():
                 }
 
                 st.session_state.workflow_data['template_used'] = "Demo"
+                st.session_state.workflow_data['location'] = "Fort Irwin"
+                st.session_state.exercise_location = "Fort Irwin"
 
             st.success("✅ Demo data loaded!")
             st.info("📍 Advancing to Run Optimization step...")
@@ -2933,11 +2935,15 @@ def show_guided_run_optimization():
     if st.button("🚀 Run Optimization", type="primary", use_container_width=True):
         with st.spinner("🔄 Running optimization... This may take 30-60 seconds..."):
             try:
+                # Get location from workflow data or use default
+                location = st.session_state.workflow_data.get('location', 'Fort Irwin')
+                st.session_state.exercise_location = location
+
                 # Create manning document
                 manning_doc = create_custom_manning_document(
                     exercise_name="Guided Workflow Exercise",
                     capabilities=st.session_state.capabilities,
-                    location="Guam"
+                    location=location
                 )
 
                 # Convert to billets
@@ -2966,6 +2972,7 @@ def show_guided_run_optimization():
                 emd.soldiers_ext = st.session_state.soldiers_ext
                 emd.task_organizer = task_organizer
                 emd.readiness_profile = profile
+                emd.exercise_location = location  # Set for geographic penalties
 
                 # Get weights from workflow configuration
                 weights = st.session_state.workflow_data.get('weights', {
