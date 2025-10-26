@@ -2486,9 +2486,10 @@ def show_guided_welcome():
         if st.button("🎬 Run Demo", type="secondary", use_container_width=True):
             with st.spinner("Setting up demo..."):
                 # Generate demo force
-                soldiers_df = generate_simple_force(1000, division_type="infantry")
-                soldiers_df = apply_jitter_to_force(soldiers_df)
+                soldiers_df, soldiers_ext = generate_simple_force(1000, division_type="infantry")
+                soldiers_df, soldiers_ext = apply_jitter_to_force(soldiers_df, soldiers_ext)
                 st.session_state.soldiers_df = soldiers_df
+                st.session_state.soldiers_ext = soldiers_ext
                 st.session_state.generator = UnitGenerator()
 
                 # Load simple demo capabilities
@@ -2625,13 +2626,14 @@ def show_guided_force_generation():
         if st.button("🎲 Generate Force", type="primary", use_container_width=True):
             with st.spinner("Generating synthetic force..."):
                 # Generate force
-                soldiers_df = generate_simple_force(num_soldiers, division_type=division.lower())
+                soldiers_df, soldiers_ext = generate_simple_force(num_soldiers, division_type=division.lower())
 
                 # Apply jitter for realism
-                soldiers_df = apply_jitter_to_force(soldiers_df)
+                soldiers_df, soldiers_ext = apply_jitter_to_force(soldiers_df, soldiers_ext)
 
                 # Store in session state
                 st.session_state.soldiers_df = soldiers_df
+                st.session_state.soldiers_ext = soldiers_ext
                 st.session_state.generator = UnitGenerator()
 
             st.success(f"✅ Generated {len(soldiers_df):,} soldiers!")
