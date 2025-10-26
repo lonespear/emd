@@ -861,7 +861,8 @@ def show_home():
         with col1:
             st.metric("Total Soldiers", f"{len(st.session_state.soldiers_df):,}")
         with col2:
-            st.metric("Units", f"{len(st.session_state.generator.units)}")
+            unit_count = len(st.session_state.generator.units) if st.session_state.generator and st.session_state.generator.units else 0
+            st.metric("Units", f"{unit_count}")
         with col3:
             if st.session_state.assignments is not None:
                 st.metric("Assignments Made", f"{len(st.session_state.assignments)}")
@@ -1032,7 +1033,7 @@ def show_force_generation():
             st.success(f"✅ Generated {len(generator.units)} units with {len(soldiers_df):,} soldiers!{jitter_msg}")
 
     # Display results
-    if st.session_state.generator is not None:
+    if st.session_state.generator is not None and st.session_state.generator.units:
         st.subheader("Force Structure")
 
         # Unit breakdown
@@ -1059,6 +1060,8 @@ def show_force_generation():
             barmode="group"
         )
         st.plotly_chart(fig, use_container_width=True)
+    elif st.session_state.generator is not None and not st.session_state.generator.units:
+        st.info("ℹ️ Force was generated using quick generation. Unit structure details not available. Switch to Classic Mode > Force Generation to generate detailed unit structures.")
 
 
 def show_qualification_filtering():
@@ -1738,9 +1741,10 @@ def show_optimization():
                 filter_profile
             )
 
-            # Create task organizer
+            # Create task organizer (only if we have unit structure)
+            units_dict = st.session_state.generator.units if (st.session_state.generator and st.session_state.generator.units) else {}
             task_organizer = TaskOrganizer(
-                st.session_state.generator.units,
+                units_dict,
                 ready_soldiers,
                 st.session_state.soldiers_ext
             )
@@ -1927,7 +1931,7 @@ def show_analysis():
         sourcing = sourcing.sort_values("Soldiers Sourced", ascending=False)
 
         # Add unit names if available
-        if st.session_state.generator:
+        if st.session_state.generator and st.session_state.generator.units:
             unit_names = []
             for uic in sourcing.index:
                 unit = st.session_state.generator.units.get(uic)
@@ -1942,8 +1946,10 @@ def show_analysis():
         total_sourced = int(sourcing["Soldiers Sourced"].sum())
         top_unit_pct = (top_unit_count / total_sourced) * 100
 
-        if st.session_state.generator:
-            top_unit_name = st.session_state.generator.units.get(top_unit_uic).short_name
+        # Safely get unit name
+        if st.session_state.generator and st.session_state.generator.units:
+            unit = st.session_state.generator.units.get(top_unit_uic)
+            top_unit_name = unit.short_name if unit else top_unit_uic
         else:
             top_unit_name = top_unit_uic
 
@@ -2275,8 +2281,9 @@ def show_pareto_tradeoffs():
                 st.session_state.soldiers_ext,
                 profile
             )
+            units_dict = st.session_state.generator.units if (st.session_state.generator and st.session_state.generator.units) else {}
             task_organizer = TaskOrganizer(
-                st.session_state.generator.units,
+                units_dict,
                 ready_soldiers,
                 st.session_state.soldiers_ext
             )
@@ -2486,11 +2493,11 @@ def show_guided_welcome():
         if st.button("🎬 Run Demo", type="secondary", use_container_width=True):
             with st.spinner("Setting up demo..."):
                 # Generate demo force
-                soldiers_df, soldiers_ext = generate_simple_force(1000, division_type="infantry")
+                generator, soldiers_df, soldiers_ext = generate_simple_force(1000, division_type="infantry")
                 soldiers_df, soldiers_ext = apply_jitter_to_force(soldiers_df, soldiers_ext)
                 st.session_state.soldiers_df = soldiers_df
                 st.session_state.soldiers_ext = soldiers_ext
-                st.session_state.generator = UnitGenerator()
+                st.session_state.generator = generator
 
                 # Load simple demo capabilities
                 st.session_state.capabilities = [
@@ -2626,7 +2633,7 @@ def show_guided_force_generation():
         if st.button("🎲 Generate Force", type="primary", use_container_width=True):
             with st.spinner("Generating synthetic force..."):
                 # Generate force
-                soldiers_df, soldiers_ext = generate_simple_force(num_soldiers, division_type=division.lower())
+                generator, soldiers_df, soldiers_ext = generate_simple_force(num_soldiers, division_type=division.lower())
 
                 # Apply jitter for realism
                 soldiers_df, soldiers_ext = apply_jitter_to_force(soldiers_df, soldiers_ext)
@@ -2634,7 +2641,7 @@ def show_guided_force_generation():
                 # Store in session state
                 st.session_state.soldiers_df = soldiers_df
                 st.session_state.soldiers_ext = soldiers_ext
-                st.session_state.generator = UnitGenerator()
+                st.session_state.generator = generator
 
             st.success(f"✅ Generated {len(soldiers_df):,} soldiers!")
             st.balloons()
@@ -2934,8 +2941,9 @@ def show_guided_run_optimization():
                 )
 
                 # Create task organizer
+                units_dict = st.session_state.generator.units if (st.session_state.generator and st.session_state.generator.units) else {}
                 task_organizer = TaskOrganizer(
-                    st.session_state.generator.units,
+                    units_dict,
                     ready_soldiers,
                     st.session_state.soldiers_ext
                 )

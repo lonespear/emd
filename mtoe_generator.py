@@ -1262,7 +1262,7 @@ def generate_simple_force(
     num_soldiers: int = 1000,
     division_type: str = "infantry",
     seed: int = 42
-) -> Tuple[pd.DataFrame, Dict[int, SoldierExtended]]:
+) -> Tuple['UnitGenerator', pd.DataFrame, Dict[int, SoldierExtended]]:
     """
     Simple force generation by soldier count (for UI convenience).
 
@@ -1272,6 +1272,7 @@ def generate_simple_force(
         seed: Random seed for reproducibility
 
     Returns:
+        generator: UnitGenerator instance with populated units
         soldiers_df: DataFrame with soldier data
         soldiers_ext: Extended soldier records dictionary
 
@@ -1305,7 +1306,7 @@ def generate_simple_force(
         soldiers_ext = {sid: ext for sid, ext in soldiers_ext.items() if sid in sampled_ids}
         soldiers_df = sampled_df
 
-    return soldiers_df, soldiers_ext
+    return generator, soldiers_df, soldiers_ext
 
 
 def quick_generate_force(
