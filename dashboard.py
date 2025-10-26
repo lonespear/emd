@@ -1851,7 +1851,7 @@ def show_analysis():
         )
 
     with col3:
-        filled = summary.get("filled", 0)
+        filled = summary.get("filled_billets", 0)
         required = summary.get("total_billets", filled)
         st.metric(
             "Positions Filled",
