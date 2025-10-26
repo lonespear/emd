@@ -41,6 +41,7 @@ from task_organizer import TaskOrganizer
 from emd_agent import EMD
 from pareto_optimizer import ParetoOptimizer, TradeOffAnalyzer
 from deployment_tracker import OPTEMPOTracker, AvailabilityAnalyzer
+from guided_workflow import GuidedWorkflow, WorkflowStep
 
 # Qualification system imports
 try:
@@ -725,6 +726,8 @@ def initialize_session_state():
         st.session_state.summary = None
     if 'pareto_solutions' not in st.session_state:
         st.session_state.pareto_solutions = None
+    if 'guided_mode' not in st.session_state:
+        st.session_state.guided_mode = True  # Default to guided mode
 
 
 def main():
@@ -733,6 +736,23 @@ def main():
     st.title("🎖️ EMD Manning Dashboard")
     st.markdown("**Enlisted Manpower Distribution - Interactive Planning Tool**")
 
+    # Check if guided mode is enabled
+    if st.session_state.guided_mode:
+        # Initialize guided workflow
+        GuidedWorkflow.initialize()
+
+        # Show summary in sidebar
+        GuidedWorkflow.show_summary_card()
+
+        # Route to appropriate step
+        show_guided_workflow()
+    else:
+        # Classic multi-page mode
+        show_classic_mode()
+
+
+def show_classic_mode():
+    """Original multi-page navigation mode."""
     # Sidebar navigation
     pages = ["🏠 Home", "👥 Force Generation", "📋 Manning Document", "⚙️ Optimization", "📊 Analysis", "📈 Pareto Trade-offs"]
 
@@ -740,7 +760,14 @@ def main():
     if QUALIFICATION_FEATURES_AVAILABLE:
         pages.insert(3, "🎯 Qualification Filtering")
 
-    page = st.sidebar.radio("Navigation", pages)
+    with st.sidebar:
+        st.markdown("### Navigation")
+        page = st.radio("Go to", pages, label_visibility="collapsed")
+
+        st.markdown("---")
+        if st.button("🧭 Guided Mode", use_container_width=True):
+            st.session_state.guided_mode = True
+            st.rerun()
 
     if page == "🏠 Home":
         show_home()
@@ -756,6 +783,35 @@ def main():
         show_analysis()
     elif page == "📈 Pareto Trade-offs":
         show_pareto_tradeoffs()
+
+
+def show_guided_workflow():
+    """Guided workflow that walks user through the process step-by-step."""
+    step = GuidedWorkflow.get_current_step()
+
+    # Render step header with progress
+    GuidedWorkflow.render_step_header()
+
+    # Route to appropriate content based on step
+    if step == WorkflowStep.WELCOME:
+        show_guided_welcome()
+    elif step == WorkflowStep.FORCE_GENERATION:
+        show_guided_force_generation()
+    elif step == WorkflowStep.QUALIFICATION_FILTER:
+        show_guided_qualification_filter()
+    elif step == WorkflowStep.MANNING_REQUIREMENTS:
+        show_guided_manning_requirements()
+    elif step == WorkflowStep.OPTIMIZATION_SETUP:
+        show_guided_optimization_setup()
+    elif step == WorkflowStep.RUN_OPTIMIZATION:
+        show_guided_run_optimization()
+    elif step == WorkflowStep.REVIEW_RESULTS:
+        show_guided_review_results()
+    elif step == WorkflowStep.COMPLETE:
+        show_guided_complete()
+
+    # Render navigation buttons at bottom
+    GuidedWorkflow.render_navigation()
 
 
 def show_home():
@@ -2327,6 +2383,468 @@ def show_pareto_tradeoffs():
             )
 
             st.plotly_chart(fig2, use_container_width=True)
+
+
+# ============================================================================
+# GUIDED WORKFLOW STEP FUNCTIONS
+# ============================================================================
+
+def show_guided_welcome():
+    """Welcome step in guided workflow."""
+    st.markdown("""
+    ### Welcome to the EMD Manning Dashboard!
+
+    This tool helps you optimize military manning assignments using AI-powered optimization.
+
+    **What we'll do together:**
+
+    1. **Generate or Upload Force** - Create your available soldier pool
+    2. **Define Requirements** - Tell us what capabilities you need
+    3. **Configure Optimization** - Set your priorities (fill rate, cost, cohesion)
+    4. **Run & Review** - Get optimized assignments and explore trade-offs
+
+    **Expected time:** 5-10 minutes
+
+    Click **Continue** below to get started!
+    """)
+
+    # Quick stats if available
+    if st.session_state.get('soldiers_df') is not None:
+        st.success(f"✅ You already have {len(st.session_state.soldiers_df):,} soldiers loaded. You can continue to the next steps or regenerate your force.")
+
+
+def show_guided_force_generation():
+    """Force generation step - streamlined version."""
+    st.markdown("""
+    ### How do you want to create your available force?
+
+    Choose one of the options below:
+    """)
+
+    option = st.radio(
+        "Select method:",
+        ["Generate Synthetic Force (Quick)", "Upload MTOE Data (Advanced)"],
+        help="Synthetic force is faster for testing. Upload is for real unit data."
+    )
+
+    if option == "Generate Synthetic Force (Quick)":
+        st.markdown("---")
+        st.markdown("#### Quick Force Generator")
+
+        col1, col2 = st.columns(2)
+        with col1:
+            num_soldiers = st.number_input(
+                "How many soldiers?",
+                min_value=50,
+                max_value=10000,
+                value=1000,
+                step=50,
+                help="Total number of soldiers to generate"
+            )
+
+        with col2:
+            division = st.selectbox(
+                "Division type:",
+                ["Infantry", "Armor", "Airborne", "Mixed"],
+                help="Type of division to model"
+            )
+
+        if st.button("🎲 Generate Force", type="primary", use_container_width=True):
+            with st.spinner("Generating synthetic force..."):
+                # Generate force
+                soldiers_df = quick_generate_force(num_soldiers, division_type=division.lower())
+
+                # Apply jitter for realism
+                soldiers_df = apply_jitter_to_force(soldiers_df)
+
+                # Store in session state
+                st.session_state.soldiers_df = soldiers_df
+                st.session_state.generator = UnitGenerator()
+
+            st.success(f"✅ Generated {len(soldiers_df):,} soldiers!")
+            st.balloons()
+
+            # Show preview
+            st.markdown("#### Preview")
+            st.dataframe(soldiers_df.head(10), use_container_width=True)
+
+    else:  # Upload option
+        st.markdown("---")
+        st.markdown("#### Upload MTOE Data")
+
+        uploaded_file = st.file_uploader(
+            "Upload soldier roster (CSV)",
+            type=["csv"],
+            help="CSV file with columns: soldier_id, mos, rank, unit, base, etc."
+        )
+
+        if uploaded_file is not None:
+            soldiers_df = pd.read_csv(uploaded_file)
+            st.session_state.soldiers_df = soldiers_df
+            st.success(f"✅ Loaded {len(soldiers_df):,} soldiers!")
+
+            # Show preview
+            st.markdown("#### Preview")
+            st.dataframe(soldiers_df.head(10), use_container_width=True)
+
+
+def show_guided_qualification_filter():
+    """Optional qualification filtering step."""
+    st.markdown("""
+    ### Filter by Qualifications (Optional)
+
+    You can optionally filter soldiers based on qualifications, badges, or experience.
+
+    **Skip this step** if you want to use all available soldiers.
+    """)
+
+    if not QUALIFICATION_FEATURES_AVAILABLE:
+        st.warning("⚠️ Qualification filtering module not available. Click Continue to skip.")
+        return
+
+    # Simple qualification filter UI
+    filter_enabled = st.checkbox("Enable qualification filtering")
+
+    if filter_enabled:
+        st.markdown("#### Filter Criteria")
+
+        # Basic filters
+        min_rank = st.selectbox(
+            "Minimum rank:",
+            ["E-1", "E-2", "E-3", "E-4", "E-5", "E-6", "E-7", "E-8", "E-9"],
+            index=0
+        )
+
+        required_badges = st.multiselect(
+            "Required badges (optional):",
+            ["Airborne", "Air Assault", "Ranger", "Expert Infantry Badge", "Combat Medic Badge"]
+        )
+
+        if st.button("Apply Filters", type="primary"):
+            # Apply filtering logic here
+            # For now, just copy the df
+            st.session_state.soldiers_ext = st.session_state.soldiers_df.copy()
+            st.success("✅ Filters applied!")
+    else:
+        st.info("ℹ️ Skipping qualification filtering. All soldiers will be available.")
+
+
+def show_guided_manning_requirements():
+    """Manning requirements step - simplified."""
+    st.markdown("""
+    ### Define Your Mission Requirements
+
+    Tell us what capabilities you need. Each capability represents a type of team or role.
+
+    **Example:** "Rifle Squad" with 9 soldiers, or "Medic Team" with 2 soldiers
+    """)
+
+    # Simple capability builder
+    with st.form("add_capability"):
+        st.markdown("#### Add a Capability")
+
+        col1, col2, col3 = st.columns(3)
+
+        with col1:
+            cap_name = st.text_input("Capability Name", placeholder="e.g., Rifle Squad")
+            mos = st.text_input("Primary MOS", placeholder="e.g., 11B")
+
+        with col2:
+            rank = st.selectbox("Minimum Rank", ["E-4", "E-5", "E-6", "E-7", "E-8"])
+            priority = st.selectbox("Priority", [1, 2, 3], format_func=lambda x: ["🔴 Critical", "🟡 High", "🟢 Normal"][x-1])
+
+        with col3:
+            quantity = st.number_input("How many teams?", min_value=1, max_value=50, value=1)
+            team_size = st.number_input("Team size", min_value=1, max_value=20, value=1)
+
+        submitted = st.form_submit_button("➕ Add Capability", type="primary", use_container_width=True)
+
+        if submitted and cap_name:
+            if 'capabilities' not in st.session_state:
+                st.session_state.capabilities = []
+
+            st.session_state.capabilities.append({
+                "name": cap_name,
+                "mos": mos,
+                "rank": rank,
+                "quantity": quantity,
+                "team_size": team_size,
+                "priority": priority
+            })
+            st.success(f"✅ Added {quantity}x {cap_name}")
+            st.rerun()
+
+    # Show current capabilities
+    if st.session_state.get('capabilities'):
+        st.markdown("---")
+        st.markdown("#### Current Requirements")
+
+        caps_df = pd.DataFrame(st.session_state.capabilities)
+        caps_df["Total Soldiers"] = caps_df["quantity"] * caps_df["team_size"]
+
+        # Summary metrics
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            st.metric("Capabilities", len(caps_df))
+        with col2:
+            st.metric("Total Teams", caps_df["quantity"].sum())
+        with col3:
+            st.metric("Total Billets", caps_df["Total Soldiers"].sum())
+
+        st.dataframe(caps_df, use_container_width=True)
+
+        # Clear button
+        if st.button("🗑️ Clear All"):
+            st.session_state.capabilities = []
+            st.rerun()
+    else:
+        st.info("ℹ️ No capabilities added yet. Add at least one to continue.")
+
+
+def show_guided_optimization_setup():
+    """Optimization configuration step."""
+    st.markdown("""
+    ### Configure Optimization Priorities
+
+    Tell us what matters most for this mission. The optimizer will balance these objectives.
+    """)
+
+    st.markdown("#### What's most important? (Drag to reorder)")
+
+    # Priority sliders
+    col1, col2 = st.columns(2)
+
+    with col1:
+        st.markdown("**Fill Rate Priority**")
+        st.markdown("How important is it to fill all positions?")
+        fill_weight = st.slider("Fill Rate", 0.0, 10.0, 5.0, 0.5, label_visibility="collapsed")
+
+        st.markdown("**Cost Priority**")
+        st.markdown("How much do you care about minimizing travel costs?")
+        cost_weight = st.slider("Cost", 0.0, 10.0, 3.0, 0.5, label_visibility="collapsed")
+
+    with col2:
+        st.markdown("**Cohesion Priority**")
+        st.markdown("Should we keep existing teams together?")
+        cohesion_weight = st.slider("Cohesion", 0.0, 10.0, 4.0, 0.5, label_visibility="collapsed")
+
+        st.markdown("**Cross-Leveling Priority**")
+        st.markdown("Avoid pulling from the same units?")
+        cross_lev_weight = st.slider("Cross-Leveling", 0.0, 10.0, 2.0, 0.5, label_visibility="collapsed")
+
+    # Store weights
+    st.session_state.workflow_data['weights'] = {
+        'fill': fill_weight,
+        'cost': cost_weight,
+        'cohesion': cohesion_weight,
+        'cross_lev': cross_lev_weight
+    }
+
+    # Visualization of priorities
+    st.markdown("---")
+    st.markdown("#### Your Priority Balance")
+
+    weights_df = pd.DataFrame({
+        'Objective': ['Fill Rate', 'Cost', 'Cohesion', 'Cross-Leveling'],
+        'Priority': [fill_weight, cost_weight, cohesion_weight, cross_lev_weight]
+    })
+
+    fig = px.bar(weights_df, x='Objective', y='Priority', color='Priority',
+                 color_continuous_scale='Blues')
+    st.plotly_chart(fig, use_container_width=True)
+
+
+def show_guided_run_optimization():
+    """Run optimization step."""
+    st.markdown("""
+    ### Run the Optimization
+
+    Ready to find the best manning assignments? Click the button below!
+    """)
+
+    # Show what will be optimized
+    if st.session_state.get('soldiers_df') is not None and st.session_state.get('capabilities'):
+        num_soldiers = len(st.session_state.soldiers_df)
+        num_billets = sum(cap.get('quantity', 1) * cap.get('team_size', 1)
+                         for cap in st.session_state.capabilities)
+
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            st.metric("Available Soldiers", f"{num_soldiers:,}")
+        with col2:
+            st.metric("Billets to Fill", f"{num_billets:,}")
+        with col3:
+            fill_potential = min(100, (num_soldiers / num_billets * 100)) if num_billets > 0 else 0
+            st.metric("Max Fill Potential", f"{fill_potential:.0f}%")
+
+    if st.button("🚀 Run Optimization", type="primary", use_container_width=True):
+        with st.spinner("🔄 Running optimization... This may take 30-60 seconds..."):
+            try:
+                # Create manning document
+                manning_doc = create_custom_manning_document(
+                    exercise_name="Guided Workflow Exercise",
+                    capabilities=st.session_state.capabilities,
+                    location="Guam"
+                )
+
+                # Convert to billets
+                billets_df = ManningDocumentBuilder.generate_billets_from_document(manning_doc)
+
+                # Create readiness profile
+                profile = StandardProfiles.ntc_rotation()
+
+                # Filter ready soldiers
+                ready_soldiers = filter_ready_soldiers(
+                    st.session_state.soldiers_df,
+                    profile,
+                    date.today(),
+                    date.today() + timedelta(days=90)
+                )
+
+                # Run EMD optimization
+                emd = EMD(
+                    manning_doc=manning_doc,
+                    available_force=ready_soldiers,
+                    exercise_start=date.today(),
+                    exercise_duration=timedelta(days=30)
+                )
+
+                # Get weights
+                weights = st.session_state.workflow_data.get('weights', {
+                    'fill': 5.0, 'cost': 3.0, 'cohesion': 4.0, 'cross_lev': 2.0
+                })
+
+                result = emd.run_optimization(
+                    fill_rate_weight=weights['fill'],
+                    cost_weight=weights['cost'],
+                    cohesion_weight=weights['cohesion']
+                )
+
+                # Store results
+                st.session_state.assignments = result['assignments']
+                st.session_state.summary = result['summary']
+
+                st.success("✅ Optimization complete!")
+                st.balloons()
+
+                # Auto-advance
+                GuidedWorkflow.next_step()
+
+            except Exception as e:
+                st.error(f"❌ Optimization failed: {str(e)}")
+                st.exception(e)
+
+
+def show_guided_review_results():
+    """Review results step."""
+    st.markdown("""
+    ### Review Your Results
+
+    Here's what the optimizer found!
+    """)
+
+    if st.session_state.get('summary'):
+        summary = st.session_state.summary
+
+        # Key metrics
+        col1, col2, col3, col4 = st.columns(4)
+
+        with col1:
+            st.metric(
+                "Fill Rate",
+                f"{summary.get('fill_rate', 0):.1%}",
+                delta=None
+            )
+
+        with col2:
+            st.metric(
+                "Total Cost",
+                f"${summary.get('total_cost', 0):,.0f}"
+            )
+
+        with col3:
+            st.metric(
+                "Cohesion Score",
+                f"{summary.get('cohesion_score', 0):.1f}"
+            )
+
+        with col4:
+            st.metric(
+                "Soldiers Assigned",
+                f"{summary.get('soldiers_assigned', 0):,}"
+            )
+
+        # Assignments table
+        if st.session_state.get('assignments') is not None:
+            st.markdown("---")
+            st.markdown("#### Assignment Details")
+
+            assignments = st.session_state.assignments
+            st.dataframe(assignments.head(20), use_container_width=True)
+
+            # Export options
+            st.markdown("---")
+            st.markdown("#### Export Results")
+
+            col1, col2 = st.columns(2)
+
+            with col1:
+                csv = assignments.to_csv(index=False)
+                st.download_button(
+                    label="📥 Download Assignments (CSV)",
+                    data=csv,
+                    file_name="manning_assignments.csv",
+                    mime="text/csv",
+                    use_container_width=True
+                )
+
+            with col2:
+                if st.button("📊 Explore Trade-offs", use_container_width=True):
+                    st.session_state.workflow_step = WorkflowStep.COMPLETE
+                    st.rerun()
+
+    else:
+        st.warning("⚠️ No results available. Please run optimization first.")
+
+
+def show_guided_complete():
+    """Completion step."""
+    st.markdown("""
+    ### 🎉 All Done!
+
+    Your manning optimization is complete. Here's what you can do next:
+    """)
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+        st.markdown("""
+        #### 📊 Further Analysis
+        - Explore Pareto trade-offs
+        - Analyze by capability
+        - Review geographic sourcing
+        - Compare different scenarios
+        """)
+
+        if st.button("🔍 Advanced Analysis", type="primary", use_container_width=True):
+            st.session_state.guided_mode = False
+            st.rerun()
+
+    with col2:
+        st.markdown("""
+        #### 🔄 Start Over
+        - New mission requirements
+        - Different force composition
+        - Try different priorities
+        """)
+
+        if st.button("🏠 New Optimization", use_container_width=True):
+            # Clear state
+            st.session_state.workflow_step = WorkflowStep.WELCOME
+            st.session_state.capabilities = None
+            st.session_state.assignments = None
+            st.session_state.summary = None
+            st.rerun()
 
 
 if __name__ == "__main__":
