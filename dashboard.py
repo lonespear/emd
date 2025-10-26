@@ -1273,9 +1273,10 @@ def show_manning_document():
     st.markdown("Define exercise requirements by capability.")
 
     # Exercise info
-    col1, col2 = st.columns(2)
+    col1, col2, col3 = st.columns(3)
     with col1:
         exercise_name = st.text_input("Exercise Name", "Valiant Shield 2025")
+
     with col2:
         # Get all available locations from database
         if GEOGRAPHIC_AVAILABLE:
@@ -1289,9 +1290,40 @@ def show_manning_document():
 
         location = st.selectbox("Exercise Location", location_options, help="Select from 56 military installations worldwide")
 
-    # Store location in session state for auto-profile selection
+    with col3:
+        # Auto-suggest duration based on location
+        if location == "NTC":
+            default_duration = 30
+        elif location == "JRTC":
+            default_duration = 21
+        elif GEOGRAPHIC_AVAILABLE:
+            db = LocationDatabase()
+            loc_info = db.get(location)
+            if loc_info:
+                if loc_info.aor == "CENTCOM":
+                    default_duration = 270  # Deployment
+                elif loc_info.aor in ["EUCOM", "INDOPACOM"] and loc_info.country != "US":
+                    default_duration = 14  # Short OCONUS exercise
+                else:
+                    default_duration = 14  # Generic exercise
+            else:
+                default_duration = 14
+        else:
+            default_duration = 14
+
+        exercise_duration = st.number_input(
+            "Duration (days)",
+            min_value=1,
+            max_value=365,
+            value=default_duration,
+            help="Exercise duration in days (affects readiness requirements)"
+        )
+
+    # Store location and duration in session state
     if 'exercise_location' not in st.session_state or st.session_state.exercise_location != location:
         st.session_state.exercise_location = location
+    if 'exercise_duration' not in st.session_state or st.session_state.exercise_duration != exercise_duration:
+        st.session_state.exercise_duration = exercise_duration
 
     # Show location info and preview map
     if GEOGRAPHIC_AVAILABLE:
@@ -1307,24 +1339,24 @@ def show_manning_document():
                 is_oconus = loc_info.country != "US"
                 st.info(f"**Type:** {'OCONUS' if is_oconus else 'CONUS'}")
 
-            # Show recommended profile
+            # Show recommended profile with user's duration
             if GEOGRAPHIC_AVAILABLE:
                 if location == "NTC":
-                    recommended_profile = "NTC Rotation (30 days)"
+                    recommended_profile = f"NTC Rotation ({exercise_duration} days)"
                 elif location == "JRTC":
-                    recommended_profile = "JRTC Rotation (21 days)"
+                    recommended_profile = f"JRTC Rotation ({exercise_duration} days)"
                 elif loc_info.aor == "INDOPACOM" and is_oconus:
-                    recommended_profile = "INDOPACOM Exercise (14 days)"
+                    recommended_profile = f"INDOPACOM Exercise ({exercise_duration} days)"
                 elif loc_info.aor == "EUCOM" and is_oconus:
-                    recommended_profile = "EUCOM Exercise (21 days)"
+                    recommended_profile = f"EUCOM Exercise ({exercise_duration} days)"
                 elif loc_info.aor == "AFRICOM":
-                    recommended_profile = "AFRICOM Exercise (14 days)"
+                    recommended_profile = f"AFRICOM Exercise ({exercise_duration} days)"
                 elif loc_info.aor == "CENTCOM":
-                    recommended_profile = "CENTCOM Deployment (270 days)"
+                    recommended_profile = f"CENTCOM Deployment ({exercise_duration} days)"
                 elif is_oconus:
-                    recommended_profile = "OCONUS Training"
+                    recommended_profile = f"OCONUS Training ({exercise_duration} days)"
                 else:
-                    recommended_profile = "CONUS Training"
+                    recommended_profile = f"CONUS Training ({exercise_duration} days)"
 
                 st.success(f"📋 **Recommended Profile:** {recommended_profile}")
 
