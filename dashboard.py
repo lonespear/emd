@@ -2154,6 +2154,9 @@ def show_analysis():
 
     # Capability-specific insights
     if "capability_name" in assignments.columns and 'capabilities' in st.session_state:
+        # Calculate filled capabilities
+        filled_caps = assignments.groupby("capability_name")["billet_id"].count().to_dict()
+
         critical_caps = [cap for cap in st.session_state.capabilities if cap.get("priority", 3) == 1]
         if critical_caps:
             for cap in critical_caps[:2]:  # Top 2 critical capabilities
@@ -2499,11 +2502,21 @@ def show_guided_welcome():
                 st.session_state.soldiers_ext = soldiers_ext
                 st.session_state.generator = generator
 
-                # Load simple demo capabilities
+                # Load demo capabilities with varied ranks to show system capabilities
                 st.session_state.capabilities = [
-                    {"name": "Rifle Squad", "mos": "11B", "rank": "E-6", "quantity": 5, "team_size": 9, "priority": 1},
-                    {"name": "Medic Team", "mos": "68W", "rank": "E-5", "quantity": 3, "team_size": 2, "priority": 1},
-                    {"name": "Mortar Section", "mos": "11C", "rank": "E-6", "quantity": 2, "team_size": 6, "priority": 2}
+                    # Squad leaders
+                    {"name": "Rifle Squad Leader", "mos": "11B", "rank": "E-6", "quantity": 5, "team_size": 1, "priority": 1},
+                    # Squad members (junior enlisted)
+                    {"name": "Rifleman", "mos": "11B", "rank": "E-3", "quantity": 20, "team_size": 2, "priority": 2},
+                    # Medical support
+                    {"name": "Senior Medic", "mos": "68W", "rank": "E-5", "quantity": 2, "team_size": 1, "priority": 1},
+                    {"name": "Combat Medic", "mos": "68W", "rank": "E-3", "quantity": 4, "team_size": 1, "priority": 2},
+                    # Fire support
+                    {"name": "Mortar Section Leader", "mos": "11C", "rank": "E-6", "quantity": 2, "team_size": 1, "priority": 1},
+                    {"name": "Mortar Gunner", "mos": "11C", "rank": "E-4", "quantity": 6, "team_size": 1, "priority": 2},
+                    # Support roles
+                    {"name": "Supply Sergeant", "mos": "92Y", "rank": "E-6", "quantity": 1, "team_size": 1, "priority": 2},
+                    {"name": "Supply Specialist", "mos": "92Y", "rank": "E-4", "quantity": 2, "team_size": 1, "priority": 3}
                 ]
 
                 # Set balanced weights
