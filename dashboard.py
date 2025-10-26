@@ -2933,13 +2933,18 @@ def show_guided_run_optimization():
                     profile
                 )
 
-                # Run EMD optimization
-                emd = EMD(
-                    manning_doc=manning_doc,
-                    available_force=ready_soldiers,
-                    exercise_start=date.today(),
-                    exercise_duration=timedelta(days=30)
+                # Create task organizer
+                task_organizer = TaskOrganizer(
+                    st.session_state.generator.units,
+                    ready_soldiers,
+                    st.session_state.soldiers_ext
                 )
+
+                # Initialize EMD with soldiers and billets
+                emd = EMD(soldiers_df=ready_soldiers, billets_df=billets_df, seed=42)
+                emd.soldiers_ext = st.session_state.soldiers_ext
+                emd.task_organizer = task_organizer
+                emd.readiness_profile = profile
 
                 # Get weights
                 weights = st.session_state.workflow_data.get('weights', {
