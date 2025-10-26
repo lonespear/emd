@@ -2924,7 +2924,7 @@ def show_guided_run_optimization():
                 billets_df = ManningDocumentBuilder.generate_billets_from_document(manning_doc)
 
                 # Create readiness profile
-                profile = StandardProfiles.ntc_rotation()
+                profile = StandardProfiles.conus_training()
 
                 # Filter ready soldiers
                 ready_soldiers = filter_ready_soldiers(
