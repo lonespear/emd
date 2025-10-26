@@ -735,7 +735,7 @@ def main():
     initialize_session_state()
 
     st.title("🎖️ EMD Manning Dashboard")
-    st.markdown("**Enlisted Manpower Distribution - Interactive Planning Tool**")
+    st.markdown("**Exercise Manning Document - Interactive Planning Tool**")
 
     # Check if guided mode is enabled
     if st.session_state.guided_mode:
@@ -2543,25 +2543,28 @@ def show_guided_welcome():
 
     with st.expander("ℹ️ How does EMD optimization work?"):
         st.markdown("""
-        **EMD (Enlisted Manpower Distribution)** uses multi-objective optimization to find the best way to assign soldiers to mission requirements.
+        **EMD (Exercise Manning Document)** uses multi-objective optimization to select the right soldiers for specific exercises and deployments.
+
+        **Core Purpose:**
+        Intelligently match available soldiers to exercise requirements based on readiness, qualifications, unit cohesion, and cost.
 
         **Key Objectives:**
-        - **Fill Rate**: Maximize the percentage of positions filled
-        - **Cost**: Minimize travel and logistics costs
-        - **Cohesion**: Keep existing teams together when possible
-        - **Cross-Leveling**: Distribute load across multiple units
+        - **Fill Rate**: Maximize positions filled with qualified personnel
+        - **Cost**: Minimize TDY travel and cross-leveling expenses
+        - **Cohesion**: Preserve existing team integrity when possible
+        - **Readiness**: Select soldiers meeting training/medical/dwell requirements
 
-        **The Algorithm:**
-        1. Filters soldiers based on readiness (training, deployments, availability)
-        2. Matches soldiers to billets based on MOS, rank, and qualifications
-        3. Optimizes assignments using weighted scoring
-        4. Provides trade-off analysis (Pareto frontier) for decision-making
+        **The Process:**
+        1. Define exercise requirements (capabilities, MOS, ranks needed)
+        2. Filter available soldiers by readiness criteria
+        3. Match soldiers to billets using weighted optimization
+        4. Generate manning document with assignments and sourcing plan
 
-        **Best For:**
-        - Training rotations (NTC, JRTC)
-        - Operational deployments
-        - Exercise planning
-        - Unit manning analysis
+        **Ideal For:**
+        - Training rotations (NTC, JRTC, Combat Training Centers)
+        - OCONUS deployments (EUCOM, INDOPACOM, CENTCOM)
+        - Joint exercises and multinational operations
+        - Rapid deployment force packages
         """)
 
     with st.expander("ℹ️ What data do I need?"):
@@ -2632,7 +2635,7 @@ def show_guided_force_generation():
                 max_value=10000,
                 value=template_force_size,
                 step=50,
-                help="Total number of soldiers to generate"
+                help="Target number of soldiers to generate"
             )
 
         with col2:
@@ -2645,10 +2648,25 @@ def show_guided_force_generation():
                 help="Type of division to model"
             )
 
+        # Fill rate slider
+        fill_rate_pct = st.slider(
+            "Unit Manning Level (%)",
+            min_value=75,
+            max_value=100,
+            value=93,
+            step=1,
+            help="Percentage of authorized positions filled (affects readiness)"
+        )
+        fill_rate = fill_rate_pct / 100.0
+
         if st.button("🎲 Generate Force", type="primary", use_container_width=True):
             with st.spinner("Generating synthetic force..."):
                 # Generate force
-                generator, soldiers_df, soldiers_ext = generate_simple_force(num_soldiers, division_type=division.lower())
+                generator, soldiers_df, soldiers_ext = generate_simple_force(
+                    num_soldiers,
+                    division_type=division.lower(),
+                    fill_rate=fill_rate
+                )
 
                 # Apply jitter for realism
                 soldiers_df, soldiers_ext = apply_jitter_to_force(soldiers_df, soldiers_ext)

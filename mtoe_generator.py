@@ -1261,15 +1261,17 @@ def generate_division_from_config(
 def generate_simple_force(
     num_soldiers: int = 1000,
     division_type: str = "infantry",
-    seed: int = 42
+    seed: int = 42,
+    fill_rate: float = 0.93
 ) -> Tuple['UnitGenerator', pd.DataFrame, Dict[int, SoldierExtended]]:
     """
     Simple force generation by soldier count (for UI convenience).
 
     Args:
-        num_soldiers: Approximate number of soldiers to generate
+        num_soldiers: Target number of soldiers to generate
         division_type: Type of division ("infantry", "armor", "airborne", "mixed")
         seed: Random seed for reproducibility
+        fill_rate: Percentage of authorized positions to fill (0.0-1.0)
 
     Returns:
         generator: UnitGenerator instance with populated units
@@ -1277,34 +1279,60 @@ def generate_simple_force(
         soldiers_ext: Extended soldier records dictionary
 
     Note:
-        Actual soldier count may vary slightly based on battalion structure.
-        Each battalion generates ~600 soldiers.
+        Adjusts battalion/company structure to hit target soldier count.
+        Actual count may vary ±5% due to unit structure constraints.
     """
-    # Calculate battalions needed (~600 soldiers per battalion)
-    n_battalions = max(1, round(num_soldiers / 600))
+    # Estimate soldiers per company (varies by type, ~130 for infantry)
+    soldiers_per_company = 130 if division_type == "infantry" else 120
 
-    # Adjust companies per battalion to get closer to target
-    companies_per_bn = 4
-    if num_soldiers < 500:
-        companies_per_bn = 3
-    elif num_soldiers > 800:
-        companies_per_bn = 5
+    # Back-calculate: need X authorized positions to get num_soldiers at fill_rate
+    authorized_needed = num_soldiers / fill_rate
+
+    # Calculate companies needed
+    companies_needed = authorized_needed / soldiers_per_company
+
+    # Determine battalion structure
+    if companies_needed <= 3:
+        n_battalions = 1
+        companies_per_bn = max(3, int(companies_needed))
+    else:
+        # Distribute across battalions (4-5 companies each)
+        companies_per_bn = 5 if companies_needed > 15 else 4
+        n_battalions = max(1, int(companies_needed / companies_per_bn))
 
     # Generate force using existing function
     generator, soldiers_df, soldiers_ext = quick_generate_force(
         n_battalions=n_battalions,
         companies_per_bn=companies_per_bn,
         seed=seed,
-        fill_rate=0.93
+        fill_rate=fill_rate
     )
 
-    # Trim to approximate target if significantly over
-    if len(soldiers_df) > num_soldiers * 1.2:
-        # Sample soldiers and keep corresponding ext records
+    # If still significantly over/under target, adjust
+    actual_count = len(soldiers_df)
+    if actual_count > num_soldiers * 1.15:
+        # Trim excess
         sampled_df = soldiers_df.sample(n=num_soldiers, random_state=seed)
         sampled_ids = set(sampled_df['soldier_id'])
         soldiers_ext = {sid: ext for sid, ext in soldiers_ext.items() if sid in sampled_ids}
         soldiers_df = sampled_df
+    elif actual_count < num_soldiers * 0.85:
+        # Need more - add another battalion
+        generator2, df2, ext2 = quick_generate_force(
+            n_battalions=1,
+            companies_per_bn=companies_per_bn,
+            seed=seed + 100,
+            fill_rate=fill_rate
+        )
+        # Merge the forces
+        soldiers_df = pd.concat([soldiers_df, df2], ignore_index=True)
+        soldiers_ext.update(ext2)
+        # Trim to target
+        if len(soldiers_df) > num_soldiers:
+            sampled_df = soldiers_df.sample(n=num_soldiers, random_state=seed)
+            sampled_ids = set(sampled_df['soldier_id'])
+            soldiers_ext = {sid: ext for sid, ext in soldiers_ext.items() if sid in sampled_ids}
+            soldiers_df = sampled_df
 
     return generator, soldiers_df, soldiers_ext
 
