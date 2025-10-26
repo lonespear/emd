@@ -31,7 +31,7 @@ except ImportError:
     print("Warning: folium/streamlit-folium not available. Install with: pip install folium streamlit-folium")
 
 # EMD imports
-from mtoe_generator import quick_generate_force, UnitGenerator, apply_jitter_to_force
+from mtoe_generator import quick_generate_force, generate_simple_force, UnitGenerator, apply_jitter_to_force
 from manning_document import (
     ManningDocument, CapabilityRequirement,
     ManningDocumentBuilder, create_custom_manning_document
@@ -2289,13 +2289,17 @@ def show_pareto_tradeoffs():
             # Run Pareto optimization
             optimizer = ParetoOptimizer(emd)
 
+            # Expanded parameter grid to create real trade-offs
+            # Wider ranges force diverse outcomes: high-fill vs low-cost vs cohesion-focused
             param_grid = {
-                "mos_mismatch_penalty": [1500, 2500, 3500, 4500],
-                "unit_cohesion_bonus": [-200, -500, -800],
-                "TDY_cost_weight": [0.8, 1.0, 1.2]
+                "mos_mismatch_penalty": [500, 2000, 4000, 8000],        # Lax→Strict MOS matching
+                "unit_cohesion_bonus": [0, -500, -1500, -3000],         # No bonus→Strong cohesion
+                "TDY_cost_weight": [0.2, 1.0, 3.0, 10.0],               # Ignore cost→Heavily weight cost
+                "rank_out_of_band_penalty": [1000, 5000, 10000],        # Rank flexibility→strictness
+                "cross_unit_penalty": [0, 200, 800]                     # No penalty→High cross-leveling cost
             }
 
-            solutions = optimizer.explore_policy_space(param_grid, max_solutions=30)
+            solutions = optimizer.explore_policy_space(param_grid, max_solutions=50)
             pareto_front = optimizer.get_pareto_frontier()
 
             st.session_state.pareto_solutions = solutions
@@ -2482,7 +2486,7 @@ def show_guided_welcome():
         if st.button("🎬 Run Demo", type="secondary", use_container_width=True):
             with st.spinner("Setting up demo..."):
                 # Generate demo force
-                soldiers_df = quick_generate_force(1000, division_type="infantry")
+                soldiers_df = generate_simple_force(1000, division_type="infantry")
                 soldiers_df = apply_jitter_to_force(soldiers_df)
                 st.session_state.soldiers_df = soldiers_df
                 st.session_state.generator = UnitGenerator()
@@ -2621,7 +2625,7 @@ def show_guided_force_generation():
         if st.button("🎲 Generate Force", type="primary", use_container_width=True):
             with st.spinner("Generating synthetic force..."):
                 # Generate force
-                soldiers_df = quick_generate_force(num_soldiers, division_type=division.lower())
+                soldiers_df = generate_simple_force(num_soldiers, division_type=division.lower())
 
                 # Apply jitter for realism
                 soldiers_df = apply_jitter_to_force(soldiers_df)

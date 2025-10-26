@@ -1258,6 +1258,51 @@ def generate_division_from_config(
     combined_df = pd.concat(all_soldiers_df, ignore_index=True)
     return generator, combined_df, all_soldiers_ext
 
+def generate_simple_force(
+    num_soldiers: int = 1000,
+    division_type: str = "infantry",
+    seed: int = 42
+) -> pd.DataFrame:
+    """
+    Simple force generation by soldier count (for UI convenience).
+
+    Args:
+        num_soldiers: Approximate number of soldiers to generate
+        division_type: Type of division ("infantry", "armor", "airborne", "mixed")
+        seed: Random seed for reproducibility
+
+    Returns:
+        soldiers_df: DataFrame with soldier data
+
+    Note:
+        Actual soldier count may vary slightly based on battalion structure.
+        Each battalion generates ~600 soldiers.
+    """
+    # Calculate battalions needed (~600 soldiers per battalion)
+    n_battalions = max(1, round(num_soldiers / 600))
+
+    # Adjust companies per battalion to get closer to target
+    companies_per_bn = 4
+    if num_soldiers < 500:
+        companies_per_bn = 3
+    elif num_soldiers > 800:
+        companies_per_bn = 5
+
+    # Generate force using existing function
+    generator, soldiers_df, soldiers_ext = quick_generate_force(
+        n_battalions=n_battalions,
+        companies_per_bn=companies_per_bn,
+        seed=seed,
+        fill_rate=0.93
+    )
+
+    # Trim to approximate target if significantly over
+    if len(soldiers_df) > num_soldiers * 1.2:
+        soldiers_df = soldiers_df.sample(n=num_soldiers, random_state=seed)
+
+    return soldiers_df
+
+
 def quick_generate_force(
     n_battalions: int = 1,
     companies_per_bn: int = 4,

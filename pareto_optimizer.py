@@ -232,6 +232,25 @@ class ParetoOptimizer:
                 pareto_front.append(solution)
 
         print(f"\n📊 Pareto Frontier: {len(pareto_front)}/{len(self.solutions)} solutions are Pareto-optimal")
+
+        # Add diagnostic info to understand diversity
+        if self.solutions:
+            fills = [s.fill_rate for s in self.solutions]
+            costs = [s.total_cost for s in self.solutions]
+            cohesions = [s.cohesion_score for s in self.solutions]
+            cross_levs = [s.cross_leveling_score for s in self.solutions]
+
+            print(f"   Objective Ranges:")
+            print(f"   - Fill Rate: {min(fills):.1%} to {max(fills):.1%} (spread: {(max(fills)-min(fills)):.1%})")
+            print(f"   - Total Cost: ${min(costs):,.0f} to ${max(costs):,.0f} (spread: ${max(costs)-min(costs):,.0f})")
+            print(f"   - Cohesion: {min(cohesions):.1f} to {max(cohesions):.1f} (spread: {max(cohesions)-min(cohesions):.1f})")
+            print(f"   - Cross-Leveling: {min(cross_levs):.1f} to {max(cross_levs):.1f} (spread: {max(cross_levs)-min(cross_levs):.1f})")
+
+            # Identify if problem is low diversity
+            total_spread = (max(fills)-min(fills)) + (max(cohesions)-min(cohesions))/100 + (max(cross_levs)-min(cross_levs))/100
+            if total_spread < 0.1 and len(pareto_front) <= 3:
+                print(f"   ⚠️  Warning: Very low objective diversity. Consider wider parameter ranges.")
+
         return pareto_front
 
     def to_dataframe(self, pareto_only: bool = False) -> pd.DataFrame:
