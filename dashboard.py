@@ -2485,10 +2485,35 @@ def show_guided_welcome():
         st.markdown("#### ⚡ Try a Demo")
         st.markdown("See the system in action with sample data:")
 
+        with st.expander("📋 Demo Scenario - CONOP", expanded=False):
+            st.markdown("""
+            **OPERATION DESERT LIGHTNING**
+            *NTC Rotation 25-04 | Fort Irwin, CA*
+
+            **SITUATION:**
+            1-25 SBCT is tasked to execute a 14-day force-on-force training rotation against the OPFOR. Current unit strength is at 87% due to recent deployment cycle.
+
+            **MISSION:**
+            Build a composite task force of 62 soldiers to conduct offensive operations in the Central Corridor, focusing on combined arms maneuver and sustainment operations.
+
+            **EXECUTION:**
+            - **Main Effort:** 5 rifle squads conduct movement to contact and assault positions
+            - **Supporting Effort:** Indirect fire support via 2 mortar sections
+            - **Sustainment:** Medical and supply elements ensure operational continuity
+
+            **REQUIRED CAPABILITIES:**
+            - Infantry Squad Leaders (E-6) + Riflemen (E-3)
+            - Indirect Fire Teams (11C)
+            - Medical Support (68W)
+            - Supply Operations (92Y)
+
+            *The optimizer will select the best-qualified soldiers from the available force while minimizing cross-leveling and maintaining unit cohesion.*
+            """)
+
         st.markdown("""
         The demo will:
         - Generate a synthetic 1000-soldier force
-        - Load sample requirements (Infantry BCT)
+        - Load sample requirements (62 billets)
         - Run optimization with balanced weights
         - Show you the results
         """)
