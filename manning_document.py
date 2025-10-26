@@ -75,6 +75,25 @@ class CapabilityRequirement:
     prefer_from_uic: Optional[str] = None  # Prefer sourcing from specific unit
     keep_team_together: bool = True  # Prefer pulling intact teams vs individuals
 
+    # Position-specific qualifications (NEW - for template-based requirements)
+    # Leader qualifications (applied to leadership positions)
+    leader_asi: Optional[List[str]] = None  # e.g., ["B", "L"] for Airborne, Ranger
+    leader_languages: Optional[Dict[str, str]] = None  # e.g., {"Korean": "3/3", "Arabic": "2/2"}
+    leader_schools: Optional[List[str]] = None  # e.g., ["Ranger School", "Pathfinder"]
+    leader_badges: Optional[List[str]] = None  # e.g., ["CIB", "Ranger Tab", "EIB"]
+    leader_education: Optional[str] = None  # e.g., "Bachelor's Degree"
+    leader_certifications: Optional[List[str]] = None  # e.g., ["Instructor Cert", "HAZMAT"]
+    leader_experience: Optional[Dict[str, int]] = None  # e.g., {"combat_deployments": 1, "command_time": 12}
+
+    # Member qualifications (count-based - how many soldiers in the element need this)
+    members_asi_count: Optional[Dict[str, int]] = None  # e.g., {"B": 4} = 4 soldiers need airborne
+    members_languages_count: Optional[Dict[str, int]] = None  # e.g., {"Korean": 2}
+    members_schools_count: Optional[Dict[str, int]] = None  # e.g., {"Combat Lifesaver": 8}
+    members_badges_count: Optional[Dict[str, int]] = None  # e.g., {"CIB": 10}
+    members_education_count: Optional[Dict[str, int]] = None  # e.g., {"Associate": 2}
+    members_certifications_count: Optional[Dict[str, int]] = None  # e.g., {"CDL": 1}
+    members_experience_count: Optional[Dict[str, int]] = None  # e.g., {"deployment": 15}
+
     # Extended qualifications (optional, for detailed matching)
     extended_requirements: Optional[BilletRequirements] = None
 

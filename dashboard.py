@@ -1330,43 +1330,136 @@ def show_manning_document():
 
     st.subheader("Add Capabilities")
 
+    # Import element templates
+    try:
+        from element_templates import get_all_element_names, get_element_template
+        ELEMENT_TEMPLATES_AVAILABLE = True
+    except ImportError:
+        ELEMENT_TEMPLATES_AVAILABLE = False
+
     # Add capability form
     with st.form("add_capability"):
-        col1, col2, col3, col4 = st.columns(4)
+        st.markdown("**Element Selection**")
 
-        with col1:
-            cap_name = st.text_input("Capability Name", "Infantry Squad")
-        with col2:
-            mos = st.selectbox("MOS", ["11B", "13F", "68W", "35F", "12B", "88M"])
-        with col3:
-            rank = st.selectbox("Leader Rank", ["E-5", "E-6", "E-7", "E-8", "O-1", "O-2", "O-3"])
-        with col4:
-            quantity = st.number_input("Quantity", min_value=1, max_value=20, value=3)
+        if ELEMENT_TEMPLATES_AVAILABLE:
+            element_names = get_all_element_names()
+            selected_element = st.selectbox(
+                "Element Type",
+                element_names,
+                help="Select a pre-defined military element template"
+            )
 
-        col5, col6, col7 = st.columns(3)
-        with col5:
+            # Get template details
+            template = get_element_template(selected_element)
+
+            col1, col2 = st.columns(2)
+            with col1:
+                quantity = st.number_input("Quantity", min_value=1, max_value=20, value=1,
+                                          help="How many of this element do you need?")
+            with col2:
+                priority = st.selectbox("Priority", [1, 2, 3], index=2,
+                                       help="1=Low, 2=Medium, 3=High")
+
+            st.info(f"📊 **Element Size:** {template.total_size} soldiers | **Primary MOS:** {template.primary_mos}")
+
+        else:
+            # Fallback to old system
+            col1, col2, col3, col4 = st.columns(4)
+            with col1:
+                cap_name = st.text_input("Capability Name", "Infantry Squad")
+            with col2:
+                mos = st.selectbox("MOS", ["11B", "13F", "68W", "35F", "12B", "88M"])
+            with col3:
+                rank = st.selectbox("Leader Rank", ["E-5", "E-6", "E-7", "E-8", "O-1", "O-2", "O-3"])
+            with col4:
+                quantity = st.number_input("Quantity", min_value=1, max_value=20, value=3)
+
             team_size = st.number_input("Team Size", min_value=1, max_value=50, value=9)
-        with col6:
             priority = st.selectbox("Priority", [1, 2, 3], index=2)
-        with col7:
-            keep_together = st.checkbox("Keep Team Together", value=True)
 
-        submitted = st.form_submit_button("Add Capability")
+        # Leader Qualifications
+        st.markdown("---")
+        st.markdown("**Leader Qualifications** (applied to leadership positions)")
+
+        col1, col2 = st.columns(2)
+        with col1:
+            leader_asi = st.multiselect(
+                "ASI Codes",
+                ["B (Airborne)", "L (Ranger)", "M (Sniper)", "P (Pathfinder)", "V (Ranger Regiment)"],
+                help="Additional Skill Identifiers required for leaders"
+            )
+            leader_schools = st.multiselect(
+                "Schools/Courses",
+                ["Ranger School", "Sapper School", "Pathfinder", "Jump Master", "Air Assault",
+                 "Airborne School", "Combat Lifesaver"],
+                help="Military schools required for leaders"
+            )
+        with col2:
+            leader_badges = st.multiselect(
+                "Badges/Tabs",
+                ["CIB", "CAB", "Ranger Tab", "EIB", "Sapper Tab", "EFMB"],
+                help="Badges or tabs required for leaders"
+            )
+            leader_education = st.selectbox(
+                "Minimum Education",
+                ["None", "High School", "Some College", "Associate's", "Bachelor's", "Master's", "Doctorate"],
+                help="Education level required for leaders"
+            )
+
+        # Member Qualifications
+        st.markdown("---")
+        if ELEMENT_TEMPLATES_AVAILABLE:
+            st.markdown(f"**Member Qualifications** (out of {template.total_size - 2} members)")
+        else:
+            st.markdown("**Member Qualifications**")
+
+        col1, col2 = st.columns(2)
+        with col1:
+            members_airborne = st.number_input("Soldiers needing Airborne (ASI-B)", min_value=0, value=0)
+            members_language_korean = st.number_input("Soldiers needing Korean language", min_value=0, value=0)
+            members_combat_lifesaver = st.number_input("Soldiers needing Combat Lifesaver", min_value=0, value=0)
+        with col2:
+            members_cib = st.number_input("Soldiers needing CIB", min_value=0, value=0)
+            members_deployment = st.number_input("Soldiers needing combat deployment", min_value=0, value=0)
+            members_associate = st.number_input("Soldiers needing Associate degree+", min_value=0, value=0)
+
+        submitted = st.form_submit_button("Add Capability", type="primary")
 
         if submitted:
             if 'capabilities' not in st.session_state:
                 st.session_state.capabilities = []
 
-            st.session_state.capabilities.append({
-                "name": cap_name,
-                "mos": mos,
-                "rank": rank,
-                "quantity": quantity,
-                "team_size": team_size,
-                "priority": priority
-            })
-
-            st.success(f"✅ Added {quantity}x {cap_name}")
+            if ELEMENT_TEMPLATES_AVAILABLE:
+                # Store template-based capability
+                st.session_state.capabilities.append({
+                    "name": template.name,
+                    "template": selected_element,
+                    "team_size": template.total_size,
+                    "quantity": quantity,
+                    "priority": priority,
+                    "leader_asi": [asi.split()[0] for asi in leader_asi],
+                    "leader_schools": leader_schools,
+                    "leader_badges": leader_badges,
+                    "leader_education": leader_education if leader_education != "None" else None,
+                    "members_asi_count": {"B": members_airborne} if members_airborne > 0 else {},
+                    "members_languages_count": {"Korean": members_language_korean} if members_language_korean > 0 else {},
+                    "members_schools_count": {"Combat Lifesaver": members_combat_lifesaver} if members_combat_lifesaver > 0 else {},
+                    "members_badges_count": {"CIB": members_cib} if members_cib > 0 else {},
+                    "members_experience_count": {"deployment": members_deployment} if members_deployment > 0 else {},
+                    "members_education_count": {"Associate": members_associate} if members_associate > 0 else {},
+                })
+                st.success(f"✅ Added {quantity}x {template.name} ({template.total_size * quantity} soldiers)")
+            else:
+                # Fallback to old system
+                st.session_state.capabilities.append({
+                    "name": cap_name,
+                    "mos": mos,
+                    "rank": rank,
+                    "quantity": quantity,
+                    "team_size": team_size,
+                    "priority": priority
+                })
+                st.success(f"✅ Added {quantity}x {cap_name}")
 
     # Show current capabilities
     if 'capabilities' in st.session_state and st.session_state.capabilities:
