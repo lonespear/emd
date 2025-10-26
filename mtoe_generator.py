@@ -1282,8 +1282,9 @@ def generate_simple_force(
         Adjusts battalion/company structure to hit target soldier count.
         Actual count may vary ±5% due to unit structure constraints.
     """
-    # Estimate soldiers per company (varies by type, ~130 for infantry)
-    soldiers_per_company = 130 if division_type == "infantry" else 120
+    # Average soldiers per company across mixed unit types (~110 avg)
+    # Infantry: 130, Armor: 120, Field Artillery: 90, Engineer: 100, MI: 80
+    soldiers_per_company = 110
 
     # Back-calculate: need X authorized positions to get num_soldiers at fill_rate
     authorized_needed = num_soldiers / fill_rate
@@ -1298,7 +1299,7 @@ def generate_simple_force(
     else:
         # Distribute across battalions (4-5 companies each)
         companies_per_bn = 5 if companies_needed > 15 else 4
-        n_battalions = max(1, int(companies_needed / companies_per_bn))
+        n_battalions = max(1, round(companies_needed / companies_per_bn))
 
     # Generate force using existing function
     generator, soldiers_df, soldiers_ext = quick_generate_force(
@@ -1308,31 +1309,45 @@ def generate_simple_force(
         fill_rate=fill_rate
     )
 
-    # If still significantly over/under target, adjust
+    # Iteratively adjust to hit target more accurately
     actual_count = len(soldiers_df)
-    if actual_count > num_soldiers * 1.15:
-        # Trim excess
+    attempts = 0
+    max_attempts = 5
+
+    while abs(actual_count - num_soldiers) > num_soldiers * 0.10 and attempts < max_attempts:
+        if actual_count > num_soldiers * 1.10:
+            # Trim excess
+            sampled_df = soldiers_df.sample(n=num_soldiers, random_state=seed + attempts)
+            sampled_ids = set(sampled_df['soldier_id'])
+            soldiers_ext = {sid: ext for sid, ext in soldiers_ext.items() if sid in sampled_ids}
+            soldiers_df = sampled_df
+            break
+        elif actual_count < num_soldiers * 0.90:
+            # Need more - add more battalions
+            needed = num_soldiers - actual_count
+            additional_bns = max(1, round((needed / fill_rate) / (soldiers_per_company * companies_per_bn)))
+
+            generator2, df2, ext2 = quick_generate_force(
+                n_battalions=additional_bns,
+                companies_per_bn=companies_per_bn,
+                seed=seed + 100 + attempts * 10,
+                fill_rate=fill_rate
+            )
+            # Merge the forces
+            soldiers_df = pd.concat([soldiers_df, df2], ignore_index=True)
+            soldiers_ext.update(ext2)
+            actual_count = len(soldiers_df)
+        else:
+            break
+
+        attempts += 1
+
+    # Final trim if slightly over
+    if len(soldiers_df) > num_soldiers:
         sampled_df = soldiers_df.sample(n=num_soldiers, random_state=seed)
         sampled_ids = set(sampled_df['soldier_id'])
         soldiers_ext = {sid: ext for sid, ext in soldiers_ext.items() if sid in sampled_ids}
         soldiers_df = sampled_df
-    elif actual_count < num_soldiers * 0.85:
-        # Need more - add another battalion
-        generator2, df2, ext2 = quick_generate_force(
-            n_battalions=1,
-            companies_per_bn=companies_per_bn,
-            seed=seed + 100,
-            fill_rate=fill_rate
-        )
-        # Merge the forces
-        soldiers_df = pd.concat([soldiers_df, df2], ignore_index=True)
-        soldiers_ext.update(ext2)
-        # Trim to target
-        if len(soldiers_df) > num_soldiers:
-            sampled_df = soldiers_df.sample(n=num_soldiers, random_state=seed)
-            sampled_ids = set(sampled_df['soldier_id'])
-            soldiers_ext = {sid: ext for sid, ext in soldiers_ext.items() if sid in sampled_ids}
-            soldiers_df = sampled_df
 
     return generator, soldiers_df, soldiers_ext
 
