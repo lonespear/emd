@@ -2929,9 +2929,8 @@ def show_guided_run_optimization():
                 # Filter ready soldiers
                 ready_soldiers = filter_ready_soldiers(
                     st.session_state.soldiers_df,
-                    profile,
-                    date.today(),
-                    date.today() + timedelta(days=90)
+                    st.session_state.soldiers_ext,
+                    profile
                 )
 
                 # Run EMD optimization
