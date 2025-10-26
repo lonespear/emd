@@ -7,6 +7,7 @@ Each template defines a complete manning scenario with force composition,
 requirements, and optimization parameters.
 """
 
+from __future__ import annotations
 from dataclasses import dataclass
 from typing import List, Dict
 from datetime import date, timedelta

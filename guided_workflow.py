@@ -124,7 +124,9 @@ class GuidedWorkflow:
         current = st.session_state.workflow_step
         all_steps = [s for s in WorkflowStep if s != WorkflowStep.COMPLETE]
         current_idx = all_steps.index(current) if current in all_steps else len(all_steps)
-        progress = current_idx / (len(all_steps) - 1)
+
+        # Clamp progress to [0.0, 1.0] range (COMPLETE step can cause > 1.0)
+        progress = min(1.0, max(0.0, current_idx / (len(all_steps) - 1)))
 
         st.progress(progress)
 
