@@ -7,8 +7,11 @@ Guides users through the entire process step-by-step.
 """
 
 import streamlit as st
+import json
+import pandas as pd
 from enum import Enum
-from typing import Optional, Callable
+from typing import Optional, Callable, Dict
+from datetime import datetime
 
 
 class WorkflowStep(Enum):
@@ -226,3 +229,148 @@ class GuidedWorkflow:
                 # Switch to classic mode
                 st.session_state.guided_mode = False
                 st.rerun()
+
+            # Show save/load buttons
+            GuidedWorkflow.show_save_load_buttons()
+
+    @staticmethod
+    def export_configuration() -> str:
+        """
+        Export current configuration to JSON string.
+
+        Returns:
+            JSON string containing all configuration data
+        """
+        config = {
+            "version": "1.0",
+            "timestamp": datetime.now().isoformat(),
+            "force_config": {
+                "force_size": len(st.session_state.soldiers_df) if st.session_state.get('soldiers_df') is not None else None,
+                "has_force": st.session_state.get('soldiers_df') is not None
+            },
+            "capabilities": st.session_state.get('capabilities', []),
+            "optimization_weights": st.session_state.workflow_data.get('weights', {}),
+            "workflow_step": st.session_state.workflow_step.name if hasattr(st.session_state, 'workflow_step') else None,
+            "template_used": st.session_state.workflow_data.get('template_used', None)
+        }
+
+        return json.dumps(config, indent=2)
+
+    @staticmethod
+    def import_configuration(config_json: str) -> bool:
+        """
+        Import configuration from JSON string.
+
+        Args:
+            config_json: JSON string containing configuration
+
+        Returns:
+            True if successful, False otherwise
+        """
+        try:
+            config = json.loads(config_json)
+
+            # Validate version
+            if config.get("version") != "1.0":
+                st.warning("⚠️ Configuration file version mismatch. Attempting to load anyway...")
+
+            # Restore capabilities
+            if "capabilities" in config and config["capabilities"]:
+                st.session_state.capabilities = config["capabilities"]
+
+            # Restore optimization weights
+            if "optimization_weights" in config and config["optimization_weights"]:
+                if 'workflow_data' not in st.session_state:
+                    st.session_state.workflow_data = {}
+                st.session_state.workflow_data['weights'] = config["optimization_weights"]
+
+            # Restore template info
+            if "template_used" in config:
+                st.session_state.workflow_data['template_used'] = config["template_used"]
+
+            # Restore workflow step
+            if "workflow_step" in config and config["workflow_step"]:
+                try:
+                    st.session_state.workflow_step = WorkflowStep[config["workflow_step"]]
+                except KeyError:
+                    st.session_state.workflow_step = WorkflowStep.WELCOME
+
+            return True
+
+        except json.JSONDecodeError as e:
+            st.error(f"❌ Invalid configuration file: {e}")
+            return False
+        except Exception as e:
+            st.error(f"❌ Error loading configuration: {e}")
+            return False
+
+    @staticmethod
+    def load_template_configuration(template_dict: Dict):
+        """
+        Load a preset template into the workflow.
+
+        Args:
+            template_dict: Dictionary containing template data
+        """
+        # Clear existing state
+        st.session_state.capabilities = []
+        st.session_state.workflow_data = {}
+
+        # Load capabilities from template
+        if "capabilities" in template_dict:
+            st.session_state.capabilities = template_dict["capabilities"]
+
+        # Load optimization weights
+        if "optimization_weights" in template_dict:
+            st.session_state.workflow_data['weights'] = template_dict["optimization_weights"]
+
+        # Store force generation params
+        if "force_size" in template_dict:
+            st.session_state.workflow_data['force_size'] = template_dict["force_size"]
+        if "division_type" in template_dict:
+            st.session_state.workflow_data['division_type'] = template_dict["division_type"]
+
+        # Store location and duration
+        if "location" in template_dict:
+            st.session_state.workflow_data['location'] = template_dict["location"]
+        if "duration_days" in template_dict:
+            st.session_state.workflow_data['duration_days'] = template_dict["duration_days"]
+
+        # Mark that a template was used
+        st.session_state.workflow_data['template_used'] = template_dict.get("name", "Unknown")
+
+    @staticmethod
+    def show_save_load_buttons():
+        """Show save and load configuration buttons in sidebar."""
+        with st.sidebar:
+            st.markdown("---")
+            st.markdown("### 💾 Save/Load")
+
+            # Export button
+            if st.session_state.get('capabilities') or st.session_state.get('soldiers_df') is not None:
+                config_json = GuidedWorkflow.export_configuration()
+                timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M")
+                filename = f"emd_config_{timestamp}.json"
+
+                st.download_button(
+                    label="💾 Save Configuration",
+                    data=config_json,
+                    file_name=filename,
+                    mime="application/json",
+                    use_container_width=True,
+                    help="Download current configuration as a JSON file"
+                )
+
+            # Import button
+            uploaded_config = st.file_uploader(
+                "📁 Load Configuration",
+                type=["json"],
+                help="Upload a previously saved configuration file",
+                label_visibility="collapsed"
+            )
+
+            if uploaded_config is not None:
+                config_json = uploaded_config.read().decode("utf-8")
+                if GuidedWorkflow.import_configuration(config_json):
+                    st.success("✅ Configuration loaded!")
+                    st.rerun()

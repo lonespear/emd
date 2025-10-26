@@ -42,6 +42,7 @@ from emd_agent import EMD
 from pareto_optimizer import ParetoOptimizer, TradeOffAnalyzer
 from deployment_tracker import OPTEMPOTracker, AvailabilityAnalyzer
 from guided_workflow import GuidedWorkflow, WorkflowStep
+from preset_templates import TEMPLATES, get_template, get_all_templates
 
 # Qualification system imports
 try:
@@ -2404,13 +2405,155 @@ def show_guided_welcome():
     4. **Run & Review** - Get optimized assignments and explore trade-offs
 
     **Expected time:** 5-10 minutes
-
-    Click **Continue** below to get started!
     """)
 
     # Quick stats if available
     if st.session_state.get('soldiers_df') is not None:
         st.success(f"✅ You already have {len(st.session_state.soldiers_df):,} soldiers loaded. You can continue to the next steps or regenerate your force.")
+
+    st.markdown("---")
+    st.markdown("### 🚀 Quick Start Options")
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+        st.markdown("#### 🎯 Load a Preset Template")
+        st.markdown("Start with a pre-configured scenario:")
+
+        template_options = {
+            "None": None,
+            "NTC Rotation": "ntc",
+            "JRTC Exercise": "jrtc",
+            "EUCOM Deployment": "eucom",
+            "INDOPACOM Deployment": "indopacom"
+        }
+
+        selected_template = st.selectbox(
+            "Choose a template:",
+            list(template_options.keys()),
+            help="Pre-built scenarios with realistic force and requirements"
+        )
+
+        if selected_template != "None":
+            template_key = template_options[selected_template]
+            template = get_template(template_key)
+
+            if template:
+                with st.expander("ℹ️ Template Details"):
+                    st.markdown(f"**{template.name}**")
+                    st.markdown(template.description)
+                    st.markdown(f"- **Location:** {template.location}")
+                    st.markdown(f"- **Duration:** {template.duration_days} days")
+                    st.markdown(f"- **Force Size:** {template.force_size:,} soldiers")
+                    st.markdown(f"- **Capabilities:** {len(template.capabilities)} types")
+
+                if st.button(f"📋 Load {selected_template}", type="primary", use_container_width=True):
+                    # Convert dataclass to dict for loading
+                    template_dict = {
+                        "name": template.name,
+                        "capabilities": template.capabilities,
+                        "optimization_weights": template.optimization_weights,
+                        "force_size": template.force_size,
+                        "division_type": template.division_type,
+                        "location": template.location,
+                        "duration_days": template.duration_days
+                    }
+
+                    GuidedWorkflow.load_template_configuration(template_dict)
+                    st.success(f"✅ Loaded {template.name} template!")
+                    st.info("📍 Advancing to Force Generation step...")
+
+                    # Skip to force generation
+                    st.session_state.workflow_step = WorkflowStep.FORCE_GENERATION
+                    st.rerun()
+
+    with col2:
+        st.markdown("#### ⚡ Try a Demo")
+        st.markdown("See the system in action with sample data:")
+
+        st.markdown("""
+        The demo will:
+        - Generate a synthetic 1000-soldier force
+        - Load sample requirements (Infantry BCT)
+        - Run optimization with balanced weights
+        - Show you the results
+        """)
+
+        if st.button("🎬 Run Demo", type="secondary", use_container_width=True):
+            with st.spinner("Setting up demo..."):
+                # Generate demo force
+                soldiers_df = quick_generate_force(1000, division_type="infantry")
+                soldiers_df = apply_jitter_to_force(soldiers_df)
+                st.session_state.soldiers_df = soldiers_df
+                st.session_state.generator = UnitGenerator()
+
+                # Load simple demo capabilities
+                st.session_state.capabilities = [
+                    {"name": "Rifle Squad", "mos": "11B", "rank": "E-6", "quantity": 5, "team_size": 9, "priority": 1},
+                    {"name": "Medic Team", "mos": "68W", "rank": "E-5", "quantity": 3, "team_size": 2, "priority": 1},
+                    {"name": "Mortar Section", "mos": "11C", "rank": "E-6", "quantity": 2, "team_size": 6, "priority": 2}
+                ]
+
+                # Set balanced weights
+                st.session_state.workflow_data['weights'] = {
+                    'fill': 5.0,
+                    'cost': 3.0,
+                    'cohesion': 4.0,
+                    'cross_lev': 2.0
+                }
+
+                st.session_state.workflow_data['template_used'] = "Demo"
+
+            st.success("✅ Demo data loaded!")
+            st.info("📍 Advancing to Run Optimization step...")
+
+            # Skip to optimization
+            st.session_state.workflow_step = WorkflowStep.RUN_OPTIMIZATION
+            st.rerun()
+
+    st.markdown("---")
+    st.markdown("### 📖 Learn More")
+
+    with st.expander("ℹ️ How does EMD optimization work?"):
+        st.markdown("""
+        **EMD (Enlisted Manpower Distribution)** uses multi-objective optimization to find the best way to assign soldiers to mission requirements.
+
+        **Key Objectives:**
+        - **Fill Rate**: Maximize the percentage of positions filled
+        - **Cost**: Minimize travel and logistics costs
+        - **Cohesion**: Keep existing teams together when possible
+        - **Cross-Leveling**: Distribute load across multiple units
+
+        **The Algorithm:**
+        1. Filters soldiers based on readiness (training, deployments, availability)
+        2. Matches soldiers to billets based on MOS, rank, and qualifications
+        3. Optimizes assignments using weighted scoring
+        4. Provides trade-off analysis (Pareto frontier) for decision-making
+
+        **Best For:**
+        - Training rotations (NTC, JRTC)
+        - Operational deployments
+        - Exercise planning
+        - Unit manning analysis
+        """)
+
+    with st.expander("ℹ️ What data do I need?"):
+        st.markdown("""
+        You have two options:
+
+        **Option 1: Generate Synthetic Data (Recommended for Testing)**
+        - No data needed
+        - Creates realistic soldier profiles automatically
+        - Great for learning the system or testing scenarios
+
+        **Option 2: Upload Real Data**
+        - CSV file with soldier roster
+        - Required columns: `soldier_id`, `mos`, `rank`, `unit`, `base`
+        - Optional columns: `last_deployment`, `training_dates`, `qualifications`
+        - You can export a template from the system
+        """)
+
+    st.markdown("Click **Continue** below when you're ready to start, or use one of the quick start options above!")
 
 
 def show_guided_force_generation():
@@ -2420,6 +2563,14 @@ def show_guided_force_generation():
 
     Choose one of the options below:
     """)
+
+    # Check if template provides defaults
+    template_force_size = st.session_state.workflow_data.get('force_size', 1000)
+    template_division = st.session_state.workflow_data.get('division_type', 'infantry')
+
+    # Show template hint if used
+    if st.session_state.workflow_data.get('template_used'):
+        st.info(f"ℹ️ Using defaults from **{st.session_state.workflow_data['template_used']}** template. You can adjust below.")
 
     option = st.radio(
         "Select method:",
@@ -2431,21 +2582,39 @@ def show_guided_force_generation():
         st.markdown("---")
         st.markdown("#### Quick Force Generator")
 
+        with st.expander("ℹ️ Learn More: Force Generation"):
+            st.markdown("""
+            **Synthetic Force Generation** creates realistic soldier profiles based on:
+            - Actual MTOE (Modified Table of Organization and Equipment) structures
+            - Real-world rank distributions
+            - Typical deployment patterns
+            - Random but realistic service history
+
+            **Division Types:**
+            - **Infantry**: Light infantry units (11B, 68W, 13F focused)
+            - **Armor**: Heavy mechanized units (19K, 19D, 91A focused)
+            - **Airborne**: Airborne-qualified units (requires jump status)
+            - **Mixed**: Combined arms with diverse MOS distribution
+            """)
+
         col1, col2 = st.columns(2)
         with col1:
             num_soldiers = st.number_input(
                 "How many soldiers?",
                 min_value=50,
                 max_value=10000,
-                value=1000,
+                value=template_force_size,
                 step=50,
                 help="Total number of soldiers to generate"
             )
 
         with col2:
+            division_options = ["Infantry", "Armor", "Airborne", "Mixed"]
+            default_idx = next((i for i, d in enumerate(division_options) if d.lower() == template_division), 0)
             division = st.selectbox(
                 "Division type:",
-                ["Infantry", "Armor", "Airborne", "Mixed"],
+                division_options,
+                index=default_idx,
                 help="Type of division to model"
             )
 
@@ -2539,6 +2708,29 @@ def show_guided_manning_requirements():
     **Example:** "Rifle Squad" with 9 soldiers, or "Medic Team" with 2 soldiers
     """)
 
+    # Show template hint if used
+    if st.session_state.workflow_data.get('template_used') and st.session_state.get('capabilities'):
+        st.success(f"✅ Loaded {len(st.session_state.capabilities)} capabilities from **{st.session_state.workflow_data['template_used']}** template. You can add more or modify below.")
+
+    with st.expander("ℹ️ Learn More: Capabilities"):
+        st.markdown("""
+        **What are capabilities?**
+        Capabilities are the building blocks of your mission. Each capability represents a specific team or role.
+
+        **Key Fields:**
+        - **Name**: Descriptive name (e.g., "Rifle Squad", "Medic Team")
+        - **MOS**: Military Occupational Specialty code (e.g., 11B for Infantry)
+        - **Rank**: Minimum rank required (higher ranks can fill lower positions)
+        - **Quantity**: How many teams of this type you need
+        - **Team Size**: Number of soldiers in each team
+        - **Priority**: 1=Critical (must fill), 2=High, 3=Normal
+
+        **Examples:**
+        - **Infantry Rifle Squad**: MOS 11B, Rank E-6, Qty 10, Size 9, Priority 1
+        - **Medic Team**: MOS 68W, Rank E-5, Qty 5, Size 2, Priority 1
+        - **Supply Section**: MOS 92Y, Rank E-5, Qty 3, Size 4, Priority 3
+        """)
+
     # Simple capability builder
     with st.form("add_capability"):
         st.markdown("#### Add a Capability")
@@ -2609,7 +2801,42 @@ def show_guided_optimization_setup():
     Tell us what matters most for this mission. The optimizer will balance these objectives.
     """)
 
-    st.markdown("#### What's most important? (Drag to reorder)")
+    # Show template hint if used
+    if st.session_state.workflow_data.get('template_used'):
+        st.info(f"ℹ️ Using recommended weights from **{st.session_state.workflow_data['template_used']}** template. Adjust below if needed.")
+
+    with st.expander("ℹ️ Learn More: Optimization Weights"):
+        st.markdown("""
+        **How does weighting work?**
+        The optimizer tries to balance multiple competing objectives. Higher weights mean that objective is more important.
+
+        **The Four Objectives:**
+        - **Fill Rate** (0-10): Maximize positions filled
+          - High: Prioritize filling every billet, even if expensive
+          - Low: Accept some unfilled positions to save costs
+
+        - **Cost** (0-10): Minimize travel and logistics expenses
+          - High: Strongly prefer nearby bases to reduce PCS costs
+          - Low: Don't worry about travel costs, focus on best fit
+
+        - **Cohesion** (0-10): Keep existing teams together
+          - High: Preserve squad/platoon integrity, keep leaders with soldiers
+          - Low: Mix soldiers from different units as needed
+
+        - **Cross-Leveling** (0-10): Distribute load across units
+          - High: Avoid pulling too many from any single unit
+          - Low: Can heavily tax specific units if they're the best fit
+
+        **Common Configurations:**
+        - **Training Rotation**: Fill=7, Cost=4, Cohesion=6, Cross-Lev=3
+        - **Combat Deployment**: Fill=9, Cost=6, Cohesion=9, Cross-Lev=5
+        - **Budget-Constrained**: Fill=6, Cost=8, Cohesion=4, Cross-Lev=4
+        """)
+
+    st.markdown("#### What's most important?")
+
+    # Get template defaults if available
+    template_weights = st.session_state.workflow_data.get('weights', {})
 
     # Priority sliders
     col1, col2 = st.columns(2)
@@ -2617,20 +2844,20 @@ def show_guided_optimization_setup():
     with col1:
         st.markdown("**Fill Rate Priority**")
         st.markdown("How important is it to fill all positions?")
-        fill_weight = st.slider("Fill Rate", 0.0, 10.0, 5.0, 0.5, label_visibility="collapsed")
+        fill_weight = st.slider("Fill Rate", 0.0, 10.0, template_weights.get('fill', 5.0), 0.5, label_visibility="collapsed")
 
         st.markdown("**Cost Priority**")
         st.markdown("How much do you care about minimizing travel costs?")
-        cost_weight = st.slider("Cost", 0.0, 10.0, 3.0, 0.5, label_visibility="collapsed")
+        cost_weight = st.slider("Cost", 0.0, 10.0, template_weights.get('cost', 3.0), 0.5, label_visibility="collapsed")
 
     with col2:
         st.markdown("**Cohesion Priority**")
         st.markdown("Should we keep existing teams together?")
-        cohesion_weight = st.slider("Cohesion", 0.0, 10.0, 4.0, 0.5, label_visibility="collapsed")
+        cohesion_weight = st.slider("Cohesion", 0.0, 10.0, template_weights.get('cohesion', 4.0), 0.5, label_visibility="collapsed")
 
         st.markdown("**Cross-Leveling Priority**")
         st.markdown("Avoid pulling from the same units?")
-        cross_lev_weight = st.slider("Cross-Leveling", 0.0, 10.0, 2.0, 0.5, label_visibility="collapsed")
+        cross_lev_weight = st.slider("Cross-Leveling", 0.0, 10.0, template_weights.get('cross_lev', 2.0), 0.5, label_visibility="collapsed")
 
     # Store weights
     st.session_state.workflow_data['weights'] = {
