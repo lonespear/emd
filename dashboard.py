@@ -2946,20 +2946,31 @@ def show_guided_run_optimization():
                 emd.task_organizer = task_organizer
                 emd.readiness_profile = profile
 
-                # Get weights
+                # Get weights from workflow configuration
                 weights = st.session_state.workflow_data.get('weights', {
                     'fill': 5.0, 'cost': 3.0, 'cohesion': 4.0, 'cross_lev': 2.0
                 })
 
-                result = emd.run_optimization(
-                    fill_rate_weight=weights['fill'],
-                    cost_weight=weights['cost'],
-                    cohesion_weight=weights['cohesion']
+                # Apply policy tuning based on weights
+                # Higher fill weight → lower MOS penalty (easier to fill)
+                mos_penalty = 5000 - (weights['fill'] * 400)  # 5.0→3000, 10.0→1000
+                # Cohesion weight → bonus for keeping teams together
+                cohesion_bonus = -1 * weights['cohesion'] * 150  # 5.0→-750, 10.0→-1500
+                # Cost weight → TDY cost multiplier
+                tdy_weight = weights['cost'] / 5.0  # 5.0→1.0, 10.0→2.0
+
+                emd.tune_policy(
+                    mos_mismatch_penalty=mos_penalty,
+                    unit_cohesion_bonus=cohesion_bonus,
+                    TDY_cost_weight=tdy_weight
                 )
 
+                # Run optimization
+                assignments, summary = emd.assign()
+
                 # Store results
-                st.session_state.assignments = result['assignments']
-                st.session_state.summary = result['summary']
+                st.session_state.assignments = assignments
+                st.session_state.summary = summary
 
                 st.success("✅ Optimization complete!")
                 st.balloons()
