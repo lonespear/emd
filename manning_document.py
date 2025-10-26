@@ -516,16 +516,31 @@ def create_custom_manning_document(
     )
 
     for cap in capabilities:
-        req = CapabilityRequirement(
-            capability_name=cap["name"],
-            quantity=cap.get("quantity", 1),
-            mos_required=cap["mos"],
-            min_rank=cap["rank"],
-            team_size=cap.get("team_size", 1),
-            leader_required=cap.get("team_size", 1) > 1,
-            priority=cap.get("priority", 2),
-            location=location
-        )
+        # Handle template-based capabilities (new system)
+        if "template" in cap:
+            # Template-based capability - use placeholder values
+            req = CapabilityRequirement(
+                capability_name=cap["name"],
+                quantity=cap.get("quantity", 1),
+                mos_required="00Z",  # Generic placeholder for template-based
+                min_rank="E-5",  # Default rank
+                team_size=cap.get("team_size", 1),
+                leader_required=cap.get("team_size", 1) > 1,
+                priority=cap.get("priority", 2),
+                location=location
+            )
+        else:
+            # Legacy capability format
+            req = CapabilityRequirement(
+                capability_name=cap["name"],
+                quantity=cap.get("quantity", 1),
+                mos_required=cap["mos"],
+                min_rank=cap["rank"],
+                team_size=cap.get("team_size", 1),
+                leader_required=cap.get("team_size", 1) > 1,
+                priority=cap.get("priority", 2),
+                location=location
+            )
         doc.add_requirement(req)
 
     return doc
