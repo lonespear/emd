@@ -199,22 +199,27 @@ class CohesionCalculator:
         return penalty
 
     @staticmethod
-    def calculate_cross_unit_penalty(
+    def calculate_battalion_sourcing_penalty(
         soldiers_assigned: pd.DataFrame,
-        base_penalty: float = 200.0
+        base_penalty: float = 5000.0
     ) -> float:
         """
-        Calculate penalty for pulling from multiple units.
+        Calculate penalty for pulling from multiple battalions.
 
-        Complexity increases with number of source units (coordination overhead).
+        Strong emphasis on battalion-level integrity - prefer sourcing
+        entire groups from same battalion (first 4 chars of UIC).
         """
-        source_units = soldiers_assigned["uic"].nunique()
-
-        if source_units <= 1:
+        if "uic" not in soldiers_assigned.columns:
             return 0.0
 
-        # Penalty scales with number of units
-        return base_penalty * (source_units - 1)
+        # Extract battalion identifier (first 4 chars of UIC)
+        battalions = soldiers_assigned["uic"].str[:4].nunique()
+
+        if battalions <= 1:
+            return 0.0  # All from same battalion - good!
+
+        # High penalty for cross-battalion sourcing
+        return base_penalty * (battalions - 1)
 
 
 class TaskOrganizer:
@@ -408,7 +413,8 @@ def enhance_cost_matrix_with_cohesion(
     """
     Enhance existing cost matrix with cohesion adjustments.
 
-    This modifies EMD's cost matrix to incorporate unit cohesion preferences.
+    This modifies EMD's cost matrix to incorporate unit cohesion preferences
+    with emphasis on battalion-level grouping.
 
     Args:
         cost_matrix: Original cost matrix from EMD.build_cost_matrix()
@@ -429,14 +435,35 @@ def enhance_cost_matrix_with_cohesion(
     # Build soldier_id to matrix row index mapping
     soldier_id_to_row = {row["soldier_id"]: idx for idx, row in S.iterrows()}
 
+    # Add battalion-level bonuses for all capabilities
+    # Group soldiers by battalion (first 4 chars of UIC)
+    if "uic" in S.columns:
+        S["battalion"] = S["uic"].str[:4]
+
+        # For each capability, give bonuses to soldiers from same battalion
+        for cap_name in B["capability_name"].unique() if "capability_name" in B.columns else []:
+            cap_billets = B[B["capability_name"] == cap_name]
+            billet_indices = cap_billets.index.tolist()
+
+            # Group soldiers by battalion for this capability's MOS
+            cap_mos = cap_billets.iloc[0]["mos"] if "mos" in cap_billets.columns else None
+            if cap_mos:
+                for battalion, batt_soldiers in S[S["mos"] == cap_mos].groupby("battalion"):
+                    # Give bonus to all soldiers from same battalion
+                    for _, soldier_row in batt_soldiers.iterrows():
+                        soldier_idx = soldier_id_to_row.get(soldier_row["soldier_id"])
+                        if soldier_idx is not None:
+                            for billet_idx in billet_indices:
+                                # Strong bonus for same-battalion sourcing
+                                enhanced[soldier_idx, billet_idx] -= 1000.0 * cohesion_weight
+
     # Group billets by capability (if keep_together flag set)
     if "capability_name" in B.columns and "keep_together" in B.columns:
         for cap_name in B[B["keep_together"] == True]["capability_name"].unique():
             cap_billets = B[B["capability_name"] == cap_name]
-            # Now indices are sequential 0, 1, 2, ... matching matrix columns
             billet_indices = cap_billets.index.tolist()
 
-            # For each soldier, calculate cohesion adjustment for this capability
+            # For each soldier, calculate team cohesion adjustment
             for soldier_row_idx, soldier_row in S.iterrows():
                 soldier_id = soldier_row["soldier_id"]
 

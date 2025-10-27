@@ -220,6 +220,12 @@ class GuidedWorkflow:
 
             st.markdown("---")
 
+            # Theme toggle
+            theme_label = "☀️ Classic View" if st.session_state.get('dark_mode', True) else "🌙 Dark Mode"
+            if st.button(theme_label, use_container_width=True):
+                st.session_state.dark_mode = not st.session_state.get('dark_mode', True)
+                st.rerun()
+
             # Quick navigation
             if st.button("🏠 Start Over", use_container_width=True):
                 # Clear workflow state

@@ -82,8 +82,95 @@ except ImportError:
 st.set_page_config(
     page_title="EMD Manning Dashboard",
     page_icon="🎖️",
-    layout="wide"
+    layout="wide",
+    initial_sidebar_state="expanded"
 )
+
+# ============================================================================
+# MILITARY DARK MODE THEME
+# ============================================================================
+
+def inject_dark_mode_css():
+    """Inject military dark theme CSS."""
+    st.markdown("""
+    <style>
+    /* Military Dark Theme */
+    [data-testid="stAppViewContainer"] {
+        background-color: #1a1f1a;
+        color: #c8d4c8;
+    }
+
+    [data-testid="stSidebar"] {
+        background-color: #0f140f;
+    }
+
+    [data-testid="stHeader"] {
+        background-color: #0f140f;
+    }
+
+    /* Text colors */
+    .stMarkdown, p, span, label {
+        color: #c8d4c8 !important;
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+        color: #8fbc8f !important;
+    }
+
+    /* Metrics and cards */
+    [data-testid="stMetricValue"] {
+        color: #9ec49e !important;
+    }
+
+    /* Buttons */
+    .stButton>button {
+        background-color: #2d3d2d;
+        color: #c8d4c8;
+        border: 1px solid #3d4d3d;
+    }
+
+    .stButton>button:hover {
+        background-color: #3d4d3d;
+        border-color: #556b55;
+    }
+
+    /* Input fields */
+    input, textarea, select {
+        background-color: #2d3d2d !important;
+        color: #c8d4c8 !important;
+        border: 1px solid #3d4d3d !important;
+    }
+
+    /* Dataframes and tables */
+    [data-testid="stDataFrame"] {
+        background-color: #1a1f1a;
+    }
+
+    /* Expanders */
+    [data-testid="stExpander"] {
+        background-color: #2d3d2d;
+        border: 1px solid #3d4d3d;
+    }
+
+    /* Success/Warning/Error boxes */
+    .stAlert {
+        background-color: #2d3d2d;
+        border-left-width: 4px;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+
+def inject_light_mode_css():
+    """Inject classic light theme (Streamlit default with minor tweaks)."""
+    st.markdown("""
+    <style>
+    /* Light/Classic Theme - Minimal overrides */
+    [data-testid="stAppViewContainer"] {
+        background-color: #ffffff;
+    }
+    </style>
+    """, unsafe_allow_html=True)
 
 
 def generate_pareto_executive_summary(pareto_front):
@@ -744,10 +831,18 @@ def initialize_session_state():
         st.session_state.pareto_solutions = None
     if 'guided_mode' not in st.session_state:
         st.session_state.guided_mode = True  # Default to guided mode
+    if 'dark_mode' not in st.session_state:
+        st.session_state.dark_mode = True  # Default to dark mode
 
 
 def main():
     initialize_session_state()
+
+    # Apply theme
+    if st.session_state.dark_mode:
+        inject_dark_mode_css()
+    else:
+        inject_light_mode_css()
 
     st.title("🎖️ EMD Manning Dashboard")
     st.markdown("**Exercise Manning Document - Interactive Planning Tool**")
@@ -769,8 +864,8 @@ def main():
 
 def show_classic_mode():
     """Original multi-page navigation mode."""
-    # Sidebar navigation
-    pages = ["🏠 Home", "👥 Force Generation", "📋 Manning Document", "⚙️ Optimization", "📊 Analysis", "📈 Pareto Trade-offs"]
+    # Sidebar navigation - removed Pareto Trade-offs (now integrated into Analysis)
+    pages = ["🏠 Home", "👥 Force Generation", "📋 Manning Document", "⚙️ Optimization", "📊 Analysis"]
 
     # Add qualification filtering if available
     if QUALIFICATION_FEATURES_AVAILABLE:
@@ -781,6 +876,13 @@ def show_classic_mode():
         page = st.radio("Go to", pages, label_visibility="collapsed")
 
         st.markdown("---")
+
+        # Theme toggle
+        theme_label = "☀️ Classic View" if st.session_state.dark_mode else "🌙 Dark Mode"
+        if st.button(theme_label, use_container_width=True):
+            st.session_state.dark_mode = not st.session_state.dark_mode
+            st.rerun()
+
         if st.button("🧭 Guided Mode", use_container_width=True):
             st.session_state.guided_mode = True
             st.rerun()
@@ -797,8 +899,6 @@ def show_classic_mode():
         show_optimization()
     elif page == "📊 Analysis":
         show_analysis()
-    elif page == "📈 Pareto Trade-offs":
-        show_pareto_tradeoffs()
 
 
 def show_guided_workflow():
@@ -1473,16 +1573,18 @@ def show_manning_document():
             # Fallback to old system
             col1, col2, col3, col4 = st.columns(4)
             with col1:
-                cap_name = st.text_input("Capability Name", "Infantry Squad")
+                cap_name = st.text_input("Capability Name", "Infantry")
             with col2:
                 mos = st.selectbox("MOS", ["11B", "13F", "68W", "35F", "12B", "88M"])
             with col3:
-                rank = st.selectbox("Leader Rank", ["E-5", "E-6", "E-7", "E-8", "O-1", "O-2", "O-3"])
+                rank = st.selectbox("Rank", ["E-3", "E-4", "E-5", "E-6", "E-7", "E-8", "O-1", "O-2", "O-3"])
             with col4:
-                quantity = st.number_input("Quantity", min_value=1, max_value=20, value=3)
+                quantity = st.number_input("Number of Billets", min_value=1, max_value=500, value=10,
+                                          help="Total number of billets needed for this capability")
 
-            team_size = st.number_input("Team Size", min_value=1, max_value=50, value=9)
-            priority = st.selectbox("Priority", [1, 2, 3], index=2)
+            # Keep team_size in backend but hide from user (always 1)
+            team_size = 1
+            priority = st.selectbox("Priority", [1, 2, 3], index=2, help="1=Critical, 2=High, 3=Normal")
 
         # Leader Qualifications
         st.markdown("---")
@@ -1572,10 +1674,14 @@ def show_manning_document():
     if 'capabilities' in st.session_state and st.session_state.capabilities:
         st.subheader("Current Requirements")
         caps_df = pd.DataFrame(st.session_state.capabilities)
-        caps_df["total_billets"] = caps_df["quantity"] * caps_df["team_size"]
-        st.dataframe(caps_df, use_container_width=True)
+        caps_df["Billets"] = caps_df["quantity"] * caps_df.get("team_size", 1)
 
-        st.metric("Total Billets Required", f"{caps_df['total_billets'].sum()}")
+        # Display only relevant columns
+        display_df = caps_df[["name", "mos", "rank", "Billets", "priority"]].copy()
+        display_df.columns = ["Capability", "MOS", "Rank", "Billets", "Priority"]
+        st.dataframe(display_df, use_container_width=True)
+
+        st.metric("Total Billets Required", f"{caps_df['Billets'].sum()}")
 
 
 def show_optimization():
@@ -2443,11 +2549,12 @@ def show_guided_welcome():
     st.markdown("---")
     st.markdown("### 🚀 Quick Start Options")
 
-    col1, col2 = st.columns(2)
+    # Use tabs for better layout balance
+    tab1, tab2 = st.tabs(["📋 Scenario Vignettes", "⚡ Quick Demo"])
 
-    with col1:
-        st.markdown("#### 🎯 Load a Scenario Vignette")
-        st.markdown("Start with a detailed military scenario:")
+    with tab1:
+        st.markdown("#### Load a Detailed Military Scenario")
+        st.markdown("Select from pre-configured scenarios with full CONOP details:")
 
         # Available scenarios
         scenarios = {
@@ -2526,9 +2633,9 @@ def show_guided_welcome():
                         st.session_state.workflow_step = WorkflowStep.FORCE_GENERATION
                         st.rerun()
 
-    with col2:
-        st.markdown("#### ⚡ Try a Demo")
-        st.markdown("See the system in action with sample data:")
+    with tab2:
+        st.markdown("#### Try the System with Demo Data")
+        st.markdown("See the EMD optimizer in action with a pre-configured demo:")
 
         with st.expander("📋 Demo Scenario - CONOP", expanded=False):
             st.markdown("""
@@ -2854,16 +2961,17 @@ def show_guided_manning_requirements():
         col1, col2, col3 = st.columns(3)
 
         with col1:
-            cap_name = st.text_input("Capability Name", placeholder="e.g., Rifle Squad")
+            cap_name = st.text_input("Capability Name", placeholder="e.g., Infantry (11B)")
             mos = st.text_input("Primary MOS", placeholder="e.g., 11B")
 
         with col2:
-            rank = st.selectbox("Minimum Rank", ["E-4", "E-5", "E-6", "E-7", "E-8"])
+            rank = st.selectbox("Minimum Rank", ["E-3", "E-4", "E-5", "E-6", "E-7", "E-8"])
             priority = st.selectbox("Priority", [1, 2, 3], format_func=lambda x: ["🔴 Critical", "🟡 High", "🟢 Normal"][x-1])
 
         with col3:
-            quantity = st.number_input("How many teams?", min_value=1, max_value=50, value=1)
-            team_size = st.number_input("Team size", min_value=1, max_value=20, value=1)
+            quantity = st.number_input("Number of Billets", min_value=1, max_value=500, value=10,
+                                      help="Total number of billets required")
+            st.info("💡 Enter total billets needed (e.g., 135 for 135 infantry positions)")
 
         submitted = st.form_submit_button("➕ Add Capability", type="primary", use_container_width=True)
 
@@ -2871,15 +2979,16 @@ def show_guided_manning_requirements():
             if 'capabilities' not in st.session_state:
                 st.session_state.capabilities = []
 
+            # Keep team_size in backend (always 1 for user-entered capabilities)
             st.session_state.capabilities.append({
                 "name": cap_name,
                 "mos": mos,
                 "rank": rank,
                 "quantity": quantity,
-                "team_size": team_size,
+                "team_size": 1,
                 "priority": priority
             })
-            st.success(f"✅ Added {quantity}x {cap_name}")
+            st.success(f"✅ Added {quantity} {cap_name} billets")
             st.rerun()
 
     # Show current capabilities
@@ -2888,18 +2997,21 @@ def show_guided_manning_requirements():
         st.markdown("#### Current Requirements")
 
         caps_df = pd.DataFrame(st.session_state.capabilities)
-        caps_df["Total Soldiers"] = caps_df["quantity"] * caps_df["team_size"]
+        # Show billets directly (quantity since team_size is always 1)
+        # Calculate total billets for display
+        caps_df["Billets"] = caps_df["quantity"] * caps_df.get("team_size", 1)
 
         # Summary metrics
-        col1, col2, col3 = st.columns(3)
+        col1, col2 = st.columns(2)
         with col1:
             st.metric("Capabilities", len(caps_df))
         with col2:
-            st.metric("Total Teams", caps_df["quantity"].sum())
-        with col3:
-            st.metric("Total Billets", caps_df["Total Soldiers"].sum())
+            st.metric("Total Billets", caps_df["Billets"].sum())
 
-        st.dataframe(caps_df, use_container_width=True)
+        # Display only relevant columns
+        display_df = caps_df[["name", "mos", "rank", "Billets", "priority"]].copy()
+        display_df.columns = ["Capability", "MOS", "Rank", "Billets", "Priority"]
+        st.dataframe(display_df, use_container_width=True)
 
         # Clear button
         if st.button("🗑️ Clear All"):

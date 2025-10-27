@@ -111,10 +111,11 @@ class EMD:
             "priority_weight_low": 1.0,
             "priority_weight_med": 1.5,
             "priority_weight_high": 2.0,
-            # NEW: Unit cohesion and readiness
+            # NEW: Unit cohesion and readiness (battalion-level focus)
             "unit_cohesion_bonus": -500,           # bonus for keeping teams together
             "unit_split_penalty": 300,             # penalty for breaking up teams
-            "cross_unit_penalty": 200,             # penalty per additional unit sourced
+            "cross_battalion_penalty": 5000,       # high penalty for sourcing across battalions
+            "same_battalion_bonus": -1000,         # strong bonus for same battalion sourcing
             "readiness_failure_penalty": 2000,     # penalty per readiness gate failed
             "training_currency_bonus": -100,       # bonus for all training current
             # NEW: Geographic distance penalties
