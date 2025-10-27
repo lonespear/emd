@@ -3338,22 +3338,15 @@ def show_guided_review_results():
             st.markdown("---")
             section_divider("Export Results", "📦")
 
-            col1, col2 = st.columns(2)
-
-            with col1:
-                csv = assignments.to_csv(index=False)
-                st.download_button(
-                    label="📥 Download Assignments (CSV)",
-                    data=csv,
-                    file_name="manning_assignments.csv",
-                    mime="text/csv",
-                    use_container_width=True
-                )
-
-            with col2:
-                if st.button("📊 Explore Trade-offs", use_container_width=True):
-                    st.session_state.workflow_step = WorkflowStep.COMPLETE
-                    st.rerun()
+            # Download button only - no navigation to other pages
+            csv = assignments.to_csv(index=False)
+            st.download_button(
+                label="📥 Download Assignments (CSV)",
+                data=csv,
+                file_name="manning_assignments.csv",
+                mime="text/csv",
+                use_container_width=False
+            )
 
     else:
         st.warning("⚠️ No results available. Please run optimization first.")
