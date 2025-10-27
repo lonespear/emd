@@ -94,67 +94,67 @@ def inject_dark_mode_css():
     """Inject military dark theme CSS."""
     st.markdown("""
     <style>
-    /* Military Dark Theme */
+    /* Military Dark Theme - Gray #4 */
     [data-testid="stAppViewContainer"] {
-        background-color: #1a1f1a;
-        color: #c8d4c8;
+        background-color: #2d2d2d;
+        color: #d4d4d4;
     }
 
     [data-testid="stSidebar"] {
-        background-color: #0f140f;
+        background-color: #242424;
     }
 
     [data-testid="stHeader"] {
-        background-color: #0f140f;
+        background-color: #242424;
     }
 
     /* Text colors */
     .stMarkdown, p, span, label {
-        color: #c8d4c8 !important;
+        color: #d4d4d4 !important;
     }
 
     h1, h2, h3, h4, h5, h6 {
-        color: #8fbc8f !important;
+        color: #9ec49e !important;
     }
 
     /* Metrics and cards */
     [data-testid="stMetricValue"] {
-        color: #9ec49e !important;
+        color: #a8d8a8 !important;
     }
 
     /* Buttons */
     .stButton>button {
-        background-color: #2d3d2d;
-        color: #c8d4c8;
-        border: 1px solid #3d4d3d;
+        background-color: #3a3a3a;
+        color: #d4d4d4;
+        border: 1px solid #4a4a4a;
     }
 
     .stButton>button:hover {
-        background-color: #3d4d3d;
-        border-color: #556b55;
+        background-color: #4a4a4a;
+        border-color: #6a6a6a;
     }
 
     /* Input fields */
     input, textarea, select {
-        background-color: #2d3d2d !important;
-        color: #c8d4c8 !important;
-        border: 1px solid #3d4d3d !important;
+        background-color: #3a3a3a !important;
+        color: #d4d4d4 !important;
+        border: 1px solid #4a4a4a !important;
     }
 
     /* Dataframes and tables */
     [data-testid="stDataFrame"] {
-        background-color: #1a1f1a;
+        background-color: #2d2d2d;
     }
 
     /* Expanders */
     [data-testid="stExpander"] {
-        background-color: #2d3d2d;
-        border: 1px solid #3d4d3d;
+        background-color: #3a3a3a;
+        border: 1px solid #4a4a4a;
     }
 
     /* Success/Warning/Error boxes */
     .stAlert {
-        background-color: #2d3d2d;
+        background-color: #3a3a3a;
         border-left-width: 4px;
     }
     </style>
