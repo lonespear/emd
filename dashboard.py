@@ -3334,6 +3334,89 @@ def show_guided_review_results():
             ]
             quick_stats_bullets(stats)
 
+            # ====================
+            # CRITICAL GAPS ANALYSIS
+            # ====================
+            if fill_rate < 1.0:
+                st.markdown("---")
+                section_divider("Critical Gaps & Risks", "🚨")
+
+                if "capability_name" in assignments.columns:
+                    required_caps = st.session_state.get('capabilities', [])
+                    filled_caps = assignments.groupby("capability_name")["billet_id"].count().to_dict()
+
+                    gaps = []
+                    for cap in required_caps:
+                        cap_name = cap["name"]
+                        required = cap["quantity"] * cap.get("team_size", 1)
+                        filled = filled_caps.get(cap_name, 0)
+
+                        if filled < required:
+                            gap_pct = (required - filled) / required
+                            gaps.append({
+                                "Capability": cap_name,
+                                "Required": required,
+                                "Filled": filled,
+                                "Gap": required - filled,
+                                "Gap %": f"{gap_pct:.1%}",
+                                "Risk": "🔴 HIGH" if gap_pct > 0.15 else "🟡 MEDIUM" if gap_pct > 0.05 else "🟢 LOW"
+                            })
+
+                    if gaps:
+                        gaps_df = pd.DataFrame(gaps).sort_values("Gap", ascending=False)
+                        st.dataframe(gaps_df, use_container_width=True)
+
+                        st.markdown("**Recommended Actions:**")
+                        for idx, gap in enumerate(gaps[:3]):
+                            st.markdown(f"{idx+1}. **{gap['Capability']}**: Source {gap['Gap']} additional personnel or reduce requirement")
+                    else:
+                        st.info("✅ No capability-level gaps identified.")
+
+            # ====================
+            # SOURCING BREAKDOWN
+            # ====================
+            st.markdown("---")
+            section_divider("Sourcing by Unit", "🏢")
+
+            if "uic" in assignments.columns:
+                sourcing = assignments.groupby("uic").agg({
+                    "soldier_id": "count",
+                    "pair_cost": ["mean", "sum"]
+                }).round(0)
+                sourcing.columns = ["Soldiers Sourced", "Avg Cost per Soldier", "Total Unit Cost"]
+                sourcing = sourcing.sort_values("Soldiers Sourced", ascending=False)
+
+                # Add unit names if available
+                if st.session_state.generator and st.session_state.generator.units:
+                    unit_names = []
+                    for uic in sourcing.index:
+                        unit = st.session_state.generator.units.get(uic)
+                        unit_names.append(unit.short_name if unit else uic)
+                    sourcing.insert(0, "Unit Name", unit_names)
+
+                st.dataframe(sourcing, use_container_width=True)
+
+                # Plain language summary
+                top_unit_uic = sourcing.index[0]
+                top_unit_count = int(sourcing.iloc[0]["Soldiers Sourced"])
+                total_sourced = int(sourcing["Soldiers Sourced"].sum())
+                top_unit_pct = (top_unit_count / total_sourced) * 100
+
+                if st.session_state.generator and st.session_state.generator.units:
+                    unit = st.session_state.generator.units.get(top_unit_uic)
+                    top_unit_name = unit.short_name if unit else top_unit_uic
+                else:
+                    top_unit_name = top_unit_uic
+
+                st.info(f"📊 **Primary Source:** {top_unit_name} provides {top_unit_count} soldiers ({top_unit_pct:.0f}% of total). "
+                        f"{'Battalion integrity maintained.' if top_unit_pct > 50 else 'Personnel sourced from multiple battalions.'}")
+
+            # ====================
+            # GEOGRAPHIC ANALYSIS
+            # ====================
+            if GEOGRAPHIC_AVAILABLE and st.session_state.get('exercise_location'):
+                show_geographic_analysis(assignments, st.session_state.exercise_location)
+
             # Export options
             st.markdown("---")
             section_divider("Export Results", "📦")
