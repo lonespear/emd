@@ -44,6 +44,21 @@ from deployment_tracker import OPTEMPOTracker, AvailabilityAnalyzer
 from guided_workflow import GuidedWorkflow, WorkflowStep
 from preset_templates import TEMPLATES, get_template, get_all_templates
 
+# UI Components and Scenarios
+from ui_components import (
+    status_banner, critical_alert, hero_metric, gauge_chart,
+    risk_matrix_card, section_divider, scenario_card,
+    commanders_recommendation, quick_stats_bullets
+)
+from scenarios import (
+    ScenarioVignette,
+    NTC_BRIGADE_ROTATION, JRTC_SHORT_NOTICE,
+    EUCOM_POLAND, INDOPACOM_GUAM,
+    DIVISION_READY_BRIGADE, POST_DEPLOYMENT_REFIT,
+    RIMPAC_EXERCISE, SOF_SUPPORT,
+    OPFOR_AUGMENTATION, EMERGENCY_EDRE, HURRICANE_DSCA
+)
+
 # Qualification system imports
 try:
     from qualifications import QualificationFilter, FilterCriterion, FilterGroup
@@ -2431,55 +2446,85 @@ def show_guided_welcome():
     col1, col2 = st.columns(2)
 
     with col1:
-        st.markdown("#### 🎯 Load a Preset Template")
-        st.markdown("Start with a pre-configured scenario:")
+        st.markdown("#### 🎯 Load a Scenario Vignette")
+        st.markdown("Start with a detailed military scenario:")
 
-        template_options = {
-            "None": None,
-            "NTC Rotation": "ntc",
-            "JRTC Exercise": "jrtc",
-            "EUCOM Deployment": "eucom",
-            "INDOPACOM Deployment": "indopacom"
+        # Available scenarios
+        scenarios = {
+            "NTC Brigade Rotation": NTC_BRIGADE_ROTATION,
+            "Short-Notice JRTC Fill": JRTC_SHORT_NOTICE,
+            "EUCOM Poland Rotation": EUCOM_POLAND,
+            "INDOPACOM Crisis Response": INDOPACOM_GUAM,
+            "Division Ready Brigade": DIVISION_READY_BRIGADE,
+            "Post-Deployment Refit": POST_DEPLOYMENT_REFIT,
+            "RIMPAC Exercise": RIMPAC_EXERCISE,
+            "SOF Support Package": SOF_SUPPORT,
+            "OPFOR Augmentation": OPFOR_AUGMENTATION,
+            "Hurricane DSCA": HURRICANE_DSCA
         }
 
-        selected_template = st.selectbox(
-            "Choose a template:",
-            list(template_options.keys()),
-            help="Pre-built scenarios with realistic force and requirements"
+        # Category filter
+        selected_category = st.selectbox(
+            "Filter by category:",
+            ["All", "Combat Training Center", "Operational Deployment", "Force Generation", "Joint Operations", "Specialized Mission"],
+            help="Filter scenarios by mission type"
         )
 
-        if selected_template != "None":
-            template_key = template_options[selected_template]
-            template = get_template(template_key)
+        # Filter scenarios by category
+        if selected_category != "All":
+            filtered_scenarios = {k: v for k, v in scenarios.items() if v.category == selected_category}
+        else:
+            filtered_scenarios = scenarios
 
-            if template:
-                with st.expander("ℹ️ Template Details"):
-                    st.markdown(f"**{template.name}**")
-                    st.markdown(template.description)
-                    st.markdown(f"- **Location:** {template.location}")
-                    st.markdown(f"- **Duration:** {template.duration_days} days")
-                    st.markdown(f"- **Force Size:** {template.force_size:,} soldiers")
-                    st.markdown(f"- **Capabilities:** {len(template.capabilities)} types")
+        if not filtered_scenarios:
+            st.info("No scenarios match this category.")
+        else:
+            # Show scenario cards
+            for scenario_name, scenario in list(filtered_scenarios.items())[:3]:  # Show first 3
+                is_selected = st.session_state.get('selected_scenario') == scenario.id
 
-                if st.button(f"📋 Load {selected_template}", type="primary", use_container_width=True):
-                    # Convert dataclass to dict for loading
-                    template_dict = {
-                        "name": template.name,
-                        "capabilities": template.capabilities,
-                        "optimization_weights": template.optimization_weights,
-                        "force_size": template.force_size,
-                        "division_type": template.division_type,
-                        "location": template.location,
-                        "duration_days": template.duration_days
-                    }
+                # Create scenario card
+                with st.container():
+                    scenario_card(
+                        name=scenario.name,
+                        category=scenario.category,
+                        description=scenario.mission[:150] + "...",  # Truncate mission statement
+                        force_size=scenario.force_size,
+                        duration=scenario.duration_days,
+                        selected=is_selected
+                    )
 
-                    GuidedWorkflow.load_template_configuration(template_dict)
-                    st.success(f"✅ Loaded {template.name} template!")
-                    st.info("📍 Advancing to Force Generation step...")
+                    # Show detailed CONOP in expander
+                    with st.expander(f"📋 View Full CONOP - {scenario.name}"):
+                        st.markdown(f"**SITUATION:**\n{scenario.situation}")
+                        st.markdown(f"\n**MISSION:**\n{scenario.mission}")
+                        st.markdown(f"\n**EXECUTION:**\n{scenario.execution}")
+                        st.markdown(f"\n**REQUIRED CAPABILITIES:**\n{scenario.required_capabilities_summary}")
+                        st.markdown(f"\n**OPTIMIZATION FOCUS:**\n{scenario.priority_focus}")
 
-                    # Skip to force generation
-                    st.session_state.workflow_step = WorkflowStep.FORCE_GENERATION
-                    st.rerun()
+                    # Load button
+                    if st.button(f"📋 Load {scenario.name}", key=f"load_{scenario.id}", type="primary" if not is_selected else "secondary", use_container_width=True):
+                        # Load scenario configuration
+                        st.session_state.selected_scenario = scenario.id
+                        st.session_state.capabilities = scenario.capabilities
+                        st.session_state.workflow_data['weights'] = scenario.optimization_weights
+                        st.session_state.workflow_data['force_size'] = scenario.force_size
+                        st.session_state.workflow_data['location'] = scenario.location
+                        st.session_state.exercise_location = scenario.location
+                        st.session_state.workflow_data['template_used'] = scenario.name
+                        st.session_state.workflow_data['duration_days'] = scenario.duration_days
+                        st.session_state.workflow_data['scenario_conop'] = {
+                            'situation': scenario.situation,
+                            'mission': scenario.mission,
+                            'execution': scenario.execution
+                        }
+
+                        st.success(f"✅ Loaded {scenario.name} scenario!")
+                        st.info("📍 Advancing to Force Generation step...")
+
+                        # Skip to force generation
+                        st.session_state.workflow_step = WorkflowStep.FORCE_GENERATION
+                        st.rerun()
 
     with col2:
         st.markdown("#### ⚡ Try a Demo")
@@ -3064,46 +3109,122 @@ def show_guided_review_results():
 
     if st.session_state.get('summary'):
         summary = st.session_state.summary
+        fill_rate = summary.get('fill_rate', 0)
 
-        # Key metrics
+        # Status banner at top
+        if fill_rate >= 0.95:
+            status = "MISSION CAPABLE"
+            message = "All critical positions filled"
+        elif fill_rate >= 0.85:
+            status = "MARGINAL"
+            message = "Most positions filled, some gaps remain"
+        else:
+            status = "NOT MISSION CAPABLE"
+            message = "Significant manning shortfalls"
+
+        status_banner(status, fill_rate, message)
+
+        st.markdown("---")
+
+        # Key metrics using hero metrics
         col1, col2, col3, col4 = st.columns(4)
 
         with col1:
-            st.metric(
+            hero_metric(
                 "Fill Rate",
-                f"{summary.get('fill_rate', 0):.1%}",
-                delta=None
+                f"{fill_rate:.1%}",
+                delta="+10%" if fill_rate >= 0.90 else None,
+                help_text="Percentage of billets successfully filled"
             )
 
         with col2:
-            st.metric(
+            hero_metric(
                 "Total Cost",
-                f"${summary.get('total_cost', 0):,.0f}"
+                f"${summary.get('total_cost', 0):,.0f}",
+                help_text="Estimated TDY and cross-leveling costs"
             )
 
         with col3:
-            st.metric(
+            hero_metric(
                 "Cohesion Score",
-                f"{summary.get('cohesion_score', 0):.1f}"
+                f"{summary.get('cohesion_score', 0):.1f}",
+                help_text="Unit integrity preservation metric"
             )
 
         with col4:
-            st.metric(
+            hero_metric(
                 "Soldiers Assigned",
-                f"{summary.get('soldiers_assigned', 0):,}"
+                f"{summary.get('soldiers_assigned', 0):,}",
+                help_text="Total personnel in manning document"
+            )
+
+        # Gauge charts for visual impact
+        st.markdown("---")
+        section_divider("Readiness Indicators", "📊")
+
+        col1, col2 = st.columns(2)
+
+        with col1:
+            gauge_chart(
+                value=fill_rate * 100,
+                title="Fill Rate",
+                thresholds=[85, 95, 100]
+            )
+
+        with col2:
+            # Cohesion as percentage (normalized)
+            cohesion_pct = min(100, max(0, summary.get('cohesion_score', 0) / 10 * 100))
+            gauge_chart(
+                value=cohesion_pct,
+                title="Unit Cohesion",
+                thresholds=[60, 80, 100]
+            )
+
+        # Commander's Recommendation
+        st.markdown("---")
+
+        if fill_rate >= 0.95:
+            commanders_recommendation(
+                recommendation="APPROVE",
+                rationale=f"Force meets readiness standards with {fill_rate:.1%} fill rate. All critical capabilities manned. Recommend proceeding with mission.",
+                status="approve"
+            )
+        elif fill_rate >= 0.85:
+            commanders_recommendation(
+                recommendation="APPROVE WITH RISK",
+                rationale=f"Force at {fill_rate:.1%} fill rate with acceptable gaps. Monitor critical shortfalls. Consider mitigation strategies.",
+                status="caution"
+            )
+        else:
+            commanders_recommendation(
+                recommendation="DISAPPROVE",
+                rationale=f"Force at {fill_rate:.1%} fill rate below acceptable standards. Critical capability gaps present. Recommend additional sourcing or mission modification.",
+                status="reject"
             )
 
         # Assignments table
         if st.session_state.get('assignments') is not None:
             st.markdown("---")
-            st.markdown("#### Assignment Details")
+            section_divider("Assignment Details", "📋")
 
             assignments = st.session_state.assignments
             st.dataframe(assignments.head(20), use_container_width=True)
 
+            # Quick stats bullets
+            total_assigned = len(assignments)
+            unique_units = assignments['soldier_unit'].nunique() if 'soldier_unit' in assignments.columns else 0
+            avg_cost = assignments['pair_cost'].mean() if 'pair_cost' in assignments.columns else 0
+
+            stats = [
+                f"✅ {total_assigned:,} soldiers assigned",
+                f"🏢 {unique_units} units sourced",
+                f"💵 ${avg_cost:,.0f} avg cost per assignment"
+            ]
+            quick_stats_bullets(stats)
+
             # Export options
             st.markdown("---")
-            st.markdown("#### Export Results")
+            section_divider("Export Results", "📦")
 
             col1, col2 = st.columns(2)
 
